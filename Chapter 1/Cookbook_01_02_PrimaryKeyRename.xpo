@@ -1,0 +1,55 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: CustAccountRename unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #CustAccountRename
+    #static void CustAccountRename(Args _args)
+    #{
+    #    CustTable custTable;
+    #
+    #    select firstOnly custTable
+    #        where custTable.AccountNum == '1103';
+    #
+    #    if (custTable.RecId)
+    #    {
+    #        custTable.AccountNum = '1103_';
+    #        custTable.renamePrimaryKey();
+    #    }
+    #}
+    #
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{11C8E02F-C4DE-4B8A-A625-A17FD98009A6}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_02_PrimaryKeyRename unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_02_PrimaryKeyRename
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_02_PrimaryKeyRename
+    Origin              #{5B9018BB-5FEC-4FE7-AD40-0377F3D4133A}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #CustAccountRename
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

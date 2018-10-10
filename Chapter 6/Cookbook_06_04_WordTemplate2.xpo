@@ -1,0 +1,145 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: CreateWordTable unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #CreateWordTable
+    #static void CreateWordTable(Args _args)
+    #{
+    #    TableId          tableId;
+    #    COM              word;
+    #    COM              documents;
+    #    COM              document;
+    #    COM              bookmarks;
+    #    COM              bookmark;
+    #    COM              tables;
+    #    COM              table;
+    #    COM              rows;
+    #    COM              row;
+    #    COM              cells;
+    #    COM              cell;
+    #    COM              range;
+    #    Query            query;
+    #    QueryRun         queryRun;
+    #    Common           common;
+    #    TmpSysTableField fields;
+    #    DictField        dictField;
+    #    int              i;
+    #
+    #    void processBookmark(str _name, str _value)
+    #    {
+    #        if (!bookmarks.exists(_name))
+    #        {
+    #            return;
+    #        }
+    #        bookmark = bookmarks.item(_name);
+    #        range    = bookmark.range();
+    #        range.insertAfter(_value);
+    #    }
+    #
+    #    #define.Word('Word.Application')
+    #    #define.template(@'C:\temp\table.dotx');
+    #
+    #    tableId = tableNum(LedgerParameters);
+    #
+    #    try
+    #    {
+    #        word = new COM(#Word);
+    #    }
+    #    catch (Exception::Internal)
+    #    {
+    #        if (word == null)
+    #        {
+    #            throw error("Microsoft Word is not installed");
+    #        }
+    #    }
+    #
+    #    documents = word.documents();
+    #    document  = documents.add(#template);
+    #    bookmarks = document.bookmarks();
+    #    processBookmark(
+    #        'TableName',
+    #        tableId2pname(tableId));
+    #
+    #    tables = document.tables();
+    #    table  = tables.Item(1);
+    #    rows   = table.rows();
+    #
+    #    query = new Query();
+    #    query.addDataSource(tableId);
+    #
+    #    queryRun = new QueryRun(query);
+    #    queryRun.next();
+    #
+    #    common = queryRun.get(tableId);
+    #
+    #    fields = TmpSysTableField::findTableFields(
+    #        null, tableId);
+    #
+    #    while select fields
+    #    {
+    #        dictField = new DictField(
+    #            tableId,
+    #            fields.FieldId);
+    #
+    #        if (dictField.isSystem())
+    #        {
+    #            continue;
+    #        }
+    #
+    #        i++;
+    #
+    #        row   = rows.item(i);
+    #        cells = row.cells();
+    #
+    #        cell  = cells.item(1);
+    #        range = cell.range();
+    #        range.insertAfter(fields.FieldLabel);
+    #
+    #        cell  = cells.item(2);
+    #        range = cell.range();
+    #        range.insertAfter(
+    #            strFmt('%1', common.(fields.FieldId)));
+    #
+    #        row = rows.add();
+    #    }
+    #
+    #    row.delete();
+    #
+    #    word.visible(true);
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{341A3DAE-B168-43E9-B214-E60746B99B2C}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_06_04_WordTemplate2 unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_06_04_WordTemplate2
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_06_04_WordTemplate2
+    Origin              #{C1789D30-01E8-4D87-B296-5C2E49B41719}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #CreateWordTable
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

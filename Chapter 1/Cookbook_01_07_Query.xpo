@@ -1,0 +1,81 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: ProjTableQuery unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #ProjTableQuery
+    #static void ProjTableQuery(Args _args)
+    #{
+    #    Query                   query;
+    #    QueryBuildDataSource    qbds1;
+    #    QueryBuildDataSource    qbds2;
+    #    QueryBuildRange         qbr1;
+    #    QueryBuildRange         qbr2;
+    #    QueryRun                queryRun;
+    #    ProjTable               projTable;
+    #
+    #    query = new Query();
+    #
+    #    qbds1 = query.addDataSource(tableNum(ProjTable));
+    #    qbds1.addSortField(
+    #        fieldNum(ProjTable, Name),
+    #        SortOrder::Ascending);
+    #
+    #    qbr1 = qbds1.addRange(fieldNum(ProjTable,Type));
+    #    qbr1.value(queryvalue(ProjType::FixedPrice));
+    #
+    #    qbr2 = qbds1.addRange(fieldNum(ProjTable,ProjId));
+    #    qbr2.value(queryvalue('2') + '*');
+    #
+    #    qbds2 = qbds1.addDataSource(tableNum(ProjEmplTrans));
+    #    qbds2.relations(true);
+    #    qbds2.joinMode(JoinMode::ExistsJoin);
+    #
+    #    queryRun = new QueryRun(query);
+    #
+    #    while (queryRun.next())
+    #    {
+    #        projTable = queryRun.get(tableNum(ProjTable));
+    #        info(strFmt(
+    #            "%1, %2, %3",
+    #            projTable.ProjId,
+    #            projTable.Name,
+    #            projTable.Type));
+    #    }
+    #}
+    #
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{97A961C7-DD6F-4831-8FA3-1947C0440E4F}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_07_Query unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_07_Query
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_07_Query
+    Origin              #{64973908-E8B3-4626-B10B-24C4E64F1B28}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #ProjTableQuery
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

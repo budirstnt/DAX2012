@@ -1,0 +1,78 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: CreateExcelFile unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #CreateExcelFile
+    #static void CreateExcelFile(Args _args)
+    #{
+    #    CustTable           custTable;
+    #    SysExcelApplication excel;
+    #    SysExcelWorkbooks   workbooks;
+    #    SysExcelWorkbook    workbook;
+    #    SysExcelWorksheets  worksheets;
+    #    SysExcelWorksheet   worksheet;
+    #    SysExcelCells       cells;
+    #    SysExcelCell        cell;
+    #    int                 row;
+    #
+    #    excel = SysExcelApplication::construct();
+    #
+    #    workbooks   = excel.workbooks();
+    #
+    #    workbook    = workbooks.add();
+    #
+    #    worksheets  = workbook.worksheets();
+    #
+    #    worksheet   = worksheets.itemFromNum(1);
+    #
+    #    cells       = worksheet.cells();
+    #
+    #    cells.range('A:A').numberFormat('@');
+    #
+    #    while select custTable
+    #    {
+    #        row++;
+    #        cell = cells.item(row, 1);
+    #        cell.value(custTable.AccountNum);
+    #        cell = cells.item(row, 2);
+    #        cell.value(custTable.name());
+    #    }
+    #
+    #    excel.visible(true);
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{B8FBAA5A-120E-4120-A2AB-412FB1C32BA5}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_06_01_ExcelExport unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_06_01_ExcelExport
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_06_01_ExcelExport
+    Origin              #{02BCBAF6-4AEA-4A1F-A201-155AB8A9B322}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #CreateExcelFile
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

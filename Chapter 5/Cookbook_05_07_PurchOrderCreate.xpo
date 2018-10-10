@@ -1,0 +1,74 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: PurchOrderCreate unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #PurchOrderCreate
+    #static void PurchOrderCreate(Args _args)
+    #{
+    #    NumberSeq  numberSeq;
+    #    PurchTable purchTable;
+    #    PurchLine  purchLine;
+    #
+    #    ttsBegin;
+    #
+    #    numberSeq = NumberSeq::newGetNum(
+    #        PurchParameters::numRefPurchId());
+    #    numberSeq.used();
+    #
+    #    purchTable.PurchId = numberSeq.num();
+    #    purchTable.initValue();
+    #    purchTable.initFromVendTable(VendTable::find('1001'));
+    #
+    #    if (!purchTable.validateWrite())
+    #    {
+    #        throw Exception::Error;
+    #    }
+    #
+    #    purchTable.insert();
+    #
+    #    purchLine.PurchId = purchTable.PurchId;
+    #    purchLine.ItemId  = '1205';
+    #
+    #    purchLine.createLine(true, true, true, true, true, true);
+    #
+    #    ttsCommit;
+    #
+    #    info(strFmt(
+    #        "Purchase order '%1' has been created", purchTable.PurchId));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{5FBB908E-2848-4BBA-8A84-FAA9A484B58F}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_07_PurchOrderCreate unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_07_PurchOrderCreate
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_07_PurchOrderCreate
+    Origin              #{9423C532-0938-4634-B748-ADCB0F3080CE}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #PurchOrderCreate
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

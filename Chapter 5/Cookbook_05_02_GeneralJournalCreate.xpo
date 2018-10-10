@@ -1,0 +1,1036 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: LedgerJournalTransData unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #LedgerJournalTransData
+    PROPERTIES
+      Name                #LedgerJournalTransData
+      Extends             #JournalTransData
+      Origin              #{14A9184F-328F-4B80-A9A4-EF626EC7062A}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class LedgerJournalTransData extends JournalTransData
+        #{
+        #}
+        #
+      ENDSOURCE
+      SOURCE #create
+        #public void create(
+        #    boolean _doInsert        = false,
+        #    boolean _initVoucherList = true)
+        #{
+        #    lastLineNum++;
+        #
+        #    journalTrans.LineNum = lastLineNum;
+        #
+        #    if (journalTableData.journalVoucherNum())
+        #    {
+        #        this.initVoucher(
+        #            lastVoucher,
+        #            false,
+        #            _initVoucherList);
+        #    }
+        #
+        #    this.addTotal(false, false);
+        #
+        #    if (_doInsert)
+        #    {
+        #        journalTrans.doInsert();
+        #    }
+        #    else
+        #    {
+        #        journalTrans.insert();
+        #    }
+        #
+        #    if (journalTableData.journalVoucherNum())
+        #    {
+        #        lastVoucher = journalTrans.Voucher;
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: LedgerJournalStatic unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #LedgerJournalStatic
+    PROPERTIES
+      Name                #LedgerJournalStatic
+      Extends             #JournalStatic
+      Origin              #{2D131863-0000-1000-DF15-07B1BAC1446F}
+      LegacyId            #6243
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class LedgerJournalStatic extends JournalStatic
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #journalName
+        #JournalNameMap journalName()
+        #{
+        #    LedgerJournalName    ledgerJournalName;
+        #
+        #    return ledgerJournalName;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #journalTable
+        #JournalTableMap journalTable()
+        #{
+        #    LedgerJournalTable    ledgerJournalTable;
+        #
+        #    return ledgerJournalTable;
+        #}
+      ENDSOURCE
+      SOURCE #journalTrans
+        #JournalTransMap journalTrans()
+        #{
+        #    LedgerJournalTrans ledgerJournalTrans;
+        #
+        #    return ledgerJournalTrans;
+        #}
+      ENDSOURCE
+      SOURCE #journalTypeIdToEnum
+        #LedgerJournalType journalTypeIdToEnum(Integer _journalTypeId)
+        #{
+        #    LedgerJournalType journalType = _journalTypeId;
+        #
+        #    return journalType;
+        #}
+      ENDSOURCE
+      SOURCE #menuItemStrLines
+        #/// <summary>
+        #///    Returns the menu item for the passed in journal type's lines form.
+        #/// </summary>
+        #/// <param name="_journalType">
+        #///    The type of the journal to obtain the lines form menu item for.
+        #/// </param>
+        #/// <returns>
+        #///    The lines form's display menu item as a string.
+        #/// </returns>
+        #/// <remarks>
+        #///    This method is used by the <c>LedgerJournalTable</c> form to set the <c>correctmenu</c> item on the
+        #///    lines button.
+        #/// </remarks>
+        #public str menuItemStrLines(Integer _journalType = journalTable.JournalType)
+        #{
+        #    Integer journalTypeId = _journalType;
+        #
+        #    switch (journalTypeId)
+        #    {
+        #        case LedgerJournalType::Periodic :
+        #            return menuitemdisplaystr(LedgerJournalTransPeriodic);
+        #
+        #        case LedgerJournalType::PurchaseLedger :
+        #            return menuitemdisplaystr(LedgerJournalTransInvoiceregister);
+        #
+        #        case LedgerJournalType::Daily :
+        #            return menuitemdisplaystr(LedgerJournalTransDaily);
+        #
+        #        case LedgerJournalType::Approval :
+        #            return menuitemdisplaystr(LedgerJournalTransInvoiceApprove);
+        #
+        #        case LedgerJournalType::Payment :
+        #            return menuitemdisplaystr(LedgerJournalTransVendPaym);
+        #
+        #        case LedgerJournalType::CustPayment :
+        #            return menuitemdisplaystr(LedgerJournalTransCustPaym);
+        #
+        #        case LedgerJournalType::Cost :
+        #            return menuitemdisplaystr(LedgerJournalTransCost);
+        #
+        #        case LedgerJournalType::VendInvoiceRegister :
+        #            return menuitemdisplaystr(LedgerJournalTransVendInvoice);
+        #
+        #        case LedgerJournalType::Assets :
+        #            return menuitemdisplaystr(LedgerJournalTransAsset);
+        #
+        #        case LedgerJournalType::AssetBudgets :
+        #            return menuitemdisplaystr(LedgerJournalTransAssetBudget);
+        #
+        #        case LedgerJournalType::CustBillOfExchangeDraw :
+        #            return menuitemdisplaystr(LedgerJournalTransCustBillDraw);
+        #
+        #        case LedgerJournalType::VendPromissoryNoteDraw :
+        #            return menuitemdisplaystr(LedgerJournalTransVendNoteDraw);
+        #
+        #        case LedgerJournalType::CustBillOfExchangeProtest :
+        #            return menuitemdisplaystr(LedgerJournalTransCustBillProtest);
+        #
+        #        case LedgerJournalType::CustBillOfExchangeRedraw :
+        #            return menuitemdisplaystr(LedgerJournalTransCustBillRedraw);
+        #
+        #        case LedgerJournalType::VendPromissoryNoteRedraw :
+        #            return menuitemdisplaystr(LedgerJournalTransVendNoteRedraw);
+        #
+        #        case LedgerJournalType::CustPaymRemittance:
+        #            return menuitemdisplaystr(LedgerJournalTransCustRemittance);
+        #
+        #        case LedgerJournalType::VendPaymRemittance :
+        #            return menuitemdisplaystr(LedgerJournalTransVendRemittance);
+        #
+        #        case LedgerJournalType::CustBillOfExchangeSettle :
+        #            return menuitemdisplaystr(LedgerJournalTransCustBillSettle);
+        #
+        #        case LedgerJournalType::VendPromissoryNoteSettle :
+        #            return menuitemdisplaystr(LedgerJournalTransVendNoteSettle);
+        #
+        #        case LedgerJournalType::Allocation :
+        #            return menuitemdisplaystr(LedgerJournalTransAllocation);
+        #
+        #        case LedgerJournalType::Elimination :
+        #            return menuitemdisplaystr(LedgerJournalTransElimination);
+        #
+        #        case LedgerJournalType::BankChequeReversal :
+        #            return menuitemdisplaystr(LedgerJournalTransBankChequeReversal);
+        #
+        #        case LedgerJournalType::BankDepositPaymCancel :
+        #            return menuitemdisplaystr(LedgerJournalTransBankDepositPaymCancel);
+        #    }
+        #
+        #    return menuitemdisplaystr(LedgerJournalTransDaily);
+        #}
+      ENDSOURCE
+      SOURCE #nameFieldIdJournalNameId
+        #fieldId nameFieldIdJournalNameId()
+        #{
+        #    ;
+        #    nameFieldIdjournalNameId = fieldnum(LedgerJournalName, JournalName);
+        #
+        #    return nameFieldIdjournalNameId;
+        #}
+      ENDSOURCE
+      SOURCE #newJournalTransData
+        #JournalTransData newJournalTransData(
+        #    JournalTransMap  _journalTrans,
+        #    JournalTableData _journalTableData)
+        #{
+        #    return new LedgerJournalTransData(
+        #        _journalTrans,
+        #        _journalTableData);
+        #}
+      ENDSOURCE
+      SOURCE #newJournalVoucherObject
+        #JournalVoucherObject newJournalVoucherObject(JournalVoucherList _journalVoucherList)
+        #{
+        #    return new JournalVoucherObject(_journalVoucherList);
+        #}
+      ENDSOURCE
+      SOURCE #numRefJournalId
+        #NumberSequenceReference numRefJournalId()
+        #{
+        #    ;
+        #    return LedgerParameters::numRefJournalNum();
+        #}
+      ENDSOURCE
+      SOURCE #tableFieldIdJournalId
+        #fieldId tableFieldIdJournalId()
+        #{
+        #    return fieldnum(LedgerJournalTable, JournalNum);
+        #}
+        #
+        #
+      ENDSOURCE
+      SOURCE #wrongJournalTypeMessage
+        #public str wrongJournalTypeMessage(int _journalTypeId)
+        #{
+        #    return strfmt("@SYS22977", this.journalTypeIdToEnum(_journalTypeId));
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : DimensionAttributeValueCombination unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #DimensionAttributeValueCombination
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #DimensionAttributeValueCombination
+      Label               #@SYS129124
+      PreviewPartRef      #LedgerDimensionPreviewPart
+      TitleField1         #DisplayValue
+      ConfigurationKey    #LedgerBasic
+      SecurityKey         #LedgerTables
+      CacheLookup         #Found
+      CreateRecIdIndex    #Yes
+      SaveDataPerCompany  #No
+      TableGroup          #Main
+      PrimaryIndex        #RecId
+      ClusterIndex        #RecId
+      DeveloperDocumentation  #@SYS129293
+      Origin              #{6701EB3C-F04F-4F64-BF1A-6AD0CFD54253}
+      LegacyId            #385
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #AccountStructure
+        INT64
+        PROPERTIES
+          Name                #AccountStructure
+          Table               #DimensionAttributeValueCombination
+          Origin              #{379B9399-E874-45C8-88FC-27C05BE991A6}
+          LegacyId            #15
+          ExtendedDataType    #RefRecId
+        ENDPROPERTIES
+        
+      FIELD #DEL_AccountNum
+        STRING
+        PROPERTIES
+          Name                #DEL_AccountNum
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #DimensionAttributeValueCombination
+          IgnoreEDTRelation   #Yes
+          Origin              #{EFD153B6-EA03-47B6-86C7-FD312654E41F}
+          LegacyId            #12
+          ExtendedDataType    #LedgerAccount
+          StringSize          #20
+        ENDPROPERTIES
+        
+      FIELD #DEL_CombinationHash1
+        INT
+        PROPERTIES
+          Name                #DEL_CombinationHash1
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #DimensionAttributeValueCombination
+          Origin              #{5D1A373D-1AF3-457C-8751-2CAF156335F4}
+          LegacyId            #6
+          ExtendedDataType    #HashInt
+        ENDPROPERTIES
+        
+      FIELD #DEL_CombinationHash2
+        INT
+        PROPERTIES
+          Name                #DEL_CombinationHash2
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #DimensionAttributeValueCombination
+          Origin              #{98C5AB47-6D4B-4677-A7B0-E38BAE11A901}
+          LegacyId            #7
+          ExtendedDataType    #HashInt
+        ENDPROPERTIES
+        
+      FIELD #DEL_CombinationHash3
+        INT
+        PROPERTIES
+          Name                #DEL_CombinationHash3
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #DimensionAttributeValueCombination
+          Origin              #{D6FC4405-8578-4BD9-93E4-7E673C2A64B9}
+          LegacyId            #8
+          ExtendedDataType    #HashInt
+        ENDPROPERTIES
+        
+      FIELD #DEL_CombinationHash4
+        INT
+        PROPERTIES
+          Name                #DEL_CombinationHash4
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #DimensionAttributeValueCombination
+          Origin              #{7424C20B-269B-41AE-B1AB-3C17BDC8A36C}
+          LegacyId            #9
+          ExtendedDataType    #HashInt
+        ENDPROPERTIES
+        
+      FIELD #DEL_CombinationHash5
+        INT
+        PROPERTIES
+          Name                #DEL_CombinationHash5
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #DimensionAttributeValueCombination
+          Origin              #{F0DBB03A-B142-4369-91E2-C91C18FC8288}
+          LegacyId            #10
+          ExtendedDataType    #HashInt
+        ENDPROPERTIES
+        
+      FIELD #DEL_Dimension
+        STRING
+        PROPERTIES
+          Name                #DEL_Dimension
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #DimensionAttributeValueCombination
+          Origin              #{E1AA7649-4D8E-4EE2-B307-46A8D414D5E0}
+          LegacyId            #13
+          ExtendedDataType    #Dimension
+        ENDPROPERTIES
+        
+      FIELD #DisplayValue
+        STRING
+        PROPERTIES
+          Name                #DisplayValue
+          Label               #@SYS129012
+          Mandatory           #Yes
+          Table               #DimensionAttributeValueCombination
+          Origin              #{EAD27AA7-A7A2-44D4-8DB5-2AE04B7AC057}
+          LegacyId            #3
+          ExtendedDataType    #DimensionDisplayValue
+          StringSize          #500
+        ENDPROPERTIES
+        
+      FIELD #Hash
+        QUEUE
+        PROPERTIES
+          Name                #Hash
+          Visible             #No
+          Table               #DimensionAttributeValueCombination
+          Origin              #{F84AE876-4570-4230-8408-38EABD09F551}
+          LegacyId            #18
+          ExtendedDataType    #DimensionSHA1Hash
+        ENDPROPERTIES
+        
+      FIELD #LedgerDimensionType
+        ENUM
+        PROPERTIES
+          Name                #LedgerDimensionType
+          Table               #DimensionAttributeValueCombination
+          Origin              #{C99FFD42-6EAA-4C32-B0A2-5996224BC64D}
+          LegacyId            #17
+          EnumType            #LedgerDimensionType
+        ENDPROPERTIES
+        
+      FIELD #MainAccount
+        INT64
+        PROPERTIES
+          Name                #MainAccount
+          Table               #DimensionAttributeValueCombination
+          Origin              #{0FC14ECC-DF33-4B58-80EF-D658444E0716}
+          LegacyId            #14
+          ExtendedDataType    #RefRecId
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #DisplayValue
+          #LedgerDimensionType
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoLookup
+        PROPERTIES
+          Name                #AutoLookup
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #DisplayValue
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutoIdentification
+        PROPERTIES
+          Name                #AutoIdentification
+          AutoPopulate        #No
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #DisplayValue
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Miscellaneous
+        PROPERTIES
+          Name                #Miscellaneous
+          Label               #@SYS73543
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #DisplayValue
+          #Hash
+          #LedgerDimensionType
+          #MainAccount
+          #AccountStructure
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #HashIdx
+      PROPERTIES
+        Name                #HashIdx
+        AllowDuplicates     #No
+        Origin              #{68B208C1-9487-4202-B1A3-8A1784AFFF52}
+        LegacyId            #6
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Hash
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+      REFERENCE #AccountStructure
+        PROPERTIES
+          Name                #AccountStructure
+          Table               #DimensionHierarchy
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #AccountStructure
+          Role                #LedgerDimension
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #AccountStructure
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #MainAccount
+        PROPERTIES
+          Name                #MainAccount
+          Table               #MainAccount
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #MainAccount
+          Role                #LedgerDimension
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #MainAccount
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+    ENDREFERENCES
+    
+    DELETEACTIONS
+      #BudgetCheckResultErrorWarningDetail
+      PROPERTIES
+        Table               #BudgetCheckResultErrorWarningDetail
+        DeleteAction        #Cascade
+      ENDPROPERTIES
+      
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #isEqualTo
+        #/// <summary>
+        #/// Determines whether the specified combination is equal to this combination.
+        #/// </summary>
+        #/// <param name="_recId">
+        #/// The record ID of the <c>DimensionAttributeValueCombination</c> record to compare against.
+        #/// </param>
+        #/// <returns>
+        #/// true if the specified record is equal; otherwise, false.
+        #/// </returns>
+        #/// <remarks>
+        #/// This method performs a value comparison that is based on a hash, which itself contains the count
+        #/// and GUIDs of the contained hierarchies and dimension values, and the default account state. This
+        #/// does not contain any combination transient or transactional metadata information.
+        #/// </remarks>
+        #public boolean isEqualTo(RecId _recId)
+        #{
+        #    return (this.RecId == _RecId);
+        #}
+      ENDSOURCE
+      SOURCE #checkExist
+        #/// <summary>
+        #/// Determines whether the specified record exists in the DimensionAttributeValueCombination table; if not, an error message is displayed.
+        #/// </summary>
+        #/// <param name="_recId">
+        #/// The record ID of the DimensionAttributeValueCombination record.
+        #/// </param>
+        #/// <returns>
+        #/// true if the specified record exists; otherwise, false.
+        #/// </returns>
+        #public static boolean checkExist(RecId _recId)
+        #{
+        #    boolean isExisting = true;
+        #    ;
+        #
+        #    if (!DimensionAttributeValueCombination::exist(_recId))
+        #    {
+        #        isExisting = checkFailed(strfmt(DimensionAttributeValueCombination::txtNotExist(), _recId));
+        #    }
+        #
+        #    return isExisting;
+        #}
+      ENDSOURCE
+      SOURCE #equals
+        #/// <summary>
+        #/// Determines whether the two specified combinations are equal.
+        #/// </summary>
+        #/// <param name="_dimensionAttributeValueCombinationA">
+        #/// The first <c>DimensionAttributeValueCombination</c> record to compare.
+        #/// </param>
+        #/// <param name="_dimensionAttributeValueCombinationB">
+        #/// The second <c>DimensionAttributeValueCombination</c> record to compare.
+        #/// </param>
+        #/// <returns>
+        #/// true if the specified records are equal; otherwise, false.
+        #/// </returns>
+        #/// <remarks>
+        #/// This method performs a value comparison that is based on a hash, which itself contains the count
+        #/// and the GUIDs of the contained hierarchies and dimension values, and the default account state.
+        #/// This does not contain any combination transient or transactional metadata information.
+        #/// </remarks>
+        #public static boolean equals(DimensionAttributeValueCombination _dimensionAttributeValueCombinationA, DimensionAttributeValueCombination _dimensionAttributeValueCombinationB)
+        #{
+        #    return (_dimensionAttributeValueCombinationA.RecId == _dimensionAttributeValueCombinationB.RecId);
+        #}
+      ENDSOURCE
+      SOURCE #exist
+        #/// <summary>
+        #/// Determines whether the specified record in the <c>DimensionAttributeValueCombination</c> table
+        #/// exists.
+        #/// </summary>
+        #/// <param name="_recId">
+        #/// The record ID of the <c>DimensionAttributeValueCombination</c> record.
+        #/// </param>
+        #/// <returns>
+        #/// true if the specified record exists; otherwise, false.
+        #/// </returns>
+        #public static boolean exist(RecId _recId)
+        #{
+        #    DimensionAttributeValueCombination dimensionAttributeValueCombination;
+        #    ;
+        #
+        #    select firstonly
+        #        RecId
+        #    from
+        #        dimensionAttributeValueCombination
+        #    where
+        #        dimensionAttributeValueCombination.RecId == _recId;
+        #
+        #    return dimensionAttributeValueCombination != null;
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #/// <summary>
+        #/// Finds the specified record in the <c>DimensionAttributeValueCombination</c> table.
+        #/// </summary>
+        #/// <param name="_recId">
+        #/// The record ID of the <c>DimensionAttributeValueCombination</c> record.
+        #/// </param>
+        #/// <param name="_forUpdate">
+        #/// A Boolean value that indicates whether to read the record for update; optional.
+        #/// </param>
+        #/// <param name="_concurrencyModel">
+        #/// The concurrency model option to use when the record is read; optional.
+        #/// </param>
+        #/// <returns>
+        #/// A record in the <c>DimensionAttributeValueCombination</c> table; otherwise, an empty record.
+        #/// </returns>
+        #public static DimensionAttributeValueCombination find(
+        #    RecId _recId,
+        #    boolean _forUpdate = false,
+        #    ConcurrencyModel _concurrencyModel = ConcurrencyModel::Auto)
+        #{
+        #    DimensionAttributeValueCombination dimensionAttributeValueCombination;
+        #    ;
+        #
+        #    dimensionAttributeValueCombination.selectForUpdate(_forUpdate);
+        #    if (_forUpdate  && _concurrencyModel != ConcurrencyModel::Auto)
+        #    {
+        #        dimensionAttributeValueCombination.concurrencyModel(_concurrencyModel);
+        #    }
+        #
+        #    select firstonly
+        #            dimensionAttributeValueCombination
+        #        where
+        #            dimensionAttributeValueCombination.RecId == _recId;
+        #
+        #    return dimensionAttributeValueCombination;
+        #}
+      ENDSOURCE
+      SOURCE #getAccountFromDynamicAccount
+        #/// <summary>
+        #/// Gets the account value for the specified dynamic account.
+        #/// </summary>
+        #/// <param name="_ledgerDimension">
+        #/// The record ID of the <c>DimensionAttributeValueCombination</c> record of the type dynamic account.
+        #/// </param>
+        #/// <returns>
+        #/// The string value of the account if found; otherwise, empty string.
+        #/// </returns>
+        #public static LedgerJournalAC getAccountFromDynamicAccount(DimensionDynamicAccount _ledgerDimension)
+        #{
+        #    DimensionAttributeValueCombination      dimAttrValueCombination;
+        #
+        #    if (_ledgerDimension == 0)
+        #    {
+        #        return "";
+        #    }
+        #
+        #    select firstonly DisplayValue from dimAttrValueCombination
+        #        where dimAttrValueCombination.RecId == _ledgerDimension;
+        #
+        #    Debug::assert(dimAttrValueCombination.DisplayValue != "");
+        #    return dimAttrValueCombination.DisplayValue;
+        #}
+      ENDSOURCE
+      SOURCE #getDisplayValue
+        #/// <summary>
+        #/// Gets the display value of the specified record in the <c>DimensionAttributeValueCombination</c>
+        #/// table.
+        #/// </summary>
+        #/// <param name="_recId">
+        #/// The record ID of the <c>DimensionAttributeValueCombination</c> record.
+        #/// </param>
+        #/// <returns>
+        #/// The display value of the combination; otherwise, an empty string.
+        #/// </returns>
+        #public static DimensionDisplayValue getDisplayValue(RecId _recId)
+        #{
+        #    DimensionAttributeValueCombination dimensionAttributeValueCombination;
+        #
+        #    if (_recId == 0)
+        #    {
+        #        return "";
+        #    }
+        #
+        #    select firstonly DisplayValue from dimensionAttributeValueCombination
+        #        where dimensionAttributeValueCombination.RecId == _recId;
+        #
+        #    return dimensionAttributeValueCombination.DisplayValue;
+        #}
+      ENDSOURCE
+      SOURCE #getLedgerDimension
+        #public static LedgerDimensionAccount getLedgerDimension(
+        #    MainAccountNum _mainAccountId,
+        #    container      _dimensions,
+        #    container      _values)
+        #{
+        #    MainAccount                    mainAccount;
+        #    DimensionHierarchy             dimHier;
+        #    LedgerChartOfAccountsStructure coaStruct;
+        #    Map                            dimSpec;
+        #    Name                           dimName;
+        #    Name                           dimValue;
+        #    DimensionAttribute             dimAttr;
+        #    DimensionAttributeValue        dimAttrValue;
+        #    List                           dimSources;
+        #    DimensionDefaultingEngine      dimEng;
+        #    int                            i;
+        #
+        #    mainAccount = MainAccount::findByMainAccountId(
+        #        _mainAccountId);
+        #
+        #    if (!mainAccount.RecId)
+        #    {
+        #        return 0;
+        #    }
+        #
+        #    select firstOnly RecId from dimHier
+        #        where dimHier.StructureType == DimensionHierarchyType::AccountStructure
+        #           && dimHier.IsDraft == NoYes::No
+        #        exists join coaStruct
+        #            where coaStruct.ChartOfAccounts == LedgerChartOfAccounts::current()
+        #               && coaStruct.DimensionHierarchy == dimHier.RecId;
+        #    if (!dimHier.RecId)
+        #    {
+        #        return 0;
+        #    }
+        #
+        #    dimSpec = DimensionDefaultingEngine::createEmptyDimensionSpecifiers();
+        #
+        #    for (i = 1; i <= conLen(_dimensions); i++)
+        #    {
+        #        dimName  = conPeek(_dimensions, i);
+        #        dimValue = conPeek(_values, i);
+        #
+        #        dimAttr = DimensionAttribute::findByName(dimName);
+        #        if (!dimAttr.RecId)
+        #        {
+        #            continue;
+        #        }
+        #
+        #        dimAttrValue = DimensionAttributeValue::findByDimensionAttributeAndValue(
+        #            dimAttr, dimValue, false, true);
+        #        if (dimAttrValue.IsDeleted)
+        #        {
+        #            continue;
+        #        }
+        #
+        #        DimensionDefaultingEngine::insertDimensionSpecifer(
+        #            dimSpec,
+        #            dimAttr.RecId,
+        #            dimValue,
+        #            dimAttrValue.RecId,
+        #            dimAttrValue.HashKey);
+        #    }
+        #
+        #    dimSources = new List(Types::Class);
+        #    dimSources.addEnd(dimSpec);
+        #
+        #    dimEng = DimensionDefaultingEngine::constructForMainAccountId(
+        #        mainAccount.RecId,
+        #        dimHier.RecId);
+        #    dimEng.applyDimensionSources(dimSources);
+        #
+        #    return dimEng.getLedgerDimension();
+        #}
+      ENDSOURCE
+      SOURCE #getMainAccountFromLedgerDimension
+        #/// <summary>
+        #/// Gets the main account from a ledger dimension.
+        #/// </summary>
+        #/// <param name="_ledgerDimension">
+        #/// The ID of the <c>DimensionAttributeValueCombination</c> record for the ledger dimension.
+        #/// </param>
+        #/// <returns>
+        #/// The ledger account.
+        #/// </returns>
+        #public static MainAccountNum getMainAccountFromLedgerDimension(LedgerDimensionAccount _ledgerDimension)
+        #{
+        #    return DimensionStorage::getMainAccountNumFromLedgerDimension(_ledgerDimension);
+        #}
+      ENDSOURCE
+      SOURCE #getMainAcctAndStructFromLedgerDimension
+        #/// <summary>
+        #/// Gets the main account and account structure from a ledger dimension.
+        #/// </summary>
+        #/// <param name="_ledgerDimension">
+        #/// The ID of the <c>DimensionAttributeValueCombination</c> record for the ledger dimension.
+        #/// </param>
+        #/// <returns>
+        #/// A container that holds the ledger account and account structure.
+        #/// </returns>
+        #public static container getMainAcctAndStructFromLedgerDimension(LedgerDimensionAccount _ledgerDimension)
+        #{
+        #    if (_ledgerDimension == 0)
+        #    {
+        #        return ['', 0];
+        #    }
+        #
+        #    return [DimensionStorage::getMainAccountNumFromLedgerDimension(_ledgerDimension),
+        #            DimensionStorage::getAccountStructureFromLedgerDimension(_ledgerDimension)];
+        #}
+      ENDSOURCE
+      SOURCE #txtNotExist
+        #/// <summary>
+        #/// Gets the message to use when a specific record in the DimensionAttributeValueCombination table does not exist.
+        #/// </summary>
+        #/// <returns>
+        #/// The message that indicates a record does not exists.
+        #/// </returns>
+        #public static TxtNotExist txtNotExist()
+        #{
+        #    ;
+        #
+        #    return "@SYS102169";
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: LedgerJournalCreate unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #LedgerJournalCreate
+    #static void LedgerJournalCreate(Args _args)
+    #{
+    #    LedgerJournalTable      jourTable;
+    #    LedgerJournalTrans      jourTrans;
+    #    LedgerJournalTableData  jourTableData;
+    #    LedgerJournalTransData  jourTransData;
+    #    LedgerJournalStatic     jourStatic;
+    #    DimensionDynamicAccount ledgerDim;
+    #    DimensionDynamicAccount offsetLedgerDim;
+    #
+    #    ttsBegin;
+    #
+    #    ledgerDim =
+    #        DimensionAttributeValueCombination::getLedgerDimension(
+    #            '110180',
+    #            ['Department', 'CostCenter', 'ExpensePurpose'],
+    #            ['OU_2311', 'OU_3568', 'Training']);
+    #
+    #    offsetLedgerDim =
+    #        DimensionAttributeValueCombination::getLedgerDimension(
+    #            '170150',
+    #            ['Department', 'CostCenter', 'ExpensePurpose'],
+    #            ['OU_2311', 'OU_3568', 'Training']);
+    #
+    #    jourTableData = JournalTableData::newTable(jourTable);
+    #
+    #    jourTable.JournalNum  = jourTableData.nextJournalId();
+    #    jourTable.JournalType = LedgerJournalType::Daily;
+    #    jourTable.JournalName = 'GenJrn';
+    #
+    #    jourTableData.initFromJournalName(
+    #        LedgerJournalName::find(jourTable.JournalName));
+    #
+    #    jourStatic    = jourTableData.journalStatic();
+    #
+    #    jourTransData = jourStatic.newJournalTransData(
+    #        jourTrans,
+    #        jourTableData);
+    #
+    #    jourTransData.initFromJournalTable();
+    #
+    #    jourTrans.CurrencyCode          = 'USD';
+    #    jourTrans.initValue();
+    #    jourTrans.TransDate             = systemDateGet();
+    #    jourTrans.LedgerDimension       = ledgerDim;
+    #    jourTrans.Txt                   = 'General journal demo';
+    #    jourTrans.OffsetLedgerDimension = offsetLedgerDim;
+    #    jourTrans.AmountCurDebit        = 1000;
+    #
+    #    jourTransData.create();
+    #
+    #    jourTable.insert();
+    #
+    #    ttsCommit;
+    #
+    #    info(strFmt(
+    #        "Journal '%1' has been created", jourTable.JournalNum));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{617729D9-95C1-4189-A1E1-06A12C1CEB13}
+  ENDPROPERTIES
+  
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: VendPaymJournalCreate unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #VendPaymJournalCreate
+    #static void VendPaymJournalCreate(Args _args)
+    #{
+    #    LedgerJournalTable      jourTable;
+    #    LedgerJournalTrans      jourTrans;
+    #    LedgerJournalTableData  jourTableData;
+    #    LedgerJournalTransData  jourTransData;
+    #    LedgerJournalStatic     jourStatic;
+    #    DimensionDynamicAccount ledgerDim;
+    #    DimensionDynamicAccount offsetLedgerDim;
+    #
+    #    ttsBegin;
+    #
+    #    ledgerDim = DimensionStorage::getDynamicAccount(
+    #        '1001',
+    #        LedgerJournalACType::Vend);
+    #
+    #    offsetLedgerDim = DimensionStorage::getDynamicAccount(
+    #        'USA OPER',
+    #        LedgerJournalACType::Bank);
+    #
+    #    jourTableData = JournalTableData::newTable(jourTable);
+    #
+    #    jourTable.JournalNum  = jourTableData.nextJournalId();
+    #    jourTable.JournalType = LedgerJournalType::Payment;
+    #    jourTable.JournalName = 'APPay';
+    #
+    #    jourTableData.initFromJournalName(
+    #        LedgerJournalName::find(jourTable.JournalName));
+    #
+    #    jourStatic    = jourTableData.journalStatic();
+    #
+    #    jourTransData = jourStatic.newJournalTransData(
+    #        jourTrans,
+    #        jourTableData);
+    #
+    #    jourTransData.initFromJournalTable();
+    #
+    #    jourTrans.CurrencyCode          = 'USD';
+    #    jourTrans.initValue();
+    #    jourTrans.TransDate             = systemDateGet();
+    #    jourTrans.AccountType           = LedgerJournalACType::Vend;
+    #    jourTrans.LedgerDimension       = ledgerDim;
+    #    jourTrans.Txt                   = 'Vendor payment journal demo';
+    #    jourTrans.OffsetAccountType     = LedgerJournalACType::Bank;
+    #    jourTrans.OffsetLedgerDimension = offsetLedgerDim;
+    #    jourTrans.AmountCurDebit        = 1000;
+    #
+    #    jourTransData.create();
+    #
+    #    jourTable.insert();
+    #
+    #    ttsCommit;
+    #
+    #    info(strFmt(
+    #        "Journal '%1' has been created", jourTable.JournalNum));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{C309BB05-E0E0-457E-B585-ED2C99385071}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_02_GeneralJournalCreate unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_02_GeneralJournalCreate
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_02_GeneralJournalCreate
+    Origin              #{69E4E5D0-F968-4663-B241-39D226D7D916}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023868
+      NODETYPE 329
+      NAME #LedgerJournalTransData
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 6243
+      NODETYPE 329
+      NAME #LedgerJournalStatic
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 44
+      UTILOBJECTID 385
+      NODETYPE 204
+      NAME #DimensionAttributeValueCombination
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #LedgerJournalCreate
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #VendPaymJournalCreate
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

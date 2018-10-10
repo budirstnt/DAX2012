@@ -1,0 +1,1811 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #BankReconciliation
+  PROPERTIES
+    Name                #BankReconciliation
+    Origin              #{F739DD65-BCC2-4A12-BA2A-350C9281CA00}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    LedgerDimensionDefaultAccountController ledgerDimensionController;
+      #    DimensionDefaultingController           dimensionDefaultingController;
+      #    BankAccountStatement                    bankAccountStatement;
+      #    QueryBuildRange                         criteriaOpen;
+      #    QueryBuildRange                         accountStatementDate;
+      #    QueryBuildRange                         accountStatement;
+      #    QueryBuildRange                         bankTransDate;
+      #    QueryBuildRange                         reconciled;
+      #    BankTransTypeGroup                      bankTransTypeGroup;
+      #    Map                                     taxAmountCache;
+      #    Map                                     bankAccountTransMap;
+      #    NumberSeqFormHandler                    numberSeqFormHandler;
+      #    SysFormSplitter_Y                       fs;
+      #}
+    ENDSOURCE
+    SOURCE #bankAccountStatement
+      #BankAccountStatement bankAccountStatement()
+      #{
+      #    return bankAccountStatement;
+      #}
+    ENDSOURCE
+    SOURCE #bookRefresh
+      #void bookRefresh()
+      #{
+      #    FormRun callerForm = element.args().caller();
+      #    ;
+      #
+      #    if (callerForm)
+      #    {
+      #        callerForm.bookRefresh();
+      #    }
+      #
+      #    bankAccountTrans_ds.research();
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #void close()
+      #{
+      #    if (numberSeqFormHandler)
+      #    {
+      #        numberSeqFormHandler.formMethodClose();
+      #    }
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #firstField
+      #void firstField(int flags=1)
+      #{
+      #    ;
+      #    overview_Grid.setFocus();
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    super();
+      #
+      #    ledgerDimensionController = LedgerDimensionDefaultAccountController::construct(bankAccountTrans_ds, fieldstr(BankAccountTrans, LedgerDimension));
+      #    ledgerDimensionController.parmFilterLedgerPostingType(LedgerPostingType::LedgerJournal);
+      #
+      #    dimensionDefaultingController = DimensionDefaultingController::constructInTabWithValues(true, true, true, 0, this, tabFinancialDimensions, "@SYS138487");
+      #    dimensionDefaultingController.parmAttributeValueSetDataSource(bankAccountTrans_ds, fieldstr(BankAccountTrans, DefaultDimension));
+      #
+      #    if (element.args().dataset() == tablenum(BankAccountStatement))
+      #    {
+      #        bankAccountStatement = element.args().record();
+      #    }
+      #    else
+      #    {
+      #        throw error(Error::missingRecord(this.name()));
+      #    }
+      #
+      #    bankTransTypeGroup  = new BankTransTypeGroup(bankAccountStatement);
+      #    taxAmountCache      = new Map(typeName2Type(extendedTypeStr(recId)), Types::Real);
+      #
+      #    if (!LedgerParameters::find().AcknowledgementDate_IT)
+      #    {
+      #        bankAccountTrans_AcknowledgementDate.visible(false);
+      #    }
+      #
+      #    fs = new SysFormSplitter_Y(Splitter, Top, element);
+      #}
+    ENDSOURCE
+    SOURCE #newBankAccountStatement
+      #void newBankAccountStatement()
+      #{
+      #    endingBalance.realValue(bankAccountStatement.EndingBalance);
+      #    openingBalance.realValue(bankAccountStatement.openingBalance());
+      #    diffCleared.realValue(endingBalance.realValue() - openingBalance.realValue());
+      #
+      #    if (bankAccountStatement.ReconcileDate)
+      #    {
+      #        accountStatement.value(strfmt('(%1 == "%2")',
+      #                               fieldstr(BankAccountTrans,AccountStatement),
+      #                               bankAccountStatement.AccountStatementNum));
+      #        accountStatement.status(RangeStatus::Hidden);
+      #
+      #        accountStatementDate.value(strfmt('(%1 == %2)',
+      #                                   fieldstr(BankAccountTrans,AccountStatementDate),
+      #                                   date2StrXpp(bankAccountStatement.AccountStatementDate)
+      #                                   ));
+      #        accountStatementDate.status(RangeStatus::Hidden);
+      #
+      #        reconciled.value(SysQuery::value(NoYes::Yes));
+      #    }
+      #    else
+      #    {
+      #        accountStatement.value(strfmt('( (%1 == "%2") || (%3 == "" ) )',
+      #                               fieldstr(BankAccountTrans,AccountStatement),
+      #                               bankAccountStatement.AccountStatementNum,
+      #                               fieldstr(BankAccountTrans,AccountStatement)));
+      #        accountStatement.status(RangeStatus::Hidden);
+      #
+      #        accountStatementDate.value(strfmt('( (%1 == %2) || (%3 == %4) )',
+      #                                   fieldstr(BankAccountTrans,AccountStatementDate),
+      #                                   date2StrXpp(bankAccountStatement.AccountStatementDate),
+      #                                   fieldstr(BankAccountTrans,AccountStatementDate),
+      #                                   0));
+      #        accountStatementDate.status(RangeStatus::Hidden);
+      #
+      #        reconciled.value(SysQuery::value(NoYes::No));
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #setAllowCorrection
+      #void setAllowCorrection()
+      #{
+      #    if (bankAccountTrans.Manual)
+      #    {
+      #        bankAccountTrans_ds.object(fieldnum(BankAccountTrans, AmountCorrect)).allowEdit(false);
+      #        bankAccountTrans_AmountCorrected.allowEdit(false);
+      #    }
+      #    else
+      #    {
+      #        bankAccountTrans_ds.object(fieldnum(BankAccountTrans, AmountCorrect)).allowEdit(bankAccountTrans.Included);
+      #        bankAccountTrans_AmountCorrected.allowEdit(bankAccountTrans.Included);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #setAllowEdit
+      #void setAllowEdit()
+      #{
+      #    // Allow the edit of Included only if the bankAccountTrans is not manual
+      #    // and is not an already included pending cancellation
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, Included)).allowEdit(
+      #        !bankAccountTrans.Manual &&
+      #        (bankAccountTrans.Included == NoYes::Yes || bankAccountTrans.CancelPending == NoYes::No));
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, Included)).skip(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, AmountCur)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, BankTransAmountCur)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, BankTransCurrencyCode)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, TransDate)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    if (LedgerParameters::find().AcknowledgementDate_IT)
+      #    {
+      #        bankAccountTrans_ds.object(fieldnum(BankAccountTrans, AcknowledgementDate)).allowEdit(bankAccountTrans.Manual);
+      #    }
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, LedgerDimension)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, Txt)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, TaxGroup)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.object(fieldnum(BankAccountTrans, TaxItemGroup)).allowEdit(bankAccountTrans.Manual);
+      #
+      #    bankAccountTrans_ds.allowDelete((bankAccountTrans.Manual && !bankAccountTrans.Reconciled));
+      #    bankAccountTrans_ds.allowEdit(!bankAccountTrans.Reconciled);
+      #    bankAccountTrans_ds.allowCreate(!bankAccountTrans.Reconciled);
+      #
+      #    element.setAllowCorrection();
+      #    if (bankAccountTrans.Manual == NoYes::Yes)
+      #    {
+      #        dimensionDefaultingController.updateValues(NoYesUnchanged::Yes);
+      #    }
+      #    else
+      #    {
+      #        dimensionDefaultingController.updateValues(NoYesUnchanged::No);
+      #    }
+      #
+      #    cheques.enabled(bankAccountTrans.ChequeNum != '');
+      #    bankDeposit.enabled(bankAccountTrans.DepositNum != '');
+      #}
+      #
+    ENDSOURCE
+    SOURCE #setButtonAccess
+      #void setButtonAccess()
+      #{
+      #    ;
+      #    bankAccountReconcile.enabled(diffCleared.realValue() == 0 && ! bankAccountStatement.ReconcileDate);
+      #    bankMarkChequeReconcile.enabled(!bankAccountStatement.ReconcileDate);
+      #    cheques.enabled(bankAccountTrans.RecId != 0);
+      #    originalDocument.enabled(bankAccountTrans.RecId != 0);
+      #    buttonVoucher.enabled(bankAccountTrans.RecId != 0);
+      #}
+    ENDSOURCE
+    SOURCE #setLedgerAccountNum
+      #void setLedgerAccountNum(BankAccountTrans _bankAccountTrans)
+      #{
+      #    _bankAccountTrans.LedgerDimension = BankTransType::find(_bankAccountTrans.BankTransType).LedgerDimension;
+      #}
+    ENDSOURCE
+    SOURCE #updateAmountCleared
+      #void updateAmountCleared()
+      #{
+      #    AmountCur   clearedAmount;
+      #    AmountCur   missingAmount;
+      #    ;
+      #
+      #    clearedAmount = bankTransTypeGroup.createBankGroupSums();
+      #    tmpBankTransTypeSum.setTmpData(bankTransTypeGroup.bankTransTypeSum());
+      #    tmpBankTransTypeSum_ds.research();
+      #
+      #    missingAmount = (endingBalance.realValue() - openingBalance.realValue() - clearedAmount);
+      #    diffCleared.realValue(missingAmount);
+      #
+      #    element.setButtonAccess();
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #BankAccountTrans
+          Table               #BankAccountTrans
+          Index               #AcctTransDate
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD Voucher
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD AmountCur
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    bankAccountTrans.calcAmountMST();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD AmountMST
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD CurrencyCode
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD AccountStatement
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD AccountStatementDate
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD BankTransType
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #void modified()
+                #{
+                #    super();
+                #
+                #    element.setLedgerAccountNum(bankAccountTrans);
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD PaymReference
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD PaymentMode
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD DepositNum
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD Reconciled
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD Included
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    if (bankAccountTrans.Included)
+                #    {
+                #        bankAccountTrans.AccountStatement       = bankAccountStatement.AccountStatementNum;
+                #        bankAccountTrans.AccountStatementDate   = bankAccountStatement.AccountStatementDate;
+                #    }
+                #    else
+                #    {
+                #        bankAccountTrans.AccountStatement       = Global::strMin();
+                #        bankAccountTrans.AccountStatementDate   = Global::dateNull();
+                #    }
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD AmountCorrect
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #void modified()
+                #{
+                #    super();
+                #
+                #    element.setLedgerAccountNum(bankAccountTrans);
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD Manual
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD ChequeNum
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD Cancel
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          REFERENCEFIELD LedgerDimension
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    if (bankAccountTrans.Manual)
+                #    {
+                #        bankAccountTrans.DefaultDimension = MainAccountLegalEntity::findByMainAccountLegalEntity(
+                #                                            DimensionStorage::getMainAccountFromLedgerDimension(bankAccountTrans.LedgerDimension).RecId, CompanyInfo::find().RecId).DefaultDimension;
+                #    }
+                #}
+              ENDSOURCE
+              SOURCE #resolveReference
+                #public Common resolveReference(FormReferenceControl _formReferenceControl)
+                #{
+                #    return ledgerDimensionController.resolveReference();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDREFERENCEFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #validateWrite
+          #public boolean validateWrite()
+          #{
+          #    boolean ret;
+          #    ;
+          #
+          #    ret = super();
+          #
+          #    if (numberSeqFormHandler && bankAccountTrans.Manual)
+          #    {
+          #        numberSeqFormHandler.formMethodDataSourceValidateWrite();
+          #    }
+          #
+          #    return ret;
+          #}
+          #
+        ENDSOURCE
+        SOURCE #cursorNotify
+          #public void cursorNotify(int _event)
+          #{
+          #    BankAccountTrans        trans;
+          #    Set                     setRecId;
+          #
+          #    super(_event);
+          #
+          #    if (_event == 0 || _event == 1)
+          #    {
+          #        trans = bankAccountTrans_DS.getFirst(0,false);
+          #        while (trans)
+          #        {
+          #            if (! taxAmountCache.exists(trans.RecId))
+          #            {
+          #                if (! setRecId)
+          #                {
+          #                    setRecId = new Set(typeName2Type(extendedTypeStr(recId)));
+          #                }
+          #                setRecId.add(trans.RecId);
+          #            }
+          #
+          #            trans = bankAccountTrans_DS.getNext();
+          #        }
+          #
+          #        if (setRecId)
+          #        {
+          #            taxAmountCache = Map::create(BankAccountTrans::taxAmountDisplayCache(setRecId.pack(), taxAmountCache.pack()));
+          #        }
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #taxAmount
+          #//BP Deviation Documented
+          #display TaxAmount taxAmount(BankAccountTrans _bankAccountTrans)
+          #{
+          #    BankAccountTrans trans;
+          #    ;
+          #    if (! bankAccountTransMap)
+          #        bankAccountTransMap = new Map(typeName2Type(extendedTypeStr(recId)), Types::Record);
+          #
+          #    if (taxAmountCache.exists(_bankAccountTrans.RecId))
+          #    {
+          #        if (bankAccountTransMap.exists(_bankAccountTrans.RecId))
+          #        {
+          #            trans = bankAccountTransMap.lookup(_bankAccountTrans.RecId);
+          #            if (_bankAccountTrans.TransDate     != trans.TransDate ||
+          #                _bankAccountTrans.AmountCur     != trans.AmountCur ||
+          #                _bankAccountTrans.TaxGroup      != trans.TaxGroup ||
+          #                _bankAccountTrans.TaxItemGroup  != trans.TaxItemGroup)
+          #            {
+          #                bankAccountTransMap.insert(_bankAccountTrans.RecId, _bankAccountTrans);
+          #                taxAmountCache.insert(_bankAccountTrans.RecId, _bankAccountTrans.taxAmount());
+          #            }
+          #        }
+          #        else
+          #        {
+          #            bankAccountTransMap.insert(_bankAccountTrans.RecId, _bankAccountTrans);
+          #        }
+          #    }
+          #    else
+          #    {
+          #        taxAmountCache.insert(_bankAccountTrans.RecId, _bankAccountTrans.taxAmount());
+          #        bankAccountTransMap.insert(_bankAccountTrans.RecId, _bankAccountTrans);
+          #    }
+          #    return taxAmountCache.lookup(_bankAccountTrans.RecId);
+          #}
+        ENDSOURCE
+        SOURCE #active
+          #int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    dimensionDefaultingController.activated();
+          #
+          #    if (ret)
+          #    {
+          #        element.setAllowEdit();
+          #    }
+          #    return ret;
+          #}
+        ENDSOURCE
+        SOURCE #create
+          #void create(boolean append = false)
+          #{
+          #    ;
+          #
+          #    if (!numberSeqFormHandler)
+          #    {
+          #
+          #        numberSeqFormHandler = NumberSeqFormHandler::newForm(BankParameters::numRefBankReconcileVoucher().NumberSequenceId,
+          #                                                             element,
+          #                                                             bankAccountTrans_ds,
+          #                                                             fieldnum(BankAccountTrans, Voucher));
+          #        if (!numberSeqFormHandler.parmNumberSequenceId())
+          #        {
+          #            numberSeqFormHandler = null;
+          #            throw error(strfmt("@SYS26165","@SYS24040"));
+          #        }
+          #    }
+          #
+          #    if (numberSeqFormHandler)
+          #    {
+          #        numberSeqFormHandler.formMethodDataSourceCreatePre();
+          #    }
+          #
+          #    super(append);
+          #
+          #    bankAccountTrans_bankTransTypeGrid.setFocus();
+          #}
+        ENDSOURCE
+        SOURCE #delete
+          #void delete()
+          #{
+          #    Voucher curVoucher;
+          #
+          #    if (bankAccountTrans.Manual)
+          #    {
+          #        curVoucher = bankAccountTrans.Voucher;
+          #    }
+          #
+          #    super();
+          #
+          #    dimensionDefaultingController.deleted();
+          #
+          #    if (curVoucher)
+          #    {
+          #        if (numberSeqFormHandler && curVoucher == numberSeqFormHandler.lastUncommitedNumber())
+          #        {
+          #            numberSeqFormHandler.formMethodDataSourceDelete();
+          #        }
+          #        else
+          #        {
+          #            NumberSeq::releaseNumber(BankParameters::numRefBankReconcileVoucher().NumberSequenceId, curVoucher);
+          #        }
+          #    }
+          #
+          #    element.updateAmountCleared();
+          #}
+        ENDSOURCE
+        SOURCE #executeQuery
+          #void executeQuery()
+          #{
+          #    switch (allReconciled.selection())
+          #    {
+          #        case 0 :
+          #            criteriaOpen.value('0..1');
+          #            break;
+          #
+          #        case 1 :
+          #            criteriaOpen.value('0');
+          #            break;
+          #
+          #        case 2 :
+          #            criteriaOpen.value('1');
+          #            break;
+          #    }
+          #    super();
+          #}
+        ENDSOURCE
+        SOURCE #init
+          #void init()
+          #{
+          #    super();
+          #
+          #    criteriaOpen            = this.query().dataSourceNo(1).addRange(fieldnum(BankAccountTrans, Included));
+          #    accountStatementDate    = this.query().dataSourceNo(1).addRange(fieldnum(BankAccountTrans, AccountStatementDate));
+          #    accountStatement        = this.query().dataSourceNo(1).addRange(fieldnum(BankAccountTrans, AccountStatement));
+          #    reconciled              = this.query().dataSourceNo(1).addRange(fieldnum(BankAccountTrans, Reconciled));
+          #    bankTransDate           = this.query().dataSourceNo(1).addRange(fieldnum(BankAccountTrans, TransDate));
+          #}
+        ENDSOURCE
+        SOURCE #initValue
+          #void initValue()
+          #{
+          #    ;
+          #    super();
+          #
+          #    if (numberSeqFormHandler)
+          #    {
+          #        numberSeqFormHandler.formMethodDataSourceCreate();
+          #    }
+          #
+          #    bankAccountTrans.TransDate              = (bankAccountStatement.AccountStatementDate <= systemdateget() ?
+          #                                               bankAccountStatement.AccountStatementDate : systemdateget());
+          #    bankAccountTrans.CurrencyCode           = bankAccountStatement.CurrencyCode;
+          #    bankAccountTrans.Manual                 = NoYes::Yes;
+          #    bankAccountTrans.Included               = NoYes::Yes;
+          #    bankAccountTrans.AccountStatement       = bankAccountStatement.AccountStatementNum;
+          #    bankAccountTrans.AccountStatementDate   = bankAccountStatement.AccountStatementDate;
+          #    bankAccountTrans.AcknowledgementDate    = bankAccountTrans.TransDate;
+          #}
+        ENDSOURCE
+        SOURCE #linkActive
+          #void linkActive()
+          #{
+          #    ;
+          #
+          #    if (numberSeqFormHandler)
+          #    {
+          #        numberSeqFormHandler.formMethodDataSourceLinkActive();
+          #    }
+          #
+          #    element.newBankAccountStatement();
+          #
+          #    super();
+          #
+          #    element.updateAmountCleared();
+          #}
+        ENDSOURCE
+        SOURCE #write
+          #void write()
+          #{
+          #    boolean             beforeIncluded      = bankAccountTrans.orig().Included;
+          #    AmountCur           beforeAmountCur     = bankAccountTrans.orig().AmountCur;
+          #    AmountCur           beforeAmountCorrect = bankAccountTrans.orig().AmountCorrect;
+          #    BankTransactionType beforeBankTransType = bankAccountTrans.orig().BankTransType;
+          #
+          #    ttsbegin;
+          #
+          #    super();
+          #
+          #    dimensionDefaultingController.writing();
+          #
+          #    if (numberSeqFormHandler && bankAccountTrans.Manual)
+          #    {
+          #        numberSeqFormHandler.formMethodDataSourceWrite();
+          #    }
+          #
+          #    if (beforeAmountCur     != bankAccountTrans.AmountCur       ||
+          #        beforeAmountCorrect != bankAccountTrans.AmountCorrect   ||
+          #        beforeBankTransType != bankAccountTrans.BankTransType   ||
+          #        beforeIncluded      != bankAccountTrans.Included)
+          #    {
+          #        element.updateAmountCleared();
+          #    }
+          #
+          #    ttscommit;
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #TmpBankTransTypeSum
+          Table               #TmpBankTransTypeSum
+          Index               #Group
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS23703
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #357913941
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          ElementPosition     #1610612733
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup
+          ElementPosition     #1073741822
+          HierarchyParent     #ActionPaneTab
+          DataSource          #BankAccountTrans
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Overview_Grid
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #Overview
+          DataSource          #BankAccountTrans
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #TypeSums
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #BankTransTypeGroup
+          DataSource          #TmpBankTransTypeSum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Amount
+          ElementPosition     #920350134
+          HierarchyParent     #General
+          DataSource          #BankAccountTrans
+          DataGroup           #Amount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Balances
+          AllowEdit           #No
+          Skip                #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #Top
+          Caption             #@SYS13865
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Bank
+          ElementPosition     #613566756
+          HierarchyParent     #General
+          DataSource          #BankAccountTrans
+          DataGroup           #Bank
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #BankTransTypeGroup
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1700091219
+          FrameType           #None
+          DataSource          #TmpBankTransTypeSum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupLedger
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupOverviewBottom
+          FrameType           #None
+          DataSource          #BankAccountTrans
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupOverviewBottom
+          Top                 #Bottom edge
+          ElementPosition     #1610612733
+          HierarchyParent     #Overview
+          FrameType           #None
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          AlignChild          #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupSalesTax
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupOverviewBottom
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Payment
+          ElementPosition     #1227133512
+          HierarchyParent     #General
+          DataSource          #BankAccountTrans
+          DataGroup           #Payment
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #SalesTax
+          ElementPosition     #1840700268
+          HierarchyParent     #General
+          DataSource          #BankAccountTrans
+          DataGroup           #SalesTax
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Splitter
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #5
+          ElementPosition     #1252698793
+          FrameType           #Raised 3D
+          BackgroundColor     #Window background
+          HideIfEmpty         #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseDown
+            #public int mouseDown(
+            #    int     _x,
+            #    int     _y,
+            #    int     _button,
+            #    boolean _ctrl,
+            #    boolean _shift)
+            #{
+            #    return fs.mouseDown(_x, _y, _button, _ctrl, _shift);
+            #}
+            #
+          ENDSOURCE
+          SOURCE #mouseMove
+            #public int mouseMove(
+            #    int     _x,
+            #    int     _y,
+            #    int     _button,
+            #    boolean _ctrl,
+            #    boolean _shift)
+            #{
+            #    return fs.mouseMove(_x, _y, _button, _ctrl, _shift);
+            #}
+          ENDSOURCE
+          SOURCE #mouseUp
+            #public int mouseUp(
+            #    int     _x,
+            #    int     _y,
+            #    int     _button,
+            #    boolean _ctrl,
+            #    boolean _shift)
+            #{
+            #    return fs.mouseUp(_x, _y, _button, _ctrl, _shift);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Top
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #805306367
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Voucher
+          ElementPosition     #1533916890
+          HierarchyParent     #General
+          DataSource          #BankAccountTrans
+          DataGroup           #Voucher
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #Printout
+          HelpText            #@SYS6845
+          ElementPosition     #1908874352
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS920
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1717986916
+          HierarchyParent     #Top
+          Tabs                #3
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #General
+          ElementPosition     #1610612734
+          HierarchyParent     #Tab
+          Caption             #@SYS2952
+          DataSource          #BankAccountTrans
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Overview
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741823
+          HierarchyParent     #Tab
+          Caption             #@SYS9039
+          DataSource          #BankAccountTrans
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabFinancialDimensions
+          AutoDeclaration     #Yes
+          NeededPermission    #Manual
+          ElementPosition     #1879048190
+          HierarchyParent     #Tab
+          Caption             #@SYS101181
+          HideIfEmpty         #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #pageActivated
+            #public void pageActivated()
+            #{
+            #    dimensionDefaultingController.pageActivated();
+            #    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #BankAccountTrans_Included
+          ElementPosition     #390451572
+          HierarchyParent     #Overview_Grid
+          BackgroundColor     #Window background
+          DataSource          #BankAccountTrans
+          DataField           #Included
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #public void clicked()
+            #{
+            #    super();
+            #
+            #    element.setAllowCorrection();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #AllReconciled
+          AutoDeclaration     #Yes
+          HelpText            #@SYS50992
+          ElementPosition     #1288490187
+          HierarchyParent     #Top
+          Label               #@SYS50991
+          EnumType            #AllNotReconciled
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    if (ret)
+            #    {
+            #        bankAccountTrans_ds.executeQuery();
+            #    }
+            #
+            #    element.setButtonAccess();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1610612733
+          HierarchyParent     #NewDeleteGroup
+          Text                #@sys14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #1073741822
+          HierarchyParent     #NewDeleteGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_AcknowledgementDate
+          AutoDeclaration     #Yes
+          ElementPosition     #976128930
+          HierarchyParent     #Overview_Grid
+          DataSource          #BankAccountTrans
+          DataField           #AcknowledgementDate
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_TransDateGrid
+          ElementPosition     #780903144
+          HierarchyParent     #Overview_Grid
+          DataSource          #BankAccountTrans
+          DataField           #TransDate
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL INTEDIT
+        PROPERTIES
+          Name                #TmpBankTransTypeSum_Lines
+          ElementPosition     #1431655764
+          HierarchyParent     #TypeSums
+          DataSource          #TmpBankTransTypeSum
+          DataField           #Lines
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #BankAccountReconcile
+          AutoDeclaration     #Yes
+          ElementPosition     #477218588
+          HierarchyParent     #ButtonGroup
+          DataSource          #BankAccountTrans
+          MenuItemType        #Action
+          MenuItemName        #BankAccountReconcile
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    if (diffCleared.realValue() == 0 && !bankAccountStatement.ReconcileDate)
+            #    {
+            #        super();
+            #
+            #        element.bookRefresh();
+            #
+            #        element.newBankAccountStatement();
+            #
+            #        bankAccountTrans_ds.executeQuery();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #BankDeposit
+          AutoDeclaration     #Yes
+          ElementPosition     #954437176
+          HierarchyParent     #ButtonGroup
+          DataSource          #BankAccountTrans
+          MenuItemName        #BankDeposit
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #BankMarkChequeReconcile
+          AutoDeclaration     #Yes
+          ElementPosition     #715827882
+          HierarchyParent     #ButtonGroup
+          DataSource          #BankAccountTrans
+          MenuItemType        #Action
+          MenuItemName        #BankMarkChequeReconcile
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    bankAccountTrans_ds.research();
+            #
+            #    element.updateAmountCleared();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #BankReconciliation
+          ElementPosition     #1610612733
+          HierarchyParent     #Printout
+          MenuItemType        #Output
+          MenuItemName        #BankReconciliation
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #BankReconciliationSummary
+          ElementPosition     #1073741822
+          HierarchyParent     #Printout
+          MenuItemType        #Output
+          MenuItemName        #BankReconciliationSummary
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #ButtonVoucher
+          AutoDeclaration     #Yes
+          ElementPosition     #1670265058
+          HierarchyParent     #ButtonGroup
+          DataSource          #BankAccountTrans
+          MenuItemName        #LedgerTransVoucher1
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #Cheques
+          AutoDeclaration     #Yes
+          ElementPosition     #1193046470
+          HierarchyParent     #ButtonGroup
+          DataSource          #BankAccountTrans
+          MenuItemName        #BankChequeTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #OriginalDocument
+          AutoDeclaration     #Yes
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroup
+          DataSource          #BankAccountTrans
+          MenuItemName        #Originaldocuments
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_AmountCorrected
+          AutoDeclaration     #Yes
+          HelpText            #@SYS53246
+          ElementPosition     #1952257860
+          HierarchyParent     #Overview_Grid
+          Label               #@SYS53245
+          DataSource          #BankAccountTrans
+          DataMethod          #CorrectedAmountCur
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_AmountCorrectGrid
+          ElementPosition     #1757032074
+          HierarchyParent     #Overview_Grid
+          DataSource          #BankAccountTrans
+          DataField           #AmountCorrect
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_AmountCurGrid
+          ElementPosition     #1561806288
+          HierarchyParent     #Overview_Grid
+          DataSource          #BankAccountTrans
+          DataField           #AmountCur
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #DiffCleared
+          AutoDeclaration     #Yes
+          HelpText            #@SYS53042
+          ElementPosition     #1717986916
+          HierarchyParent     #Balances
+          Label               #@SYS53063
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #EndingBalance
+          AutoDeclaration     #Yes
+          HelpText            #@SYS50987
+          ElementPosition     #1288490187
+          HierarchyParent     #Balances
+          Label               #@SYS50986
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #OpeningBalance
+          AutoDeclaration     #Yes
+          HelpText            #@SYS53034
+          ElementPosition     #858993458
+          HierarchyParent     #Balances
+          Label               #@SYS53035
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #RealEdit
+          ElementPosition     #1717986916
+          HierarchyParent     #GroupSalesTax
+          DataSource          #BankAccountTrans
+          DataMethod          #taxAmount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #TmpBankTransTypeSum_ClearedAmountCur
+          ElementPosition     #1789569705
+          HierarchyParent     #TypeSums
+          DataSource          #TmpBankTransTypeSum
+          DataField           #ClearedAmountCur
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL SEGMENTEDENTRY
+        PROPERTIES
+          Name                #BankAccountTrans_LedgerAccountNum
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupLedger
+          DataSource          #BankAccountTrans
+          ReferenceField      #LedgerDimension
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #jumpRef
+            #public void jumpRef()
+            #{
+            #    ledgerDimensionController.jumpRef();
+            #}
+          ENDSOURCE
+          SOURCE #loadAutoCompleteData
+            #public void loadAutoCompleteData(LoadAutoCompleteDataEventArgs _e)
+            #{
+            #    ledgerDimensionController.loadAutoCompleteData(_e);
+            #
+            #    super(_e);
+            #}
+          ENDSOURCE
+          SOURCE #loadSegments
+            #public void loadSegments()
+            #{
+            #
+            #    super();
+            #
+            #    ledgerDimensionController.parmControl(this);
+            #    ledgerDimensionController.loadSegments();
+            #}
+          ENDSOURCE
+          SOURCE #segmentValueChanged
+            #public void segmentValueChanged(SegmentValueChangedEventArgs _e)
+            #{
+            #    super(_e);
+            #
+            #    ledgerDimensionController.segmentValueChanged(_e);
+            #}
+          ENDSOURCE
+          SOURCE #validate
+            #public boolean validate()
+            #{
+            #    boolean isValid;
+            #
+            #    isValid = super();
+            #    isValid = ledgerDimensionController.validate() && isValid;
+            #
+            #    return isValid;
+            #
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_bankTransTypeGrid
+          AutoDeclaration     #Yes
+          ElementPosition     #585677358
+          HierarchyParent     #Overview_Grid
+          DataSource          #BankAccountTrans
+          DataField           #BankTransType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_ChequeNum
+          ElementPosition     #1171354716
+          HierarchyParent     #Overview_Grid
+          DataSource          #BankAccountTrans
+          DataField           #ChequeNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_DepositNum
+          ElementPosition     #1366580502
+          HierarchyParent     #Overview_Grid
+          DataSource          #BankAccountTrans
+          DataField           #DepositNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_ManualTxt
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupLedger
+          DataSource          #BankAccountTrans
+          DataField           #Txt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_TaxGroup
+          ElementPosition     #858993458
+          HierarchyParent     #GroupSalesTax
+          DataSource          #BankAccountTrans
+          DataField           #TaxGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BankAccountTrans_TaxItemGroup
+          ElementPosition     #1288490187
+          HierarchyParent     #GroupSalesTax
+          DataSource          #BankAccountTrans
+          DataField           #TaxItemGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupName
+          ElementPosition     #1073741823
+          HierarchyParent     #TypeSums
+          DataSource          #TmpBankTransTypeSum
+          DataMethod          #GroupName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #TmpBankTransTypeSum_BankTransactionTypeGroup
+          ElementPosition     #715827882
+          HierarchyParent     #TypeSums
+          DataSource          #TmpBankTransTypeSum
+          DataField           #BankTransactionTypeGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+        CONTROL #TabFinancialDimensions
+          PROPERTIES
+            Control             #TabFinancialDimensions
+            EffectiveAccess     #Read
+            ManagedBy           #Manual
+          ENDPROPERTIES
+          
+        ENDCONTROL
+        
+    ENDFORM
+    
+  TABLES #Tables
+  ENDTABLES
+  
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+    CONTROL #TabFinancialDimensions
+      PROPERTIES
+        Control             #TabFinancialDimensions
+        EffectiveAccess     #Update
+        ManagedBy           #Manual
+      ENDPROPERTIES
+      
+    ENDCONTROL
+    
+ENDFORM
+
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+    CONTROL #TabFinancialDimensions
+      PROPERTIES
+        Control             #TabFinancialDimensions
+        EffectiveAccess     #Update
+        ManagedBy           #Manual
+      ENDPROPERTIES
+      
+    ENDCONTROL
+    
+ENDFORM
+
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+    CONTROL #TabFinancialDimensions
+      PROPERTIES
+        Control             #TabFinancialDimensions
+        EffectiveAccess     #Update
+        ManagedBy           #Manual
+      ENDPROPERTIES
+      
+    ENDCONTROL
+    
+ENDFORM
+
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_04_Splitter unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_04_Splitter
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_04_Splitter
+    Origin              #{0762FD4A-DC45-40C8-9BF8-7188178A2F57}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #BankReconciliation
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

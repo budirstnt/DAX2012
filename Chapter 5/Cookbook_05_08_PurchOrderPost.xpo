@@ -1,0 +1,60 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: PurchOrderPost unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #PurchOrderPost
+    #static void PurchOrderPost(Args _args)
+    #{
+    #    PurchFormLetter purchFormLetter;
+    #    PurchTable      purchTable;
+    #
+    #    purchTable = PurchTable::find('000409');
+    #
+    #    purchFormLetter = PurchFormLetter::construct(
+    #        DocumentStatus::PurchaseOrder);
+    #
+    #    purchFormLetter.update(
+    #        purchTable,
+    #        '',
+    #        systemDateGet(),
+    #        PurchUpdate::All,
+    #        AccountOrder::None,
+    #        NoYes::No,
+    #        NoYes::Yes);
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{446B9185-26F6-495F-83D9-4FEDC1F94AB9}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_08_PurchOrderPost unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_08_PurchOrderPost
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_08_PurchOrderPost
+    Origin              #{C99BC66E-CA94-44E0-A6DD-4806F3C4C65F}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #PurchOrderPost
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

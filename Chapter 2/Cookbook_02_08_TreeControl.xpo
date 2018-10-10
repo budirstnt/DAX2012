@@ -1,0 +1,847 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: BudgetModelTree unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #BudgetModelTree
+    PROPERTIES
+      Name                #BudgetModelTree
+      Origin              #{8AFBF6EE-5006-48F7-8737-F070F1EECD24}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #buildTree
+        #public void buildTree()
+        #{
+        #    BudgetModel model;
+        #    BudgetModel submodel;
+        #    TreeItemIdx itemIdx;
+        #
+        #    tree.deleteAll();
+        #    tree.lock();
+        #    while select RecId, ModelId from model
+        #        where model.Type == HeadingSub::Heading
+        #        notExists join submodel
+        #            where submodel.SubModelId == model.ModelId &&
+        #                  submodel.Type       == HeadingSub::SubModel
+        #    {
+        #        itemIdx = this.createNode(
+        #            FormTreeAdd::Root,
+        #            model.ModelId,
+        #            model.RecId);
+        #        SysFormTreeControl::expandTree(tree, itemIdx);
+        #    }
+        #    tree.unLock(true);
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class BudgetModelTree
+        #{
+        #    FormTreeControl tree;
+        #    BudgetModelId   modelId;
+        #}
+      ENDSOURCE
+      SOURCE #createNode
+        #private TreeItemIdx createNode(
+        #    TreeItemIdx   _parentIdx,
+        #    BudgetModelId _modelId,
+        #    RecId         _recId)
+        #{
+        #    TreeItemIdx itemIdx;
+        #    BudgetModel model;
+        #    BudgetModel submodel;
+        #
+        #    model = BudgetModel::find(HeadingSub::Heading, _modelId);
+        #
+        #    itemIdx = SysFormTreeControl::addTreeItem(
+        #        tree,
+        #        _modelId + ' : ' + model.Txt,
+        #        _parentIdx,
+        #        _recId,
+        #        0,
+        #        true);
+        #    if (modelId == _modelId)
+        #    {
+        #        tree.select(itemIdx);
+        #    }
+        #    while select submodel
+        #        where submodel.ModelId == _modelId &&
+        #              submodel.Type    == HeadingSub::SubModel
+        #    {
+        #        this.createNode(
+        #            itemIdx,
+        #            submodel.SubModelId,
+        #            submodel.RecId);
+        #    }
+        #    return itemIdx;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new(
+        #    FormTreeControl _formTreeControl,
+        #    BudgetModelId   _budgetModelId)
+        #{
+        #    tree    = _formTreeControl;
+        #    modelId = _budgetModelId;
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static BudgetModelTree construct(
+        #    FormTreeControl _formTreeControl,
+        #    BudgetModelId   _budgetModelId = '')
+        #{
+        #    return new BudgetModelTree(
+        #        _formTreeControl,
+        #        _budgetModelId);
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #BudgetModel
+  PROPERTIES
+    Name                #BudgetModel
+    Origin              #{0E60C74B-8BAC-423C-96D3-0B4B3F5FE05E}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    Query   queryModel;
+      #    Query   querySub;
+      #
+      #    SysFormSplitter_X m_VSplitter;
+      #
+      #    BudgetModelTree modelTree;
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #
+      #    m_VSplitter = new SysFormSplitter_X(VSplitter, GridContainer, element);
+      #
+      #    modelTree = BudgetModelTree::construct(Tree);
+      #    modelTree.buildTree();
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #BudgetModel
+          Table               #BudgetModel
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD ModelId
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    budgetModel.SubModelId = budgetModel.ModelId;
+                #
+                #    super();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #delete
+          #public void delete()
+          #{
+          #    super();
+          #
+          #    if (BudgetModel.RecId)
+          #    {
+          #        modelTree.buildTree();
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #selectionChanged
+          #public void selectionChanged()
+          #{
+          #    boolean budgetCycleExists;
+          #
+          #    super();
+          #
+          #    budgetCycleExists = BudgetControlBudgetCycle::existByBudgetModel(budgetModel);
+          #
+          #    // Set the sub model control enablement based on whether the budget model is associated to a budget cycle.
+          #    newDeleteGroup1.enabled(!budgetCycleExists);
+          #    subModelGrid.enabled(!budgetCycleExists);
+          #}
+        ENDSOURCE
+        SOURCE #write
+          #public void write()
+          #{
+          #    budgetModel.SubModelId = budgetModel.ModelId;
+          #
+          #    super();
+          #
+          #    modelTree.buildTree();
+          #}
+        ENDSOURCE
+        SOURCE #init
+          #public void init()
+          #{
+          #    QueryBuildDataSource queryBuildDataSource;
+          #
+          #    super();
+          #
+          #    queryBuildDataSource = this.query().dataSourceTable(tableNum(BudgetModel));
+          #
+          #    if (!element.args().record())
+          #    {
+          #        // No record was passed to this form so clear dynalinks so that all budget models are shown.
+          #        queryBuildDataSource.clearDynalinks();
+          #    }
+          #
+          #    queryBuildDataSource.addRange(fieldnum(BudgetModel, Type)).value(SysQuery::value(enum2int(HeadingSub::Heading)));
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #SubModel
+          Table               #BudgetModel
+          AutoQuery           #No
+          JoinSource          #BudgetModel
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #write
+          #public void write()
+          #{
+          #    super();
+          #
+          #    modelTree.buildTree();
+          #}
+        ENDSOURCE
+        SOURCE #delete
+          #public void delete()
+          #{
+          #    super();
+          #
+          #    if (SubModel.RecId)
+          #    {
+          #        modelTree.buildTree();
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #init
+          #public void init()
+          #{
+          #    querySub = new Query();
+          #
+          #    super();
+          #
+          #    querySub.addDataSource(tablenum(BudgetModel)).addRange(fieldnum(BudgetModel, Type));
+          #    querySub.dataSourceNo(1).range(1).value(SysQuery::value(enum2int(HeadingSub::SubModel)));
+          #
+          #    querySub.dataSourceNo(1).addDynalink(fieldnum(BudgetModel, ModelId),
+          #                                    budgetModel,
+          #                                    fieldnum(BudgetModel, ModelId));
+          #    subModel_ds.query(querySub);
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+    SubModel BudgetModel
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Left                #302
+      Top                 #172
+      Caption             #@SYs1966
+      DataSource          #BudgetModel
+      HideIfEmpty         #No
+      Style               #SimpleListDetails
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #715827882
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane1
+          ElementPosition     #536870911
+          HierarchyParent     #SubModelTabPage
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab1
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane1
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup
+          ElementPosition     #715827882
+          HierarchyParent     #ActionPaneTab
+          DataSource          #BudgetModel
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup1
+          AutoDeclaration     #Yes
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPaneTab1
+          DataSource          #SubModel
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #BudgetModel
+          Visible             #No
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #GridContainer
+          MultiSelect         #No
+          ShowRowLabels       #No
+          DataSource          #BudgetModel
+          GridLinesStyle      #Vertical
+          AlternateRowShading #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #SubModelGrid
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1342177278
+          HierarchyParent     #SubModelTabPage
+          DataSource          #SubModel
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Administration
+          ElementPosition     #1431655764
+          HierarchyParent     #General
+          DataSource          #BudgetModel
+          DataGroup           #Administration
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Body
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          Style               #MarginlessContainer
+          Columns             #3
+          Columnspace         #0
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DetailsContainer
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1288490187
+          HierarchyParent     #Body
+          Style               #MarginlessContainer
+          TopMargin           #5
+          RightMargin         #5
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DetailsHeader
+          ElementPosition     #536870911
+          HierarchyParent     #DetailsContainer
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GridContainer
+          AutoDeclaration     #Yes
+          Width               #300
+          Height              #Column height
+          ElementPosition     #429496729
+          HierarchyParent     #Body
+          Style               #BorderlessGridContainer
+          RightMargin         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #VSplitter
+          AutoDeclaration     #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #Body
+          Style               #SplitterVerticalContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #DetailsContainer
+          Tabs                #1
+          Style               #FastTabs
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #General
+          Width               #Column width
+          ElementPosition     #1073741822
+          HierarchyParent     #Tab
+          Caption             #@SYS2952
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #SubModelTabPage
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1610612733
+          HierarchyParent     #Tab
+          Caption             #@sys23224
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #AddButton
+          ElementPosition     #536870911
+          HierarchyParent     #NewDeleteGroup1
+          Text                #@sys60080
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11421
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1073741822
+          HierarchyParent     #NewDeleteGroup
+          Text                #@sys14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #536870911
+          HierarchyParent     #NewDeleteGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #RemoveButton
+          ElementPosition     #1342177278
+          HierarchyParent     #NewDeleteGroup1
+          Text                #@sys26394
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11438
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BudgetModel_Model
+          ElementPosition     #1073741822
+          HierarchyParent     #DetailsHeader
+          DisplayLength       #10
+          DataSource          #BudgetModel
+          DataField           #ModelId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BudgetModel_ModelId
+          ElementPosition     #1073741822
+          HierarchyParent     #BudgetModel
+          DataSource          #BudgetModel
+          DataField           #ModelId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #BudgetModel_Txt
+          Width               #Column width
+          ElementPosition     #1610612733
+          HierarchyParent     #DetailsHeader
+          DataSource          #BudgetModel
+          DataField           #Txt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Description_Txt
+          ElementPosition     #1610612733
+          HierarchyParent     #BudgetModel
+          DataSource          #BudgetModel
+          DataField           #Txt
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SubModel_SubModel
+          ElementPosition     #1431655764
+          HierarchyParent     #SubModelGrid
+          DataSource          #SubModel
+          DataField           #SubModelId
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #lookup
+            #public void lookup()
+            #{
+            #    BudgetModel::lookupBudgetModel(this, true);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TREE
+        PROPERTIES
+          Name                #Tree
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612733
+          HierarchyParent     #GridContainer
+          Border              #Single line 
+          RowSelect           #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChanged
+            #public void selectionChanged(
+            #    FormTreeItem   _oldItem,
+            #    FormTreeItem   _newItem,
+            #    FormTreeSelect _how)
+            #{
+            #    BudgetModel   model;
+            #    BudgetModelId modelId;
+            #
+            #    super(_oldItem, _newItem, _how);
+            #
+            #    if (_newItem.data())
+            #    {
+            #        select firstOnly model
+            #            where model.RecId == _newItem.data();
+            #        if (model.Type == HeadingSub::SubModel)
+            #        {
+            #            modelId = model.SubModelId;
+            #            select firstOnly model
+            #                where model.ModelId == modelId
+            #                   && model.Type    == HeadingSub::Heading;
+            #        }
+            #        BudgetModel_ds.findRecord(model);
+            #        BudgetModel_ds.refresh();
+            #    }
+            #
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_08_TreeControl unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_08_TreeControl
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_08_TreeControl
+    Origin              #{D587C1DE-F43F-4CEA-B332-8749E5DEC393}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023867
+      NODETYPE 329
+      NAME #BudgetModelTree
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #BudgetModel
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

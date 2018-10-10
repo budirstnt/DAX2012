@@ -1,0 +1,54 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: LedgerJournalPost unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #LedgerJournalPost
+    #static void LedgerJournalPost(Args _args)
+    #{
+    #    LedgerJournalCheckPost jourPost;
+    #    LedgerJournalTable     jourTable;
+    #
+    #    jourTable = LedgerJournalTable::find('000420_010');
+    #
+    #    jourPost = LedgerJournalCheckPost::newLedgerJournalTable(
+    #        jourTable,
+    #        NoYes::Yes);
+    #
+    #    jourPost.run();
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{8DF065CC-1CCF-43E6-9ECD-893AE3ACE16A}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_03_GeneralJournalPost unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_03_GeneralJournalPost
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_03_GeneralJournalPost
+    Origin              #{7FA62570-E51F-494B-ABA1-0F25185B3E2A}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #LedgerJournalPost
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

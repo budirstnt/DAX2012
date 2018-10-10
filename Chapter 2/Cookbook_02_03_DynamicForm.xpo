@@ -1,0 +1,170 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: CustGroupDynamic unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #CustGroupDynamic
+    PROPERTIES
+      Name                #CustGroupDynamic
+      Origin              #{9BD258A8-1B6E-49B7-B403-CD5CD3603BB7}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class CustGroupDynamic
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    DictTable                       dictTable;
+        #    Form                            form;
+        #    FormBuildDesign                 design;
+        #    FormBuildDataSource             ds;
+        #    FormBuildActionPaneControl      actionPane;
+        #    FormBuildActionPaneTabControl   actionPaneTab;
+        #    FormBuildButtonGroupControl     btngrp1;
+        #    FormBuildButtonGroupControl     btngrp2;
+        #    FormBuildCommandButtonControl   cmdNew;
+        #    FormBuildCommandButtonControl   cmdDel;
+        #    FormBuildMenuButtonControl      mbPosting;
+        #    FormBuildFunctionButtonControl  mibPosting;
+        #    FormBuildFunctionButtonControl  mibForecast;
+        #    FormBuildGridControl            grid;
+        #    FormBuildGroupControl           grpBody;
+        #    Args                            args;
+        #    FormRun                         formRun;
+        #    #Task
+        #
+        #    dictTable = new DictTable(tableNum(CustGroup));
+        #
+        #    form = new Form();
+        #    form.name("CustGroupDynamic");
+        #
+        #    ds = form.addDataSource(dictTable.name());
+        #    ds.table(dictTable.id());
+        #
+        #    design = form.addDesign('Design');
+        #    design.caption("Customer groups");
+        #    design.style(FormStyle::SimpleList);
+        #    design.titleDatasource(ds.id());
+        #
+        #    actionPane = design.addControl(
+        #        FormControlType::ActionPane, 'ActionPane');
+        #    actionPane.style(ActionPaneStyle::Strip);
+        #    actionPaneTab = actionPane.addControl(
+        #        FormControlType::ActionPaneTab, 'ActionPaneTab');
+        #    btngrp1 = actionPaneTab.addControl(
+        #        FormControlType::ButtonGroup, 'NewDeleteGroup');
+        #    btngrp2 = actionPaneTab.addControl(
+        #        FormControlType::ButtonGroup, 'ButtonGroup');
+        #
+        #    cmdNew = btngrp1.addControl(
+        #        FormControlType::CommandButton, 'NewButton');
+        #    cmdNew.buttonDisplay(FormButtonDisplay::TextAndImageLeft);
+        #    cmdNew.normalImage('11045');
+        #    cmdNew.imageLocation(SysImageLocation::EmbeddedResource);
+        #    cmdNew.primary(NoYes::Yes);
+        #    cmdNew.command(#taskNew);
+        #
+        #    cmdDel = btngrp1.addControl(
+        #        FormControlType::CommandButton, 'NewButton');
+        #    cmdDel.text("Delete");
+        #    cmdDel.buttonDisplay(FormButtonDisplay::TextAndImageLeft);
+        #    cmdDel.normalImage('10121');
+        #    cmdDel.imageLocation(SysImageLocation::EmbeddedResource);
+        #    cmdDel.saveRecord(NoYes::Yes);
+        #    cmdDel.primary(NoYes::Yes);
+        #    cmdDel.command(#taskDeleteRecord);
+        #
+        #    mbPosting = btngrp2.addControl(
+        #        FormControlType::MenuButton, 'MenuButtonPosting');
+        #    mbPosting.helpText("Set up related data for the group.");
+        #    mbPosting.text("Setup");
+        #
+        #    mibPosting = mbPosting.addControl(
+        #        FormControlType::MenuFunctionButton, 'Posting');
+        #    mibPosting.text('Item posting');
+        #    mibPosting.saveRecord(NoYes::No);
+        #    mibPosting.dataSource(ds.id());
+        #    mibPosting.menuItemName(menuitemDisplayStr(InventPosting));
+        #
+        #    mibForecast = btngrp2.addControl(
+        #        FormControlType::MenuFunctionButton, 'SalesForecast');
+        #    mibForecast.text('Forecast');
+        #    mibForecast.saveRecord(NoYes::No);
+        #    mibForecast.menuItemName(
+        #        menuitemDisplayStr(ForecastSalesGroup));
+        #
+        #    grpBody = design.addControl(FormControlType::Group, 'Body');
+        #    //grpBody.heightMode(FormHeight::ColumnHeight);
+        #    grpBody.columnspace(0);
+        #    grpBody.style(GroupStyle::BorderlessGridContainer);
+        #
+        #    grid = grpBody.addControl(FormControlType::Grid, "Grid");
+        #    grid.dataSource(ds.name());
+        #    grid.widthMode(FormWidth::ColumnWidth);
+        #    grid.heightMode(FormHeight::ColumnHeight);
+        #
+        #    grid.addDataField(
+        #        ds.id(), fieldNum(CustGroup,CustGroup));
+        #
+        #    grid.addDataField(
+        #        ds.id(), fieldNum(CustGroup,Name));
+        #
+        #    grid.addDataField(
+        #        ds.id(), fieldNum(CustGroup,PaymTermId));
+        #
+        #    grid.addDataField(
+        #        ds.id(), fieldnum(CustGroup,ClearingPeriod));
+        #
+        #    grid.addDataField(
+        #        ds.id(), fieldNum(CustGroup,BankCustPaymIdTable));
+        #
+        #    grid.addDataField(
+        #        ds.id(), fieldNum(CustGroup,TaxGroupId));
+        #
+        #    args = new Args();
+        #    args.object(form);
+        #
+        #    formRun = classFactory.formRunClass(args);
+        #    formRun.init();
+        #    formRun.run();
+        #
+        #    formRun.detach();
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_03_DynamicForm unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_03_DynamicForm
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_03_DynamicForm
+    Origin              #{A3BFD0E6-DEFF-49CF-BE9D-7A7A34B76B78}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023866
+      NODETYPE 329
+      NAME #CustGroupDynamic
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

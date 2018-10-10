@@ -1,0 +1,89 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: ReadExcelFile unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #ReadExcelFile
+    #static void ReadExcelFile (Args _args)
+    #{
+    #    SysExcelApplication excel;
+    #    SysExcelWorkbooks   workbooks;
+    #    SysExcelWorkbook    workbook;
+    #    SysExcelWorksheets  worksheets;
+    #    SysExcelWorksheet   worksheet;
+    #    SysExcelCells       cells;
+    #    COMVariantType      type;
+    #    int                 row;
+    #    CustAccount         account;
+    #    CustName            name;
+    #    #define.filename(@'C:\temp\customers.xlsx')
+    #
+    #    excel = SysExcelApplication::construct();
+    #
+    #    workbooks = excel.workbooks();
+    #
+    #    try
+    #    {
+    #        workbooks.open(#filename);
+    #    }
+    #    catch (Exception::Error)
+    #    {
+    #        throw error("File cannot be opened");
+    #    }
+    #
+    #    workbook   = workbooks.item(1);
+    #
+    #    worksheets = workbook.worksheets();
+    #
+    #    worksheet  = worksheets.itemFromNum(1);
+    #
+    #    cells      = worksheet.cells();
+    #
+    #    type = cells.item(row+1, 1).value().variantType();
+    #
+    #    while (type != COMVariantType::VT_EMPTY)
+    #    {
+    #        row++;
+    #        account = cells.item(row, 1).value().bStr();
+    #        name    = cells.item(row, 2).value().bStr();
+    #        info(strFmt('%1 - %2', account, name));
+    #        type = cells.item(row+1, 1).value().variantType();
+    #    }
+    #
+    #    excel.quit();
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{0C2458A9-4103-435A-AF65-A263F27B7291}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_06_02_ExcelImport unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_06_02_ExcelImport
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_06_02_ExcelImport
+    Origin              #{3CDA3F04-B439-4909-99BE-E3514CDFB06A}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #ReadExcelFile
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

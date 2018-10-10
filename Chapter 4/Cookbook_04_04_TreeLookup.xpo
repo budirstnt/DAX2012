@@ -1,0 +1,979 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #BudgetModelLookup
+  PROPERTIES
+    Name                #BudgetModelLookup
+    Origin              #{ABC34598-CCF9-4190-89A0-A55C94E71249}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #init
+      #public void init()
+      #{
+      #    FormStringControl callingControl;
+      #
+      #    callingControl = SysTableLookup::getCallerStringControl(
+      #        this.args());
+      #
+      #    super();
+      #
+      #    budgetModelTree = BudgetModelTree::construct(
+      #        ModelTree,
+      #        callingControl.text());
+      #
+      #    budgetModelTree.buildTree();
+      #}
+    ENDSOURCE
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    BudgetModelTree budgetModelTree;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Frame               #Border
+      WindowType          #Popup
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL TREE
+        PROPERTIES
+          Name                #ModelTree
+          ElementPosition     #1073741823
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #mouseUp
+            #public int mouseUp(
+            #    int _x,
+            #    int _y,
+            #    int _button,
+            #    boolean _ctrl,
+            #    boolean _shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    return 1;
+            #}
+          ENDSOURCE
+          SOURCE #mouseDblClick
+            #public int mouseDblClick(
+            #    int _x,
+            #    int _y,
+            #    int _button,
+            #    boolean _ctrl,
+            #    boolean _shift)
+            #{
+            #    int          ret;
+            #    FormTreeItem formTreeItem;
+            #    BudgetModel  budgetModel;
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    formTreeItem = this.getItem(this.getSelection());
+            #
+            #    select firstOnly SubModelId from budgetModel
+            #        where budgetModel.RecId == formTreeItem.data();
+            #
+            #    element.closeSelect(budgetModel.SubModelId);
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : BudgetModel unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #BudgetModel
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #BudgetModel
+      Label               #@SYS16138
+      FormRef             #BudgetModel
+      TitleField1         #ModelId
+      TitleField2         #Txt
+      TableContents       #Default data
+      ConfigurationKey    #LedgerBasic
+      SecurityKey         #LedgerTables
+      CacheLookup         #EntireTable
+      TableGroup          #Group
+      PrimaryIndex        #TypeIdx
+      ClusterIndex        #TypeIdx
+      DeveloperDocumentation  #@SYS126976
+      Origin              #{2C0B001D-0000-1000-CE62-45F675744D6F}
+      LegacyId            #29
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #Blocked
+        ENUM
+        PROPERTIES
+          Name                #Blocked
+          Label               #@sys13688
+          HelpText            #@SYS14869
+          Table               #BudgetModel
+          Origin              #{BABFE15E-3E54-4013-9ED7-CA72FB7DB7DA}
+          LegacyId            #2
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #Cov
+        ENUM
+        PROPERTIES
+          Name                #Cov
+          HelpText            #@SYS9395
+          Table               #BudgetModel
+          Origin              #{D900C828-D5F3-40CD-8418-3C3046EA7853}
+          LegacyId            #3
+          ExtendedDataType    #LedgerAppropriation
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_TrackRevisions
+        ENUM
+        PROPERTIES
+          Name                #DEL_TrackRevisions
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #BudgetModel
+          Origin              #{859053DC-EE7A-4100-8057-4CC6D895762C}
+          LegacyId            #9
+          ExtendedDataType    #DEL_BudgetTrackRevisions
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ModelId
+        STRING
+        PROPERTIES
+          Name                #ModelId
+          Mandatory           #Yes
+          AllowEdit           #No
+          Table               #BudgetModel
+          Origin              #{A0584BD5-BADD-4CB5-B2BA-C0DB85D131AC}
+          LegacyId            #6
+          ExtendedDataType    #BudgetModelId
+        ENDPROPERTIES
+        
+      FIELD #SubModelId
+        STRING
+        PROPERTIES
+          Name                #SubModelId
+          Mandatory           #Yes
+          AllowEdit           #No
+          Table               #BudgetModel
+          IgnoreEDTRelation   #Yes
+          Origin              #{5606379B-4857-42E1-B693-747917595C07}
+          LegacyId            #5
+          ExtendedDataType    #BudgetModelSubId
+        ENDPROPERTIES
+        
+      FIELD #Txt
+        STRING
+        PROPERTIES
+          Name                #Txt
+          Table               #BudgetModel
+          Origin              #{4F0C58D4-C648-41F6-9FD7-7BFC161DA3EF}
+          LegacyId            #1
+          ExtendedDataType    #BudgetName
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #Type
+        ENUM
+        PROPERTIES
+          Name                #Type
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Table               #BudgetModel
+          Origin              #{B3EEF9BA-3B0D-452F-A997-F46B31A0FEC5}
+          LegacyId            #4
+          EnumType            #HeadingSub
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Type
+          #ModelId
+          #SubModelId
+          #Txt
+          #Blocked
+          #Cov
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Administration
+        PROPERTIES
+          Name                #Administration
+          Label               #@SYS9853
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Blocked
+          #Cov
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Description
+        PROPERTIES
+          Name                #Description
+          Label               #@SYS6303
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Txt
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Identification
+        PROPERTIES
+          Name                #Identification
+          Label               #@SYS5711
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Type
+          #ModelId
+          #SubModelId
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #TypeIdx
+      PROPERTIES
+        Name                #TypeIdx
+        AllowDuplicates     #No
+        Origin              #{2B070001-001D-1000-5479-706549647800}
+        LegacyId            #1
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Type
+        #ModelId
+        #SubModelId
+      ENDINDEXFIELDS
+      
+      #ModelIdx
+      PROPERTIES
+        Name                #ModelIdx
+        AllowDuplicates     #No
+        AlternateKey        #Yes
+        Origin              #{2B080002-001D-1000-4D6F-64656C496478}
+        LegacyId            #2
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #ModelId
+        #SubModelId
+      ENDINDEXFIELDS
+      
+      #SubModelIdx
+      PROPERTIES
+        Name                #SubModelIdx
+        Origin              #{2B0B0003-001D-1000-0628-5CB18164656C}
+        LegacyId            #3
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #SubModelId
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+      REFERENCE #BudgetModel
+        PROPERTIES
+          Name                #BudgetModel
+          Table               #BudgetModel
+          Validate            #No
+          EntityRelationshipRole  #@SYS126977
+          RelationshipType    #Link
+          RelatedTableRole    #BudgetModel
+          Role                #BudgetModel
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE NORMAL
+          PROPERTIES
+            Field               #SubModelId
+            RelatedField        #SubModelId
+          ENDPROPERTIES
+          
+          REFERENCETYPE NORMAL
+          PROPERTIES
+            Field               #ModelId
+            RelatedField        #ModelId
+          ENDPROPERTIES
+          
+          REFERENCETYPE THISFIXED
+          PROPERTIES
+            Table               #BudgetModel
+            Field               #Type
+            Value               #1
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+    ENDREFERENCES
+    
+    DELETEACTIONS
+      #BudgetTransactionHeader
+      PROPERTIES
+        Table               #BudgetTransactionHeader
+        DeleteAction        #Restricted
+      ENDPROPERTIES
+      
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #checkOpen
+        #public boolean checkOpen()
+        #{
+        #    return this.Blocked
+        #        ? checkFailed(strFmt("@SYS19241",this.ModelId,this.Blocked))
+        #        : true;
+        #}
+      ENDSOURCE
+      SOURCE #delete
+        #public void delete()
+        #{
+        #    BudgetModel budgetSubModel;
+        #
+        #    ttsbegin;
+        #
+        #    super();
+        #
+        #    if (this.Type == HeadingSub::Heading)
+        #    {
+        #        // Delete the sub model records for this heading record
+        #        // and delete the sub model records that reference this heading record.
+        #        delete_from budgetSubModel
+        #            where budgetSubModel.Type == HeadingSub::SubModel &&
+        #                (budgetSubModel.ModelId == this.ModelId ||
+        #                budgetSubModel.SubModelId == this.ModelId);
+        #    }
+        #
+        #    ttscommit;
+        #}
+      ENDSOURCE
+      SOURCE #initValue
+        #public void initValue()
+        #{
+        #    this.Type    = HeadingSub::Heading;
+        #
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #insert
+        #public void insert()
+        #{
+        #    BudgetModelCheck   budgetModelCheck;
+        #
+        #    ttsbegin;
+        #
+        #    if (this.Type == HeadingSub::Heading)
+        #    {
+        #        this.SubModelId = this.ModelId;
+        #    }
+        #    else
+        #    {
+        #        budgetModelCheck = new BudgetModelCheck(this.ModelId, this.SubModelId);
+        #        budgetModelCheck.run();
+        #    }
+        #
+        #    super();
+        #
+        #    ttscommit;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #modelName
+        #public display BudgetName modelName()
+        #{
+        #    return BudgetModel::find(HeadingSub::Heading,this.ModelId).Txt;
+        #}
+      ENDSOURCE
+      SOURCE #subModelName
+        #public display BudgetName subModelName()
+        #{
+        #    return BudgetModel::find(HeadingSub::Heading,this.SubModelId).Txt;
+        #}
+      ENDSOURCE
+      SOURCE #update
+        #public void update()
+        #{
+        #    BudgetModelCheck   budgetModelCheck;
+        #
+        #    ttsbegin;
+        #
+        #    if (this.Type == HeadingSub::Heading)
+        #    {
+        #        this.SubModelId = this.ModelId;
+        #    }
+        #    else
+        #    {
+        #        budgetModelCheck = new BudgetModelCheck(this.ModelId, this.SubModelId);
+        #        budgetModelCheck.run();
+        #    }
+        #
+        #    super();
+        #
+        #    ttscommit;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #validateBudgetControlBudgetCycle
+        #/// <summary>
+        #/// Determines whether any <c>BudgetControlBudgetCycle</c> records exist for the <c>BudgetModel</c>
+        #/// table.
+        #/// </summary>
+        #/// <returns>
+        #/// true if there are no <c>BudgetControlBudgetCycle</c> records; otherwise, false.
+        #/// </returns>
+        #public boolean validateBudgetControlBudgetCycle()
+        #{
+        #    boolean isValid = true;
+        #    BudgetControlBudgetCycle controlBudgetCycle;
+        #
+        #    while select BudgetCycle from controlBudgetCycle
+        #        where controlBudgetCycle.BudgetModelId == this.ModelId &&
+        #            controlBudgetCycle.BudgetModelDataAreaId == this.DataAreaId
+        #    {
+        #        isValid = checkFailed(strFmt("@SYS320431", this.ModelId, BudgetCycle::find(controlBudgetCycle.BudgetCycle).Name));
+        #    }
+        #
+        #    return isValid;
+        #}
+      ENDSOURCE
+      SOURCE #validateBudgetSubModel
+        #/// <summary>
+        #/// Determines whether the budget model can have sub-models.
+        #/// </summary>
+        #/// <returns>
+        #/// true if there can be sub-model for the given budget model; otherwise, false.
+        #/// </returns>
+        #public boolean validateBudgetSubModel()
+        #{
+        #    boolean isValid = true;
+        #
+        #    if (this.Type == HeadingSub::SubModel && BudgetControlBudgetCycle::existByBudgetModel(this))
+        #    {
+        #        isValid = checkFailed(strFmt("@SYS329793", this.ModelId));
+        #    }
+        #
+        #    return isValid;
+        #}
+      ENDSOURCE
+      SOURCE #validateDelete
+        #public boolean validateDelete()
+        #{
+        #    boolean     ret;
+        #
+        #    ret = super();
+        #
+        #    ret = ret && this.validateBudgetControlBudgetCycle();
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #validateField
+        #public boolean validateField(fieldId field)
+        #{
+        #    boolean     ret;
+        #
+        #    ret = super(field);
+        #
+        #    if (ret)
+        #    {
+        #        switch (field)
+        #        {
+        #            case fieldNum(BudgetModel, SubModelId):
+        #                ret = this.validateSubModelId();
+        #                break;
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #validateSubModelId
+        #/// <summary>
+        #///    Determines whether the <c>SubModelId</c> field of the <c>BudgetModel</c> record is valid.
+        #/// </summary>
+        #/// <returns>
+        #///    true if <c>SubModelId</c> field is valid; otherwise, false.
+        #/// </returns>
+        #public boolean validateSubModelId()
+        #{
+        #    boolean isValid = true;
+        #
+        #    if (this.Type == HeadingSub::SubModel &&
+        #        this.SubModelId)
+        #    {
+        #        if (!BudgetModel::exist(HeadingSub::Heading, this.SubModelId, this.SubModelId))
+        #        {
+        #            isValid = checkFailed(strFmt("@SYS320416", this.SubModelId, fieldPName(BudgetModel, SubModelId), tablePName(BudgetModel)));
+        #        }
+        #        else if (this.SubModelId == this.ModelId)
+        #        {
+        #            isValid = checkFailed("@SYS23394");
+        #        }
+        #    }
+        #
+        #    return isValid;
+        #}
+      ENDSOURCE
+      SOURCE #validateWrite
+        #public boolean validateWrite()
+        #{
+        #    boolean ret;
+        #
+        #    ret = super();
+        #
+        #    ret = ret && this.validateBudgetSubModel();
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #budgetModelRange
+        #server static str budgetModelRange(BudgetModelId _modelId)
+        #{
+        #    //Returns a range containing model and all submodels to the model.
+        #
+        #    BudgetModel subBudgetModel;
+        #    str         modelRange;
+        #
+        #    while select subBudgetModel
+        #            index hint ModelIdx
+        #            where subBudgetModel.ModelId == _modelId
+        #    {
+        #        if (modelRange)
+        #        {
+        #           modelRange += ',';
+        #        }
+        #
+        #        if (subBudgetModel && subBudgetModel.ModelId != subBudgetModel.SubModelId)
+        #        {
+        #            modelRange += BudgetModel::budgetModelRange(subBudgetModel.SubModelId);
+        #        }
+        #        else
+        #        {
+        #            modelRange += subBudgetModel.SubModelId;
+        #        }
+        #    }
+        #
+        #    return modelRange;
+        #}
+      ENDSOURCE
+      SOURCE #checkExist
+        #public static boolean checkExist(HeadingSub _type, BudgetModelId _model, BudgetModelId _subModel = '' )
+        #{
+        #    boolean ret = true;
+        #
+        #    if (!BudgetModel::exist(_type, _model, _subModel))
+        #    {
+        #        ret = checkFailed(strFmt(BudgetModel::txtNotExist(), _type, _model, _subModel));
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #checkModel
+        #public static boolean checkModel(BudgetModelId model)
+        #{
+        #    BudgetModel     budgetModel = BudgetModel::find(
+        #        HeadingSub::Heading,
+        #        model);
+        #
+        #    if (! budgetModel)
+        #    {
+        #        return checkFailed(strFmt("@SYS9966",budgetModel.ModelId));
+        #    }
+        #
+        #    if (budgetModel.Blocked)
+        #    {
+        #        return checkFailed(strFmt("@SYS4829",budgetModel.ModelId));
+        #    }
+        #
+        #    return true;
+        #
+        #}
+      ENDSOURCE
+      SOURCE #cov
+        #public static NoYes cov(BudgetModelId model)
+        #{
+        #    BudgetModel budgetModel = BudgetModel::find(HeadingSub::Heading,model);
+        #
+        #    return budgetModel.Cov;
+        #}
+      ENDSOURCE
+      SOURCE #exist
+        #public static boolean exist(HeadingSub _type, BudgetModelId _model, BudgetModelId _subModel = '' )
+        #{
+        #    boolean found;
+        #
+        #    found = (select firstonly
+        #                 RecId
+        #            from
+        #                 budgetModel
+        #             where
+        #                 budgetModel.Type == _type &&
+        #                budgetModel.ModelId == _model &&
+        #                budgetModel.SubModelId == _subModel).RecId != 0;
+        #
+        #    return found;
+        #}
+      ENDSOURCE
+      SOURCE #expandBudgetModelHierarchy
+        #/// <summary>
+        #///    Expands the sub budget model hierarchy for the specified budget model identity.
+        #/// </summary>
+        #/// <param name="_budgetModelId">
+        #///    The identity of the budget model whose sub budget model hierarchy will be expanded.
+        #/// </param>
+        #/// <param name="_budgetModels">
+        #///    A set of existing expanded sub budget models.
+        #/// </param>
+        #/// <returns>
+        #///    A set of expanded sub budget models.
+        #/// </returns>
+        #/// <remarks>
+        #///    This method runs on the server.
+        #/// </remarks>
+        #private static server Set expandBudgetModelHierarchy(BudgetModelId _budgetModelId, Set _budgetModels)
+        #{
+        #    Set localBudgetModels = _budgetModels;
+        #    BudgetModel budgetModel;
+        #
+        #    if (!localBudgetModels.in(_budgetModelId))
+        #    {
+        #        localBudgetModels.add(_budgetModelId);
+        #    }
+        #
+        #    while select SubModelId from budgetModel
+        #        where (budgetModel.ModelId == _budgetModelId
+        #           && budgetModel.Type == HeadingSub::SubModel)
+        #    {
+        #        localBudgetModels = BudgetModel::expandBudgetModelHierarchy(budgetModel.SubModelId, localBudgetModels);
+        #    }
+        #
+        #    return localBudgetModels;
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #public static BudgetModel find(
+        #    HeadingSub _type,
+        #    BudgetModelId _model,
+        #    BudgetModelId _subModel   = '' ,
+        #    boolean                 _forupdate = false,
+        #    ConcurrencyModel        _concurrencyModel = ConcurrencyModel::Auto)
+        #{
+        #    BudgetModel budgetModel;
+        #
+        #    budgetModel.selectForUpdate(_forupdate);
+        #
+        #    if (_forupdate  && _concurrencyModel != ConcurrencyModel::Auto)
+        #    {
+        #        budgetModel.concurrencyModel(_concurrencyModel);
+        #    }
+        #
+        #    select firstonly
+        #        budgetModel
+        #        where
+        #        budgetModel.Type == _type &&
+        #                budgetModel.ModelId == _model &&
+        #                ( (_subModel && budgetModel.SubModelId == _subModel) ||
+        #                   !_subModel);
+        #
+        #    return budgetModel;
+        #}
+      ENDSOURCE
+      SOURCE #getBudgetModels
+        #/// <summary>
+        #///    Retrieves a set of budget models in the specified budget model range.
+        #/// </summary>
+        #/// <param name="_fromBudgetModelId">
+        #///    A value that indicates the range of the budget models to retrieve.
+        #/// </param>
+        #/// <param name="_toBudgetModelId">
+        #///    A value that indicates the range of the budget models to retrieve.
+        #/// </param>
+        #/// <param name="_includeSubModels">
+        #///    A flag that indicates whether the sub budget model hierarchy for the budget models in the range
+        #///    should be included in the set.
+        #/// </param>
+        #/// <returns>
+        #///    A set of budget models in the specified budget model range.
+        #/// </returns>
+        #/// <remarks>
+        #///    The retrieved set is created from the tier where this method is called.
+        #/// </remarks>
+        #public static Set getBudgetModels(
+        #    BudgetModelId _fromBudgetModelId,
+        #    BudgetModelId _toBudgetModelId,
+        #    boolean _includeSubModels = false)
+        #{
+        #    container packedBudgetModels;
+        #    Set budgetModels;
+        #
+        #    packedBudgetModels = BudgetModel::getBudgetModelsServer(_fromBudgetModelId, _toBudgetModelId, _includeSubModels);
+        #    budgetModels = Set::create(packedBudgetModels);
+        #
+        #    return budgetModels;
+        #}
+      ENDSOURCE
+      SOURCE #getBudgetModelsServer
+        #/// <summary>
+        #///    Retrieves a packed container of a set of budget models in the specified budget model range.
+        #/// </summary>
+        #/// <param name="_fromBudgetModelId">
+        #///    A value that indicates the range of the budget models to retrieve.
+        #/// </param>
+        #/// <param name="_toBudgetModelId">
+        #///    A value that indicates the range of the budget models to retrieve.
+        #/// </param>
+        #/// <param name="_includeSubModels">
+        #///    A flag that indicates whether the sub budget model hierarchy for the budget models in the range
+        #///    should be included in the set.
+        #/// </param>
+        #/// <returns>
+        #///    A packed container of a set of budget models in the specified budget model range.
+        #/// </returns>
+        #/// <remarks>
+        #///    This method runs on the server.
+        #/// </remarks>
+        #private server static container getBudgetModelsServer(
+        #    BudgetModelId _fromBudgetModelId,
+        #    BudgetModelId _toBudgetModelId,
+        #    boolean _includeSubModels = false)
+        #{
+        #    BudgetModel budgetModel;
+        #    Set budgetModels = new Set(Types::String);
+        #    Query query = new Query();
+        #    QueryRun queryRun;
+        #
+        #    query.addDataSource(tableNum(BudgetModel)).addRange(fieldNum(BudgetModel, ModelId)).value(SysQuery::range(_fromBudgetModelId, _toBudgetModelId));
+        #    queryRun = new QueryRun(query);
+        #
+        #    while (queryRun.next())
+        #    {
+        #        budgetModel = queryRun.get(tableNum(BudgetModel)) as BudgetModel;
+        #
+        #        if (_includeSubModels)
+        #        {
+        #            budgetModels = BudgetModel::expandBudgetModelHierarchy(budgetModel.ModelId, budgetModels);
+        #        }
+        #        else
+        #        {
+        #            budgetModels.add(budgetModel.ModelId);
+        #        }
+        #    }
+        #
+        #    return budgetModels.pack();
+        #}
+      ENDSOURCE
+      SOURCE #jumpRefBudgetModel
+        #/// <summary>
+        #///    Runs the <c>BudgetModel</c> form for the specified budget model.
+        #/// </summary>
+        #/// <param name="_budgetModel">
+        #///    The <c>BudgetModel</c> record referenced by the caller.
+        #/// </param>
+        #/// <param name="_caller">
+        #///    The form object that called the <c>BudgetModel</c> form.
+        #/// </param>
+        #public static void jumpRefBudgetModel(BudgetModel _budgetModel, Object _caller)
+        #{
+        #    Args            args;
+        #    FormRun         formRun;
+        #
+        #    args = new Args(new DictTable(_budgetModel.TableId).formRef());
+        #    args.caller(_caller);
+        #
+        #    formRun = classfactory.formRunClass(args);
+        #    formRun.init();
+        #    formRun.run();
+        #    formRun.dataSource().findRecord(_budgetModel);
+        #    formRun.detach();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #lookupBudgetModel
+        #public static void lookupBudgetModel(
+        #    FormStringControl _ctrl,
+        #    boolean _showStopped = false)
+        #{
+        #    Args    args;
+        #    Object  formRun;
+        #
+        #    args = new Args();
+        #    args.name(formStr(BudgetModelLookup));
+        #    args.caller(_ctrl);
+        #
+        #    formRun = classfactory.formRunClass(args);
+        #    formRun.init();
+        #
+        #    _ctrl.performFormLookup(formRun);
+        #}
+      ENDSOURCE
+      SOURCE #txtNotExist
+        #public static TxtNotExist txtNotExist()
+        #{
+        #    return "@SYS102170";
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_04_04_TreeLookup unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_04_04_TreeLookup
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_04_04_TreeLookup
+    Origin              #{CEA6B3FB-6F58-40BA-8EBE-ED225B863AE5}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #BudgetModelLookup
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 44
+      UTILOBJECTID 29
+      NODETYPE 204
+      NAME #BudgetModel
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

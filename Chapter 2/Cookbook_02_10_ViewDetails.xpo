@@ -1,0 +1,3423 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #LedgerJournalTable
+  PROPERTIES
+    Name                #LedgerJournalTable
+    Origin              #{1DCB2227-4B94-4F28-9E74-E25F0A87AD98}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    LedgerJournalFormTable  journalFormTable;
+      #    boolean                 inCreate;
+      #    boolean                 inDelete;
+      #    boolean                 bankAccount_IT;
+      #
+      #    DimensionDynamicAccountController   dimOffsetAccountController;
+      #    DimensionDefaultingController       dimensionDefaultingController;
+      #}
+    ENDSOURCE
+    SOURCE #bookRefresh
+      #/// <summary>
+      #/// Refreshes the form when the journal lines form closes.
+      #/// </summary>
+      #/// <remarks>
+      #/// It is called from the journal lines form's <c>close</c> method.
+      #/// </remarks>
+      #void bookRefresh()
+      #{
+      #    ledgerJournalTable_ds.reread();
+      #    ledgerJournalTable_ds.refresh();
+      #    journalFormTable.datasourceReReadPost();
+      #
+      #    element.setAccountAccess();
+      #    element.showProperJournalLinesButton();
+      #}
+    ENDSOURCE
+    SOURCE #canSubmitToWorkflow
+      #public boolean canSubmitToWorkflow()
+      #{
+      #    boolean canSubmitToWorkflow = false;
+      #
+      #    if (ledgerJournalTable.WorkflowApprovalStatus == LedgerJournalWFApprovalStatus::NotSubmitted)
+      #    {
+      #        canSubmitToWorkflow = true;
+      #    }
+      #    return canSubmitToWorkflow;
+      #
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #void close()
+      #{
+      #    ;
+      #    journalFormTable.formClosePre();
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #enableButtonsActive
+      #/// <summary>
+      #/// Enables and disables controls on the form.
+      #/// </summary>
+      #/// <remarks>
+      #/// This method is called from the enableButtonsActive method of the JournalFormTable class. The
+      #/// JournalFormTable.enableButtonsActive method is called by the active method on the data source
+      #/// of this form.
+      #/// The form functionality is limited by the form context and the rights of the security model.
+      #/// </remarks>
+      #public void enableButtonsActive()
+      #{
+      #    LedgerJournalType journalType = journalFormTable.journalTypeId();
+      #    UserGroupId approveGroupId = ledgerJournalTable.ledgerJournalName().ApproveGroupId;
+      #    #ISOCountryRegionCodes
+      #
+      #    printMenu.enabled(ledgerJournalTable.RecId != 0);
+      #
+      #    // Set the lines button's display menu item to point to the correct lines form.
+      #    journalLines.menuItemName(journalFormTable.journalTableData().journalStatic().menuItemStrLines(journalType));
+      #
+      #    printTaxInvoice.visible(SysCountryRegionCode::isLegalEntityInCountryRegion([#isoTH, #isoMX]));
+      #    printTaxInvoice.enabled(false);
+      #
+      #    switch (journalType)
+      #    {
+      #        case LedgerJournalType::Periodic  :
+      #            checkJournal.visible(false);
+      #            postJournal.visible(false);
+      #            course.visible(false);
+      #            break;
+      #
+      #        case LedgerJournalType::PurchaseLedger :
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransInvoiceRegister));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransInvoiceRegister));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransInvoiceRegister));
+      #            break;
+      #
+      #        case LedgerJournalType::Daily :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransDaily));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransDaily));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLedgerJourTransDaily));
+      #            break;
+      #
+      #        case LedgerJournalType::Allocation :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #
+      #            // only posting supported not post and transfer
+      #            ledgerJournalPostTransfer.visible(false);
+      #
+      #            // dimensions are not editable
+      #            tabFinancialDimensions.enabled(false);
+      #
+      #            // no Cash report
+      #            cashReport.visible(false);
+      #
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransAllocation));
+      #            ledgerJournalPostTransfer.enabled(false);
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransAllocation));
+      #            break;
+      #
+      #        case LedgerJournalType::Elimination :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #
+      #            // only posting supported not post and transfer
+      #            ledgerJournalPostTransfer.visible(false);
+      #
+      #            // dimensions are not editable
+      #            tabFinancialDimensions.enabled(false);
+      #
+      #            // no Cash report
+      #            cashReport.visible(false);
+      #
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransElimination));
+      #            ledgerJournalPostTransfer.enabled(false);
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransElimination));
+      #            break;
+      #
+      #        case LedgerJournalType::Approval :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransApprove));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransApprove));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransInvApprove));
+      #            break;
+      #
+      #        case LedgerJournalType::Payment :
+      #            checkJournal.visible(true);
+      #            if ((bankAccount_IT) &&
+      #                (!ledgerJournalTable.allowPosting_IT()))
+      #            {
+      #                postJournal.visible(false);
+      #            }
+      #            else
+      #            {
+      #                postJournal.visible(true);
+      #            }
+      #            printTaxInvoice.enabled(ledgerJournalTable.Posted);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransVendPaym));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransVendPaym));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLedgerJourTransVendPaym));
+      #            break;
+      #
+      #        case LedgerJournalType::CustPayment :
+      #            // this is specific to CustPayment
+      #            custPaymEntryButton.visible(true);
+      #
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            printTaxInvoice.enabled(ledgerJournalTable.Posted);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransCustPaym));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransCustPaym));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransCustPaym));
+      #            break;
+      #
+      #        case LedgerJournalType::Cost  :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransCost));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransCost));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkCOSJournalTable));
+      #            break;
+      #
+      #        case LedgerJournalType::VendInvoiceRegister :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransVendInvoice));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransVendInvoice));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLedgerJourTransVendInvoice));
+      #            break;
+      #
+      #        case LedgerJournalType::Assets :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransAsset));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransAsset));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLedgerJourTransAsset));
+      #            break;
+      #
+      #        case LedgerJournalType::AssetBudgets :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(false);
+      #            post.enabled(false);
+      #            ledgerJournalPostTransfer.enabled(false);
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLedgerJourTransAssetBudget));
+      #            break;
+      #
+      #        case LedgerJournalType::CustPaymRemittance :
+      #            journalLines.enabled(ledgerJournalTable.BankAccountId ? true : false);
+      #
+      #            if (!journalLines.enabled() &&
+      #                ledgerJournalTable.numOfLines() > 0)
+      #            {
+      #                journalLines.enabled(true);
+      #            }
+      #
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransCustBOERemit));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransCustBOERemit));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransCustBOERemit));
+      #            break;
+      #
+      #        case LedgerJournalType::VendPaymRemittance :
+      #            journalLines.enabled(ledgerJournalTable.BankAccountId ? true : false);
+      #
+      #            if (!journalLines.enabled() &&
+      #                ledgerJournaltable.numOfLines() > 0)
+      #            {
+      #                journalLines.enabled(true);
+      #            }
+      #
+      #            checkJournal.visible(true);
+      #            if ((bankAccount_IT) &&
+      #                (!ledgerJournalTable.allowPosting_IT()))
+      #            {
+      #                postJournal.visible(false);
+      #            }
+      #            else
+      #            {
+      #                postJournal.visible(true);
+      #            }
+      #
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransVendPrNoteRemit));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransVendPrNoteRemit));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransPrNtRemit));
+      #            break;
+      #
+      #        case LedgerJournalType::CustBillOfExchangeDraw :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransCustBOEDraw));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransCustBOEDraw));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransCustBOEDraw));
+      #            break;
+      #
+      #        case LedgerJournalType::CustBillOfExchangeProtest :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransCustBOEProtest));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransCustBOEProtest));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransCustBOEProtest));
+      #            break;
+      #
+      #        case LedgerJournalType::CustBillOfExchangeRedraw :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransCustBOERedraw));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransCustBOERedraw));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransCustBOERedraw));
+      #            break;
+      #
+      #        case LedgerJournalType::CustBillOfExchangeSettle :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransCustBOESettle));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransCustBOESettle));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransCustBOESettle));
+      #            break;
+      #
+      #        case LedgerJournalType::VendPromissoryNoteDraw :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransVendPrNoteDraw));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransVendPrNoteDraw));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransPrNtDraw));
+      #            break;
+      #
+      #        case LedgerJournalType::VendPromissoryNoteRedraw :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransVendPrNoteRedraw));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransVendPrNoteRedraw));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransPrNtRedraw));
+      #            break;
+      #
+      #        case LedgerJournalType::VendPromissoryNoteSettle :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransVendPrNoteSettle));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransVendPrNoteSettle));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLJTransPrNtSettle));
+      #            break;
+      #
+      #        case LedgerJournalType::BankChequeReversal :
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransBankChequeRev));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransBankChequeRev));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLdgrJourTransBankChequeRev));
+      #            break;
+      #
+      #        case LedgerJournalType::BankDepositPaymCancel :
+      #            checkJournal.visible(true);
+      #            postJournal.visible(true);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransBankDepPaymCanc));
+      #            ledgerJournalPostTransfer.menuItemName(menuitemActionStr(LedgerJourPostTrLJTransBankDepPaymCanc));
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLdgrJrTransBnkDepPayCancel));
+      #            break;
+      #
+      #        default :
+      #            journalLines.visible(false);
+      #
+      #            postJournal.visible(true);
+      #            post.enabled(false);
+      #            post.menuItemName(menuitemActionStr(LedgerJourPostLJTransDaily));
+      #
+      #            ledgerJournalPostTransfer.enabled(false);
+      #
+      #            checkJournal.enabled(false);
+      #            checkJournal.menuItemName(menuitemActionStr(LedgerJourChkLedgerJourTransDaily));
+      #
+      #    }
+      #
+      #    if (ledgerJournalTable.reportedAsReady())
+      #    {
+      #        reportAsReady.enabled(false);
+      #        approve.enabled(!ledgerJournalTable.approved() || ledgerJournalTable.rejected());
+      #        reject.enabled(!ledgerJournalTable.rejected());
+      #    }
+      #    else
+      #    {
+      #        reportAsReady.enabled(true);
+      #        approve.enabled(false);
+      #        reject.enabled(false);
+      #    }
+      #
+      #    if (ledgerJournalTable.ledgerJournalName().ApproveActive)
+      #    {
+      #        if (!UserInfoHelp::userInUserGroup(curUserId(), approveGroupId))
+      #        {
+      #            approve.enabled(false);
+      #            reject.enabled(false);
+      #        }
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #enableFieldsActive
+      #void enableFieldsActive()
+      #{
+      #    if (ledgerJournalTable.FixedOffsetAccount   == NoYes::Yes   ||
+      #        ledgerJournalTable.JournalType          == LedgerJournalType::PurchaseLedger)
+      #    {
+      #        ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetAccountType)).allowEdit(false);
+      #        ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetLedgerDimension)).allowEdit(false);
+      #    }
+      #    else
+      #    {
+      #        ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetAccountType)).allowEdit(true);
+      #        ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetLedgerDimension)).allowEdit(true);
+      #    }
+      #
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, CustVendNegInstProtestProcess)).allowEdit(ledgerJournalTable.ProtestSettledBill);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, BankRemittanceType)).allowEdit(!ledgerJournalTable.ProtestSettledBill);
+      #
+      #    if (ledgerJournalTable.JournalType == LedgerJournalType::CustPaymRemittance ||
+      #        ledgerJournalTable.JournalType == LedgerJournalType::VendPaymRemittance)
+      #    {
+      #        groupPromissorynote_BankAccountId.allowEdit(!ledgerJournalTable.existVoucher());
+      #    }
+      #    else if (ledgerJournalTable.JournalType == LedgerJournalType::Allocation)
+      #    {
+      #        this.enableFieldsForAllocation();
+      #    }
+      #    else if (ledgerJournalTable.JournalType == LedgerJournalType::Elimination)
+      #    {
+      #        this.enableFieldsForElimination();
+      #    }
+      #
+      #    if (journalFormTable.journalTypeId() == LedgerJournalType::Daily)
+      #    {
+      #        ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, ReverseDate)).allowEdit(ledgerJournalTable.ReverseEntry ? true : false);
+      #    }
+      #
+      #    if (journalFormTable.journalTypeId() == LedgerJournalType::BankChequeReversal ||
+      #        journalFormTable.journalTypeId() == LedgerJournalType::BankDepositPaymCancel)
+      #    {
+      #       this.enableFieldsForBank();
+      #    }
+      #}
+      #
+      #
+    ENDSOURCE
+    SOURCE #enableFieldsForAllocation
+      #/// <summary>
+      #/// Disables most fields when the journal is an allocation journal.
+      #/// </summary>
+      #/// <remarks>
+      #/// An allocation journal does not allow entry of ledgers.
+      #/// </remarks>
+      #void enableFieldsForAllocation()
+      #{
+      #    ;
+      #
+      #    // the fields in the overview grid and on general tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, JournalName)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, JournalNum)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, Posted)).allowEdit(false);
+      #
+      #    // additional fields on the general tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, DetailSummaryPosting)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, RemoveLineAfterPosting)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, LinesLimitBeforeDistribution)).allowEdit(false);
+      #
+      #    // fields on Setup tab are display only
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetAccountType)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetLedgerDimension)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, DocumentNum)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, VoucherAllocatedAtPosting)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, CurrencyCode)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, FixedExchRate)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, euroTriangulation)).allowEdit(false);
+      #    editExchRate.enabled(false);
+      #    editExchRateSecond.enabled(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, LedgerJournalInclTax)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, BankAccountId)).allowEdit(false);
+      #}
+    ENDSOURCE
+    SOURCE #enableFieldsForBank
+      #/// <summary>
+      #/// Sets the field enablement for the bank journal types.
+      #/// </summary>
+      #void enableFieldsForBank()
+      #{
+      #    // Disable the creation of new journals
+      #    ledgerJournalTable_ds.allowCreate(false);
+      #
+      #    // Disable these fields in the overview grid and on general tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, JournalName)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, JournalNum)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, Posted)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, Log)).allowEdit(false);
+      #
+      #    // Disable this additional field on the general tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, LinesLimitBeforeDistribution)).allowEdit(false);
+      #
+      #    // Disable all fields on the Setup tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetAccountType)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetLedgerDimension)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, DocumentNum)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, VoucherAllocatedAtPosting)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, CurrencyCode)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, FixedExchRate)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, euroTriangulation)).allowEdit(false);
+      #    editExchRate.enabled(false);
+      #    editExchRateSecond.enabled(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, LedgerJournalInclTax)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, BankAccountId)).allowEdit(false);
+      #
+      #    // Disable print options
+      #    cashReport.visible(false);
+      #    printTaxInvoice.visible(false);
+      #
+      #    // Disable all fields on the Dimensions tab
+      #    tabFinancialDimensions.enabled(false);
+      #}
+    ENDSOURCE
+    SOURCE #enableFieldsForElimination
+      #//
+      #// This method disables most fields when the journal is type Elimination.
+      #//
+      #void enableFieldsForElimination()
+      #{
+      #    // cannot create new journal entries
+      #    if (CompanyInfo::isEliminationCompany() == NoYes::No)
+      #    {
+      #    ledgerJournalTable_ds.allowCreate(false);
+      #    }
+      #
+      #    // the fields in the overview grid and on general tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, JournalNum)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, Posted)).allowEdit(false);
+      #
+      #    if (ledgerJournalTable.Posted == NoYes::No)
+      #    {
+      #    // this is the Description
+      #     ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,Name)).allowEdit(true);
+      #    }
+      #    else
+      #    {
+      #      ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, Name)).allowEdit(false);
+      #    }
+      #
+      #    // additional fields on the general tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, DetailSummaryPosting)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, RemoveLineAfterPosting)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, LinesLimitBeforeDistribution)).allowEdit(false);
+      #
+      #    // fields on Setup tab are display only
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetAccountType)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, OffsetLedgerDimension)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, DocumentNum)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, VoucherAllocatedAtPosting)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, CurrencyCode)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, FixedExchRate)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, euroTriangulation)).allowEdit(false);
+      #    editExchRate.enabled(false);
+      #    editExchRateSecond.enabled(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, LedgerJournalInclTax)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, BankAccountId)).allowEdit(false);
+      #
+      #    //fields on Blocking tab- take defaults
+      #    // the Dimensions Tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, DefaultDimension)).allowEdit(false);
+      #    // the History Tab
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,ReportedAsReadyBy)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,Approver)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,RejectedBy)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,OriginalCompany)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,OriginalJournalNum)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,Posted)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,PostedDateTime)).allowEdit(false);
+      #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable,Log)).allowEdit(false);
+      #
+      #
+      #}
+    ENDSOURCE
+    SOURCE #firstField
+      #void firstField(int _flags=1)
+      #{
+      #    super(_flags);
+      #
+      #    journalFormTable.formFirstFieldPost();
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    #ISOCountryRegionCodes
+      #    AccessRight accessRight;
+      #    boolean financialsDimensionsEnabled = false;
+      #
+      #
+      #    journalFormTable = new LedgerJournalFormTable(element);
+      #
+      #    SysListPageHelper::handleInitPreSuper(element);
+      #
+      #    super();
+      #    FormSecurity::setFormDataSourceMaxAccessRight(this);
+      #
+      #    dimOffsetAccountController = DimensionDynamicAccountController::construct(ledgerJournalTable_DS, fieldStr(LedgerJournalTable, OffsetLedgerDimension), fieldStr(LedgerJournalTable, OffsetAccountType));
+      #    dimOffsetAccountController.parmIsDefaultAccount(true);
+      #    dimOffsetAccountController.parmValidateBlockedForManualEntry(true);
+      #
+      #    custPaymEntryButton.visible(journalFormTable.journalTypeId() == LedgerJournalType::CustPayment);
+      #
+      #    journalFormTable.parmCtrlAllOpenPosted(allOpenPostedField);
+      #    journalFormTable.parmCtrlShowUserCreatedOnly(showUserCreatedOnly);
+      #    journalFormTable.parmCtrlJournalIdTab(journalNum);
+      #    journalFormTable.parmCtrlJournalIdGrid(ledgerJournalTable_JournalNum);
+      #    journalFormTable.parmCtrlJournalTypeGrid(journalTypeGrid);
+      #    journalFormTable.parmCtrlOverview(gridOverview);
+      #    journalFormTable.parmCtrlCustPaymEntryButton(custPaymEntryButton);
+      #    journalFormTable.parmCtrlLines(journalLines);
+      #    journalFormTable.parmCtrlCheckJournal(checkJournal);
+      #    journalFormTable.parmCtrlPostJournalMenu(postJournal);
+      #    journalFormTable.parmCtrlMarkUserBlock(isUserPrivate);
+      #    journalFormTable.parmCtrlMarkInUseBlock(markInUseBlock);
+      #    journalFormTable.parmCtrlSystemBlocked(systemBlocked);
+      #    journalFormTable.parmCtrlBlockImage(blockImage);
+      #    journalFormTable.parmCtrlApprovalMenu(course);
+      #    journalFormTable.parmCtrlJournalLinesGeneratePayment(journalLines_GeneratePayments);
+      #    journalFormTable.parmCtrlJournalLinesEdit(journalLines_Edit);
+      #    journalFormTable.parmCtrlJournalLinesReview(journalLines_Review);
+      #    journalFormTable.parmCtrlJournalLines_WorkFlowApproved(journalLines_WorkflowApproved);
+      #
+      #    journalFormTable.formInitPost();
+      #
+      #    bankAccount_IT = SysCountryRegionCode::isLegalEntityInCountryRegion([#isoIT]);
+      #
+      #    //Only execute code if called from ForEdit menu item
+      #    if (SysListPageHelper::isFormOpenedWithOpenModeForEditParm(element))
+      #    {
+      #        SysListPageHelper::handleInitPostSuper(element);
+      #
+      #        journalFormTable.queryAddRange();
+      #
+      #        //If opened from payment journal list page, set to All types
+      #        if ((element.args().caller().name() == formStr(LedgerJournalTableCustPaymentListPage))
+      #         || (element.args().caller().name() == formStr(LedgerJournalTableVendPaymentListPage)))
+      #        {
+      #            allOpenPostedField.selection(AllOpenPosted::All);
+      #        }
+      #    }
+      #
+      #    accessRight = FormSecurity::getMenuItemAccessRight(this);
+      #    if (accessRight >= AccessRight::Edit)
+      #    {
+      #        financialsDimensionsEnabled = true;
+      #        if (element.args() && element.args().menuItemName())
+      #        {
+      #            if (element.args().menuItemType() == MenuItemType::Display
+      #                && (element.args().menuItemName() == menuitemDisplayStr(LedgerJournalTable_BankChequeReversal)
+      #                || element.args().menuItemName() == menuitemDisplayStr(LedgerJournalTable_BankDepositPaymCancel)))
+      #            {
+      #                financialsDimensionsEnabled = false;
+      #            }
+      #        }
+      #    }
+      #
+      #    dimensionDefaultingController = DimensionDefaultingController::constructInTabWithValues(false, true, financialsDimensionsEnabled, 0, this, tabFinancialDimensions, "@SYS138491");
+      #    dimensionDefaultingController.parmAttributeValueSetDataSource(ledgerJournalTable_ds, fieldStr(LedgerJournalTable, DefaultDimension));
+      #    dimensionDefaultingController.parmValidateBlockedForManualEntry(true);
+      #
+      #    tabFinancialDimensions.enabled(financialsDimensionsEnabled);
+      #}
+      #
+    ENDSOURCE
+    SOURCE #initControls
+      #/// <summary>
+      #/// Initializes form controls based on the journal type.
+      #/// </summary>
+      #/// <param name="_journalTypeId">
+      #/// The journal type ID
+      #/// </param>
+      #protected void initControls(Integer _journalTypeId)
+      #{
+      #    // Place the lines button in its default state
+      #    journalLines_WorkflowApproved.visible(false);
+      #    journalLines.visible(true);
+      #
+      #    // hide the Reversing Entries fields
+      #    groupReversingEntry.visible(false);
+      #    ledgerJournalTable_ReverseEntry.visible(false);
+      #    ledgerJournalTable_ReverseDate.visible(false);
+      #
+      #    switch (_journalTypeId)
+      #    {
+      #        case LedgerJournalType::CustBillOfExchangeProtest :
+      #             tabBillOfExchange.visible(true);
+      #             groupProtestNegInst.visible(true);
+      #             groupBillOfExchange_BankRemittanceType.hideFirstEntry(false);
+      #             break;
+      #
+      #        case LedgerJournalType::CustBillOfExchangeDraw,
+      #             LedgerJournalType::CustBillOfExchangeRedraw:
+      #             tabBillOfExchange.visible(true);
+      #             tabBillOfExchange.caption("@SYS69795");
+      #             groupBillOfExchange_BankRemittanceType.visible(false);
+      #             break;
+      #
+      #        case LedgerJournalType::CustPaymRemittance,
+      #             LedgerJournalType::CustBillOfExchangeSettle :
+      #             tabBillOfExchange.visible(true);
+      #             tabBillOfExchange.caption("@SYS69795");
+      #             break;
+      #
+      #        case LedgerJournalType::VendPromissoryNoteDraw,
+      #             LedgerJournalType::VendPaymRemittance,
+      #             LedgerJournalType::VendPromissoryNoteSettle :
+      #             tabBillOfExchange.visible(true);
+      #             tabBillOfExchange.caption("@SYS71440");
+      #             billOfExchange.visible(false);
+      #             promissoryNote.visible(true);
+      #             break;
+      #
+      #        case LedgerJournalType::VendPromissoryNoteRedraw :
+      #             tabBillOfExchange.visible(true);
+      #             tabBillOfExchange.caption("@SYS71440");
+      #             billOfExchange.visible(false);
+      #             promissoryNote.visible(true);
+      #             groupProtestNegInst.visible(true);
+      #             break;
+      #
+      #        case LedgerJournalType::Allocation :
+      #             // cannot create new journal entries
+      #             ledgerJournalTable_ds.allowCreate(false);
+      #             element.design().caption("@SYS342280");
+      #             break;
+      #
+      #        case LedgerJournalType::Elimination :
+      #             // cannot create new journal entries unless the company is an elimination company
+      #             ledgerJournalTable_ds.allowCreate(CompanyInfo::isEliminationCompany());
+      #             element.design().caption("@SYS342281");
+      #             break;
+      #
+      #        case LedgerJournalType::Periodic :
+      #             element.design().caption("@SYS24600");
+      #             break;
+      #
+      #        case LedgerJournalType::Daily :
+      #             // show the Reversing Entries fields
+      #             groupReversingEntry.visible(true);
+      #             ledgerJournalTable_ReverseEntry.visible(true);
+      #             ledgerJournalTable_ReverseDate.visible(true);
+      #             element.design().caption("@SYS25908");
+      #             break;
+      #
+      #        default :
+      #            // Default properties of the tabpage
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #journalForm
+      #JournalForm journalForm()
+      #{
+      #    return journalFormTable;
+      #}
+    ENDSOURCE
+    SOURCE #loadWorkflowConfiguration
+      #public Common loadWorkflowConfiguration()
+      #{
+      #    WorkflowVersionTable        workflowConfigurationTable;
+      #    LedgerJournalName           ledgerJournalName = ledgerJournalTable.ledgerJournalName();
+      #    ;
+      #
+      #    if (ledgerJournalName.checkWorkflowApprovalEnabled())
+      #    {
+      #        workflowConfigurationTable = WorkflowVersionTable::findSequenceNumber(ledgerJournalName.Configuration);
+      #    }
+      #
+      #    return workflowConfigurationTable;
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #public void run()
+      #{
+      #    ;
+      #
+      #    SysListPageHelper::handleRunPreSuper(element, tab, 2, 1);
+      #    super();
+      #    SysListPageHelper::handleRunPostSuper(element, tab);
+      #
+      #    //If opened from payment journal list page, set to All types
+      #    //Only execute code if called from ForEdit menu item
+      #    if (SysListPageHelper::isFormOpenedWithOpenModeForEditParm(element))
+      #    {
+      #        if ((element.args().caller().name() == formStr(LedgerJournalTableCustPaymentListPage))
+      #         || (element.args().caller().name() == formStr(LedgerJournalTableVendPaymentListPage)))
+      #        {
+      #            tab.tab(2);
+      #        }
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #setAccountAccess
+      #void setAccountAccess()
+      #{
+      #    // Italian only functionality
+      #    if (bankAccount_IT)
+      #    {
+      #        if (ledgerJournalTable.JournalType == LedgerJournalType::Payment &&
+      #            ledgerJournalTable.existVoucher())
+      #        {
+      #            ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, BankAccountId)).allowEdit(false);
+      #        }
+      #        else
+      #        {
+      #            ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, BankAccountId)).allowEdit(true);
+      #        }
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #setLinesGeneratePaymentsLabelAndHelpText
+      #/// <summary>
+      #/// Specializes the label and help text on the JournalLines_GeneratePayments item of the
+      #/// JournalLines_WorkflowApproved button for the currently selected journal.
+      #/// </summary>
+      #/// <remarks>
+      #/// This method has to be public so it can be called from data source.
+      #/// </remarks>
+      #public void setLinesGeneratePaymentsLabelAndHelpText()
+      #{
+      #    ;
+      #
+      #    if (ledgerJournalTable.JournalType == LedgerJournalType::CustPaymRemittance ||
+      #        ledgerJournalTable.JournalType == LedgerJournalType::VendPaymRemittance)
+      #    {
+      #        // This is a remittance journal, so specialize the text.
+      #        journalLines_GeneratePayments.text("@SYS83541");
+      #        journalLines_GeneratePayments.helpText("@SYS109634");
+      #    }
+      #    else
+      #    {
+      #        // This is a 'regular' journal, so generalize the text.
+      #        journalLines_GeneratePayments.text("@SYS24287");
+      #        journalLines_GeneratePayments.helpText("@SYS109635");
+      #    }
+      #}
+      #
+      #
+    ENDSOURCE
+    SOURCE #showProperJournalLinesButton
+      #/// <summary>
+      #/// Shows either the JournalLines_WorkflowApproved button or the JournalLines button for the
+      #/// current workflow approvals state.
+      #/// </summary>
+      #/// <remarks>
+      #/// This method has to be public so it can be called from the data source.
+      #/// </remarks>
+      #public void showProperJournalLinesButton()
+      #{
+      #    ;
+      #
+      #    if (ledgerJournalTable.isWFApprovalApproved() && !ledgerJournalTable.Posted)
+      #    {
+      #        // The journal is in workflow approvals and has been approved, so display the alternative lines button
+      #        // which gives review, edit and generate payments options.
+      #
+      #        // change visibility to "swap" in the workflow version
+      #        journalLines_WorkflowApproved.visible(true);
+      #        journalLines.visible(false);
+      #
+      #        if (journalFormTable.canLinesFormGeneratePayments(ledgerJournalTable.JournalType))
+      #        {
+      #            journalLines_GeneratePayments.visible(true);
+      #        }
+      #        else
+      #        {
+      #            journalLines_GeneratePayments.visible(false);
+      #        }
+      #    }
+      #    else
+      #    {
+      #        // The journal has not been workflow approvals approved so just display the regular lines button.
+      #
+      #        // change visibility to "swap" in the regular version
+      #        journalLines_WorkflowApproved.visible(false);
+      #        journalLines.visible(true);
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #timeOutRedraw
+      #void timeOutRedraw()
+      #{
+      #    ;
+      #    journalFormTable.formMethodTimeOutRedraw();
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #LedgerJournalTable
+          Table               #LedgerJournalTable
+          Index               #TypeNumIdx
+          DelayActive         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD Name
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #jumpRef
+                #public void jumpRef()
+                #{
+                #    LedgerJournalName   name;
+                #    Args                args;
+                #    MenuFunction        mf;
+                #
+                #    name = LedgerJournalName::find(
+                #        LedgerJournalTable.JournalName);
+                #
+                #    if (!name)
+                #    {
+                #        return;
+                #    }
+                #
+                #    args = new Args();
+                #    args.caller(element);
+                #    args.record(name);
+                #
+                #    mf = new MenuFunction(
+                #        menuitemDisplayStr(LedgerJournalSetup),
+                #        MenuItemType::Display);
+                #    mf.run(args);
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD JournalType
+            PROPERTIES
+              AllowEdit           #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD SystemBlocked
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #    journalFormTable.fieldModifiedSystemBlockedPost();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD JournalName
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #lookup
+                #public void lookup(FormControl _formControl, str _filterStr)
+                #{
+                #    ;
+                #    journalFormTable.designLookupJournalName(_formControl);
+                #}
+              ENDSOURCE
+              SOURCE #validate
+                #boolean validate()
+                #{
+                #    boolean ret;
+                #    ;
+                #
+                #    ret = super();
+                #
+                #    ret = journalFormTable.fieldValidateJournalNameIdPost(ret);
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+              SOURCE #modified
+                #void modified()
+                #{
+                #    super();
+                #
+                #    journalFormTable.fieldModifiedJournalNameIdPost();
+                #
+                #    element.updateWorkflowControls();
+                #
+                #    element.redraw();
+                #
+                #    element.enableFieldsActive();
+                #    dimensionDefaultingController.activated();
+                #}
+                #
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD GroupBlockId
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    journalFormTable.fieldModifiedBlockUserGroupId();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD LedgerJournalInclTax
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #public boolean validate()
+                #{
+                #    boolean             ret;
+                #    LedgerJournalTrans  ledgerJournalTransLocal;
+                #    boolean             custTaxOnPrepayment = CustParameters::find().TaxOnPrepayment;
+                #    boolean             vendTaxOnPrepayment = VendParameters::find().TaxOnPrepayment;
+                #
+                #    ret = super();
+                #
+                #    if (!ledgerJournalTable.LedgerJournalInclTax && ret)
+                #    {
+                #        while select AccountType, OffsetLedgerDimension, OffsetAccountType from ledgerJournalTransLocal
+                #            where ledgerJournalTransLocal.JournalNum == ledgerJournalTable.JournalNum &&
+                #                  ledgerJournalTransLocal.Prepayment
+                #        {
+                #            if (custTaxOnPrepayment &&
+                #               (ledgerJournalTransLocal.AccountType   == LedgerJournalACType::Cust ||
+                #               (ledgerJournalTransLocal.parmOffsetLedgerDimension() &&
+                #                ledgerJournalTransLocal.OffsetAccountType == LedgerJournalACType::Cust)))
+                #            {
+                #                error("@SYS98400");
+                #                return false;
+                #            }
+                #
+                #            if (vendTaxOnPrepayment &&
+                #               (ledgerJournalTransLocal.AccountType   == LedgerJournalACType::Vend ||
+                #               (ledgerJournalTransLocal.parmOffsetLedgerDimension() &&
+                #                ledgerJournalTransLocal.OffsetAccountType == LedgerJournalACType::Vend)))
+                #            {
+                #                error("@SYS98400");
+                #                return false;
+                #            }
+                #        }
+                #    }
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD BankAccountId
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #lookup
+                #public void lookup(FormControl _formControl, str _filterStr)
+                #{
+                #    BankAccountTable::lookupBankAccount(_formControl);
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD ReverseEntry
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #/// <summary>
+                #/// Sets the editable property of theLedgerJournalTable table ReverseDate field.
+                #/// </summary>
+                #public void modified()
+                #{
+                #    ;
+                #
+                #    super();
+                #
+                #    ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, ReverseDate)).allowEdit(ledgerJournalTable.ReverseEntry ? true : false);
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          REFERENCEFIELD OffsetLedgerDimension
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #resolveReference
+                #public Common resolveReference(FormReferenceControl _formReferenceControl)
+                #{
+                #    Common common = dimOffsetAccountController.resolveReference();
+                #
+                #    return common;
+                #}
+              ENDSOURCE
+              SOURCE #jumpRef
+                #public void jumpRef()
+                #{
+                #    dimOffsetAccountController.jumpRef();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDREFERENCEFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #validateDelete
+          #public boolean validateDelete()
+          #{
+          #    boolean ret;
+          #
+          #    ret = super();
+          #
+          #    ret = journalFormTable.datasourceValidateDeletePost(ret);
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+        SOURCE #linkActive
+          #public void linkActive()
+          #{
+          #    ;
+          #    journalFormTable.datasourceLinkActivePre();
+          #
+          #    super();
+          #}
+        ENDSOURCE
+        SOURCE #reread
+          #public void reread()
+          #{
+          #    super();
+          #    journalFormTable.datasourceReReadPost();
+          #
+          #    if (bankAccount_IT)
+          #    {
+          #        element.enableButtonsActive();
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #lockImage
+          #//BP Deviation Documented
+          #display Integer lockImage(LedgerJournalTable _journalTable)
+          #{
+          #    return journalFormTable.datasourceMethodLockImage(_journalTable);
+          #}
+        ENDSOURCE
+        SOURCE #inUseUserId
+          #//BP Deviation Documented
+          #display JournalBlockInUseUserId inUseUserId()
+          #{
+          #    return journalFormTable.datasourceMethodInUseUserId(ledgerJournalTable);
+          #}
+        ENDSOURCE
+        SOURCE #inUseBlock
+          #//BP Deviation Documented
+          #edit JournalMarkInUseBlock inUseBlock(boolean _set, JournalTableMap _journalTable, JournalMarkInUseBlock _value)
+          #{
+          #    ;
+          #    return journalFormTable.datasourceMethodInUseBlock(_set, _journalTable, _value);
+          #}
+        ENDSOURCE
+        SOURCE #write
+          #/// <summary>
+          #/// Handles the datasource's write event.
+          #/// </summary>
+          #void write()
+          #{
+          #    boolean enableJournalLines = false;
+          #
+          #    ttsbegin;
+          #
+          #    if (ledgerJournalTable.isWFApprovalApproved())
+          #    {
+          #        ledgerJournalTable.WorkflowApprovalStatus = LedgerJournalWFApprovalStatus::NotSubmitted;
+          #    }
+          #
+          #    dimensionDefaultingController.writing();
+          #
+          #    super();
+          #
+          #    journalFormTable.datasourceWritePost();
+          #
+          #    ttscommit;
+          #
+          #    // Set enableJournalLines if the journal workflow approval status is "Notsubmitted".
+          #    if (ledgerJournalTable.WorkflowApprovalStatus == LedgerJournalWFApprovalStatus::NotSubmitted)
+          #    {
+          #        enableJournalLines = true;
+          #    }
+          #
+          #    if (enableJournalLines)
+          #    {
+          #        element.showProperJournalLinesButton();
+          #    }
+          #}
+          #
+        ENDSOURCE
+        SOURCE #validateWrite
+          #public boolean validateWrite()
+          #{
+          #    boolean isValid;
+          #
+          #    isValid = super();
+          #
+          #    isValid = journalFormTable.datasourceValidateWritePost(isValid);
+          #
+          #    if (isValid && ledgerJournalTable.isWFApprovalApproved())
+          #    {
+          #        if (Box::yesNo("@SYS109636", DialogButton::No) == DialogButton::No)
+          #        {
+          #            isValid = false;
+          #            ledgerJournalTable_ds.reread();
+          #            element.redraw();
+          #        }
+          #    }
+          #
+          #    return isValid;
+          #}
+        ENDSOURCE
+        SOURCE #leave
+          #public boolean leave()
+          #{
+          #    boolean ret = true;
+          #
+          #
+          #    if (!inCreate && !inDelete)
+          #    {
+          #        if (ledgerJournalTable.JournalName == '')
+          #        {
+          #            // delete a new record with no journal name or the user will have to do it manually
+          #            ledgerJournalTable_ds.delete();
+          #        }
+          #
+          #        ret = journalFormTable.datasourceLeavePre();
+          #    }
+          #
+          #    ret = ret && super();
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+        SOURCE #initValue
+          #void initValue()
+          #{
+          #    ;
+          #
+          #    super();
+          #
+          #    journalFormTable.datasourceInitValuePost();
+          #}
+        ENDSOURCE
+        SOURCE #init
+          #void init()
+          #{
+          #    super();
+          #
+          #    journalFormTable.datasourceInitPost(ledgerJournalTable);
+          #}
+        ENDSOURCE
+        SOURCE #executeQuery
+          #void executeQuery()
+          #{
+          #    ;
+          #    journalFormTable.datasourceExecuteQueryPre();
+          #
+          #    super();
+          #
+          #    journalFormTable.datasourceExecuteQueryPost();
+          #}
+        ENDSOURCE
+        SOURCE #delete
+          #//AOSRunmode::Client
+          #void delete()
+          #{
+          #    try
+          #    {
+          #        inDelete = true;
+          #        ttsbegin;
+          #
+          #        super();
+          #
+          #        journalFormTable.datasourceDeletePost();
+          #
+          #        ttscommit;
+          #        inDelete = false;
+          #
+          #        dimensionDefaultingController.deleted();
+          #
+          #        if (!this.cursor().RecId)
+          #        {
+          #            //
+          #            // Workflow controls must be updated on demand
+          #            // when the last row is deleted from the grid.
+          #            //
+          #            element.updateWorkflowControls();
+          #        }
+          #    }
+          #    catch(Exception::Error)
+          #    {
+          #        inDelete = false;
+          #        throw Exception::Error;
+          #    }
+          #    catch(Exception::UpdateConflict)
+          #    {
+          #        inDelete = false;
+          #        throw Exception::UpdateConflict;
+          #    }
+          #    catch(Exception::CodeAccessSecurity)
+          #    {
+          #        inDelete = false;
+          #        throw Exception::CodeAccessSecurity;
+          #    }
+          #    catch(Exception::UpdateConflictNotRecovered)
+          #    {
+          #        inDelete = false;
+          #        throw Exception::UpdateConflictNotRecovered;
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #create
+          #void create(boolean _append = false)
+          #{
+          #    ;
+          #    inCreate = true;
+          #    if (! journalFormTable.datasourceCreatePre())
+          #    {
+          #        inCreate = false;
+          #        return;
+          #    }
+          #
+          #    super(_append);
+          #
+          #    journalFormTable.datasourceCreatePost();
+          #
+          #    // If a query filter in journal name is applied, the kernel doesn't recognize that the field has changed and
+          #    // that the record is 'dirty'
+          #    if (ledgerJournalTable.JournalName)
+          #    {
+          #        ledgerJournalTable_ds.object(fieldNum(LedgerJournalTable, JournalName)).modified();
+          #    }
+          #    inCreate = false;
+          #}
+        ENDSOURCE
+        SOURCE #active
+          #int active()
+          #{
+          #    int ret;
+          #    element.setAccountAccess();
+          #
+          #    journalFormTable.datasourceActivePre();
+          #
+          #    ret = super();
+          #
+          #    journalFormTable.datasourceActivePost();
+          #
+          #    element.setAccountAccess();
+          #
+          #    element.showProperJournalLinesButton();
+          #
+          #    element.setLinesGeneratePaymentsLabelAndHelpText();
+          #
+          #    dimensionDefaultingController.activated();
+          #
+          #    return ret;
+          #}
+          #
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS6790
+      UseCaptionFromMenuItem  #Yes
+      DataSource          #LedgerJournalTable
+      HideIfEmpty         #No
+      WorkflowEnabled     #Yes
+      WorkflowDatasource  #LedgerJournalTable
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #715827882
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup
+          ElementPosition     #477218588
+          HierarchyParent     #ActionPaneTab
+          DataSource          #LedgerJournalTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #GridOverview
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #Overview
+          DataSource          #LedgerJournalTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Approvalprocedure
+          AllowEdit           #No
+          Enabled             #No
+          ElementPosition     #613566756
+          HierarchyParent     #History
+          DataSource          #LedgerJournalTable
+          DataGroup           #ApprovalProcedure
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #BillOfExchange
+          AutoDeclaration     #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #TabBillOfExchange
+          FrameType           #None
+          DataSource          #LedgerJournalTable
+          DataGroup           #BillOfExchange
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Blocked
+          ElementPosition     #1717986916
+          HierarchyParent     #Block
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Currency
+          ElementPosition     #1342177275
+          HierarchyParent     #Setup
+          Caption             #@SYS7572
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DocumentNum
+          ElementPosition     #805306365
+          HierarchyParent     #Setup
+          Caption             #@SYS101280
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Group
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupProtestNegInst
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #1717986916
+          HierarchyParent     #TabBillOfExchange
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupReversingEntry
+          AutoDeclaration     #Yes
+          ConfigurationKey    #LedgerBasicReversingEntries
+          ElementPosition     #1789569705
+          HierarchyParent     #General
+          DataSource          #LedgerJournalTable
+          DataGroup           #ReversingEntry
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Identification
+          ElementPosition     #715827882
+          HierarchyParent     #General
+          DataSource          #LedgerJournalTable
+          DataGroup           #Identification
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Journal
+          ElementPosition     #1073741823
+          HierarchyParent     #General
+          Caption             #@SYS6790
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #OffsetAccountGroup
+          ElementPosition     #536870910
+          HierarchyParent     #Setup
+          Caption             #@SYS11162
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Origin
+          ElementPosition     #920350134
+          HierarchyParent     #History
+          DataSource          #LedgerJournalTable
+          DataGroup           #Origin
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Posting
+          ElementPosition     #1431655764
+          HierarchyParent     #General
+          Caption             #@SYS5943
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PrivateBlock
+          ElementPosition     #858993458
+          HierarchyParent     #Block
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Promissorynote
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #1288490187
+          HierarchyParent     #TabBillOfExchange
+          FrameType           #None
+          DataSource          #LedgerJournalTable
+          DataGroup           #PromissoryNote
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PromissoryNote_IT
+          CountryRegionCodes  #IT
+          ElementPosition     #1879048185
+          HierarchyParent     #Setup
+          DataSource          #LedgerJournalTable
+          DataGroup           #PromissoryNote
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #SalesTax
+          ElementPosition     #1610612730
+          HierarchyParent     #Setup
+          DataSource          #LedgerJournalTable
+          DataGroup           #SalesTax
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #TopFields
+          ElementPosition     #1073741822
+          HierarchyParent     #Group
+          FrameType           #None
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #User
+          ElementPosition     #1288490187
+          HierarchyParent     #Block
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #VoucherAllocation
+          ElementPosition     #1073741820
+          HierarchyParent     #Setup
+          DataSource          #LedgerJournalTable
+          DataGroup           #VoucherAllocation
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #Course
+          AutoDeclaration     #Yes
+          HelpText            #@SYS24580
+          ElementPosition     #1670265058
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS2453
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #JournalLines_WorkflowApproved
+          AutoDeclaration     #Yes
+          HelpText            #@SYS109637
+          ElementPosition     #954437176
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS15451
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #PostJournal
+          AutoDeclaration     #Yes
+          HelpText            #@SYS5943
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS6098
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    ledgerJournalTable_ds.reread();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #PrintMenu
+          AutoDeclaration     #Yes
+          HelpText            #@SYS920
+          ElementPosition     #1908874352
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS920
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REFERENCEGROUP
+        PROPERTIES
+          Name                #ApprovalProcedure_Approver
+          ElementPosition     #1073741823
+          HierarchyParent     #Approvalprocedure
+          DataSource          #LedgerJournalTable
+          ReferenceField      #Approver
+          ReplacementFieldGroup #PersonnelNumber
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612734
+          HierarchyParent     #Group
+          Tabs                #7
+          DataSource          #LedgerJournalTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Block
+          ElementPosition     #2013265918
+          HierarchyParent     #Tab
+          Caption             #@SYS50247
+          DataSource          #LedgerJournalTable
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #General
+          ElementPosition     #1610612734
+          HierarchyParent     #Tab
+          Caption             #@SYS2952
+          DataSource          #LedgerJournalTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #History
+          AllowEdit           #No
+          Enabled             #No
+          ElementPosition     #2130706430
+          HierarchyParent     #Tab
+          Caption             #@SYS10575
+          DataSource          #LedgerJournalTable
+          Columns             #Auto
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Overview
+          ElementPosition     #1073741823
+          HierarchyParent     #Tab
+          Caption             #@SYS9039
+          DataSource          #LedgerJournalTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Setup
+          ElementPosition     #1879048190
+          HierarchyParent     #Tab
+          Caption             #@SYS2186
+          DataSource          #LedgerJournalTable
+          Columns             #Auto
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabBillOfExchange
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #2080374782
+          HierarchyParent     #Tab
+          Caption             #@SYS69795
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #TabFinancialDimensions
+          AutoDeclaration     #Yes
+          ElementPosition     #2105540606
+          HierarchyParent     #Tab
+          Caption             #@SYS138491
+          DataSource          #LedgerJournalTable
+          HideIfEmpty         #No
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #pageActivated
+            #public void pageActivated()
+            #{
+            #    dimensionDefaultingController.pageActivated();
+            #
+            #    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Approve
+          AutoDeclaration     #Yes
+          HelpText            #@SYS22218
+          ElementPosition     #1288490187
+          HierarchyParent     #Course
+          Text                #@SYS16449
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    ledgerJournalTable.markApproved();
+            #    ledgerJournalTable.update();
+            #    ledgerJournalTable_ds.reread();
+            #    ledgerJournalTable_ds.refresh();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #PrintTaxInvoice
+          AutoDeclaration     #Yes
+          CountryRegionCodes  #TH,MX
+          HelpText            #@SYS115514
+          ElementPosition     #1879048185
+          HierarchyParent     #PrintMenu
+          Text                #@SYS115505
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ;
+            #    TaxUnrealizedPayment::printFromLedgerJournalTable(ledgerJournalTable);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Reject
+          AutoDeclaration     #Yes
+          HelpText            #@SYS22330
+          ElementPosition     #1717986916
+          HierarchyParent     #Course
+          Text                #@SYS22331
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    ledgerJournalTable.markRejected();
+            #    ledgerJournalTable.update();
+            #    ledgerJournalTable_ds.reread();
+            #    ledgerJournalTable_ds.refresh();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ReportAsReady
+          AutoDeclaration     #Yes
+          HelpText            #@SYS22219
+          ElementPosition     #858993458
+          HierarchyParent     #Course
+          Text                #@SYS22220
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    ledgerJournalTable.markReportAsReady();
+            #    ledgerJournalTable.update();
+            #    ledgerJournalTable_ds.reread();
+            #    ledgerJournalTable_ds.refresh();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ErrorLog
+          AllowEdit           #No
+          HelpText            #@SYS1243
+          ElementPosition     #1366580502
+          HierarchyParent     #GridOverview
+          BackgroundColor     #Window background
+          Label               #@SYS2515
+          DataSource          #LedgerJournalTable
+          DataMethod          #Logged
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #EUROTriangulation
+          ElementPosition     #1227133512
+          HierarchyParent     #Currency
+          DataSource          #LedgerJournalTable
+          DataField           #EUROTriangulation
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #FixedExchRate
+          ElementPosition     #920350134
+          HierarchyParent     #Currency
+          DataSource          #LedgerJournalTable
+          DataField           #FixedExchRate
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #IsUserPrivate
+          AutoDeclaration     #Yes
+          HelpText            #@SYS22217
+          ElementPosition     #1610612733
+          HierarchyParent     #PrivateBlock
+          Label               #@SYS3324
+          DataSource          #LedgerJournalTable
+          DataMethod          #IsUserPrivate
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ;
+            #    super();
+            #
+            #    ledgerJournalTable_ds.refresh();
+            #}
+          ENDSOURCE
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    journalFormTable.designModifiedMarkUserBlockPost();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_FixedOffsetAccount
+          Visible             #No
+          ElementPosition     #1717986916
+          HierarchyParent     #OffsetAccountGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_Posted
+          ElementPosition     #1171354716
+          HierarchyParent     #GridOverview
+          BackgroundColor     #Window background
+          DataSource          #LedgerJournalTable
+          DataField           #Posted
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_Posted_2
+          ElementPosition     #1227133512
+          HierarchyParent     #History
+          DataSource          #LedgerJournalTable
+          DataField           #Posted
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_RemoveLineAfterPosting
+          ElementPosition     #1431655764
+          HierarchyParent     #Posting
+          DataSource          #LedgerJournalTable
+          DataField           #RemoveLineAfterPosting
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_ReverseEntry
+          AutoDeclaration     #Yes
+          ElementPosition     #1757032074
+          HierarchyParent     #GridOverview
+          BackgroundColor     #Window background
+          DataSource          #LedgerJournalTable
+          DataField           #ReverseEntry
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #MarkInUseBlock
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #PrivateBlock
+          DataSource          #LedgerJournalTable
+          DataMethod          #InUseBlock
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ProtestSettledBill
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupProtestNegInst
+          Label               #@SYS73750
+          DataSource          #LedgerJournalTable
+          DataField           #ProtestSettledBill
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #public void clicked()
+            #{
+            #    super();
+            #
+            #    element.enableFieldsActive();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ReversingEntry_ReverseEntry
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupReversingEntry
+          DataSource          #LedgerJournalTable
+          DataField           #ReverseEntry
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ShowUserCreatedOnly
+          AutoDeclaration     #Yes
+          HelpText            #@SYS113947
+          ElementPosition     #1610612733
+          HierarchyParent     #TopFields
+          Label               #@SYS113946
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Updates the form data selection criteria when the check box is clicked.
+            #/// </summary>
+            #public void clicked()
+            #{
+            #    super();
+            #
+            #    journalFormTable.designSelectionChangeShowUserCreateOnly();
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #SystemBlocked
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #Blocked
+          DataSource          #LedgerJournalTable
+          DataField           #SystemBlocked
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #AllOpenPostedField
+          AutoDeclaration     #Yes
+          HelpText            #@SYS27095
+          ElementPosition     #1073741822
+          HierarchyParent     #TopFields
+          Selection           #255
+          EnumType            #AllOpenPosted
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    journalFormTable.designSelectionChangeAllOpenPosted();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #GroupBillOfExchange_BankRemittanceType
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #BillOfExchange
+          HideFirstEntry      #Yes
+          DataSource          #LedgerJournalTable
+          DataField           #BankRemittanceType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #JournalTypeGrid
+          AutoDeclaration     #Yes
+          ElementPosition     #976128930
+          HierarchyParent     #GridOverview
+          DataSource          #LedgerJournalTable
+          DataField           #JournalType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_CurrentOperationsTax
+          Skip                #Yes
+          ElementPosition     #715827882
+          HierarchyParent     #Posting
+          DataSource          #LedgerJournalTable
+          DataField           #CurrentOperationsTax
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_CustVendNegInstProtestProcess
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupProtestNegInst
+          DataSource          #LedgerJournalTable
+          DataField           #CustVendNegInstProtestProcess
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_DetailSummaryPosting
+          ElementPosition     #1073741823
+          HierarchyParent     #Posting
+          DataSource          #LedgerJournalTable
+          DataField           #DetailSummaryPosting
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #LedgerJournalTable_JournalType
+          AllowEdit           #No
+          Skip                #Yes
+          ElementPosition     #1288490187
+          HierarchyParent     #Journal
+          Selection           #255
+          DataSource          #LedgerJournalTable
+          DataField           #JournalType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #OffsetAccountType
+          ElementPosition     #858993458
+          HierarchyParent     #OffsetAccountGroup
+          DataSource          #LedgerJournalTable
+          DataField           #OffsetAccountType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1073741822
+          HierarchyParent     #NewDeleteGroup
+          Text                #@sys14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #536870911
+          HierarchyParent     #NewDeleteGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_ReverseDate
+          AutoDeclaration     #Yes
+          ElementPosition     #1952257860
+          HierarchyParent     #GridOverview
+          DataSource          #LedgerJournalTable
+          DataField           #ReverseDate
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #ReversingEntry_ReverseDate
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupReversingEntry
+          DataSource          #LedgerJournalTable
+          DataField           #ReverseDate
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL INTEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_LinesLimitBeforeDistribution
+          ElementPosition     #1789569705
+          HierarchyParent     #Posting
+          DataSource          #LedgerJournalTable
+          DataField           #LinesLimitBeforeDistribution
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #CashReport
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741820
+          HierarchyParent     #PrintMenu
+          ShowShortCut        #No
+          DataSource          #LedgerJournalTable
+          MenuItemType        #Output
+          MenuItemName        #LedgerJournalCashReport
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #CheckJournal
+          AutoDeclaration     #Yes
+          ElementPosition     #1193046470
+          HierarchyParent     #ButtonGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11340
+          ImageLocation       #EmbeddedResource
+          DataSource          #LedgerJournalTable
+          MenuItemType        #Action
+          MenuItemName        #LedgerJourChk
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Handles the button's clicked event.
+            #/// </summary>
+            #/// <remarks>
+            #/// The form's UI state is refreshed on this event so that the correct control states are shown for the
+            #/// posted journal.
+            #/// </remarks>
+            #void clicked()
+            #{
+            #    //  Cast the journalFormTable to a LedgerJournalFormTable.
+            #    LedgerJournalFormTable ledgerJournalFormTable = journalFormTable;
+            #    ;
+            #
+            #    //  Check if multi-selection posting.
+            #    if (ledgerJournalTable_ds.anyMarked() &&
+            #       ledgerJournalFormTable.isMultiSelection())
+            #    {
+            #        ledgerJournalFormTable.multiSelectValidate();
+            #    }
+            #    else
+            #    {
+            #        super();
+            #    }
+            #    ledgerJournalTable_ds.reread();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #CustPaymEntryButton
+          AutoDeclaration     #Yes
+          ElementPosition     #477218588
+          HierarchyParent     #ButtonGroup
+          DataSource          #LedgerJournalTable
+          MenuItemName        #CustPaymEntry
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #JournalDetails
+          ElementPosition     #536870910
+          HierarchyParent     #PrintMenu
+          Text                #@SYS24010
+          ShowShortCut        #No
+          DataSource          #LedgerJournalTable
+          MenuItemType        #Output
+          MenuItemName        #LedgerJournal
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #JournalLines
+          AutoDeclaration     #Yes
+          ElementPosition     #715827882
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS15451
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10632
+          ImageLocation       #EmbeddedResource
+          DataSource          #LedgerJournalTable
+          MenuItemName        #LedgerJournalTransDaily
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Handles the clicked event of the lines button.
+            #/// </summary>
+            #/// <remarks>
+            #/// The line button is used for all system states except for the workflow approvals "approved"
+            #/// state. That state displays the JournalLines_WorkflowApproved button instead.
+            #/// This method controls processing payments for approved journals on the LedgerJournalFormTable
+            #/// class since the journal is not approved if this button was clicked.
+            #/// </remarks>
+            #public void clicked()
+            #
+            #{
+            #    ;
+            #
+            #    journalFormTable.parmIsProcessingPaymentOnApprovedJounal(false);
+            #
+            #    super();
+            #
+            #    ledgerJournalTable_ds.reread();
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #JournalLines_Edit
+          AutoDeclaration     #Yes
+          HelpText            #@SYS109639
+          ElementPosition     #1288490187
+          HierarchyParent     #JournalLines_WorkflowApproved
+          Text                #@SYS453
+          DataSource          #LedgerJournalTable
+          MenuItemName        #LedgerJournalTransDaily
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Handles the clicked event of the edit item of the line button.
+            #/// </summary>
+            #/// <remarks>
+            #/// This method prompts the user to check that it is okay to place
+            #/// the journal back into a "not submitted" state. Also performs a table update.
+            #/// </remarks>
+            #public void clicked()
+            #{
+            #    ;
+            #
+            #    if (Box::okCancel("@SYS109636", DialogButton::Ok) == DialogButton::Ok)
+            #    {
+            #        // Set the ledgerJournalTable.WorkflowApprovalStatus
+            #        ledgerJournalTable.initWFApprovalStatus(ledgerJournalTable.ledgerJournalName(), true);
+            #
+            #        // Update the record.
+            #        ledgerJournalTable_ds.write();
+            #    }
+            #    else
+            #    {
+            #        return;
+            #    }
+            #
+            #    super();
+            #
+            #    ledgerJournalTable_ds.reread();
+            #
+            #    element.showProperJournalLinesButton();
+            #
+            #    if (ledgerJournalTable.WorkflowApprovalStatus == LedgerJournalWFApprovalStatus::None ||
+            #        ledgerJournalTable.WorkflowApprovalStatus == LedgerJournalWFApprovalStatus::NotSubmitted)
+            #    {
+            #        // Workflow status change requires refresh of workflow controls.
+            #        element.updateWorkflowControls();
+            #    }
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #JournalLines_GeneratePayments
+          AutoDeclaration     #Yes
+          HelpText            #@SYS109640
+          ElementPosition     #1717986916
+          HierarchyParent     #JournalLines_WorkflowApproved
+          Text                #@SYS24287
+          DataSource          #LedgerJournalTable
+          MenuItemName        #LedgerJournalTransDaily
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Handles the Lines->Generate Payments button's clicked event.
+            #/// </summary>
+            #public void clicked()
+            #{
+            #    ;
+            #
+            #    journalFormTable.parmIsProcessingPaymentOnApprovedJounal(true);
+            #    journalFormTable.parmIsWFApprovedModeSelected(true);
+            #
+            #    super();
+            #
+            #    ledgerJournalTable_ds.reread();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #JournalLines_Review
+          AutoDeclaration     #Yes
+          HelpText            #@SYS109638
+          ElementPosition     #858993458
+          HierarchyParent     #JournalLines_WorkflowApproved
+          Text                #@SYS60543
+          DataSource          #LedgerJournalTable
+          MenuItemName        #LedgerJournalTransDaily
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Handles the Lines->Review button's clicked event.
+            #/// </summary>
+            #public void clicked()
+            #{
+            #    ;
+            #
+            #    journalFormTable.parmIsProcessingPaymentOnApprovedJounal(false);
+            #    journalFormTable.parmIsWFApprovedModeSelected(true);
+            #
+            #    super();
+            #
+            #    ledgerJournalTable_ds.reread();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #LedgerJournalPostTransfer
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612733
+          HierarchyParent     #PostJournal
+          DataSource          #LedgerJournalTable
+          MenuItemType        #Action
+          MenuItemName        #LedgerJourPostTr
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Handles the clicked event of the button.
+            #/// </summary>
+            #/// <remarks>
+            #/// The form is refreshed on this event so the correct control states are shown for the posted
+            #/// journal.
+            #/// </remarks>
+            #void clicked()
+            #{
+            #    //  Cast the journalFormTable to a LedgerJournalFormTable.
+            #    LedgerJournalFormTable ledgerJournalFormTable = journalFormTable;
+            #    boolean multiSelected;
+            #    ;
+            #
+            #    //  Check if multi-selection posting.
+            #    if (ledgerJournalTable_ds.anyMarked() &&
+            #       ledgerJournalFormTable.isMultiSelection())
+            #    {
+            #        ledgerJournalFormTable.multiSelectPost(true);
+            #        multiSelected = true;
+            #    }
+            #    else
+            #    {
+            #        super();
+            #    }
+            #    //
+            #    // For multi selection cases we redraw the window to remove posted journals.
+            #    // A first is done to set focus so the form is set to the proper state.
+            #    //
+            #    if (multiSelected)
+            #    {
+            #        ledgerJournalTable_ds.research();
+            #        ledgerJournalTable_ds.first();
+            #        ledgerJournalTable_ds.mark(1);
+            #        gridOverview.setFocus();
+            #    }
+            #    //
+            #    // Re-read the record and then re-perform button initialization
+            #    // so that the correct lines button is shown and that all of the
+            #    // buttons are in their correct enabled state.
+            #    //
+            #    else
+            #    {
+            #        ledgerJournalTable_DS.reread();
+            #        ledgerJournalTable_DS.active();
+            #    }
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #LedgerTransPerJournal
+          ElementPosition     #1342177275
+          HierarchyParent     #PrintMenu
+          MenuItemType        #Output
+          MenuItemName        #LedgerTransPerJournal
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #Movements
+          ElementPosition     #805306365
+          HierarchyParent     #PrintMenu
+          ShowShortCut        #No
+          DataSource          #LedgerJournalTable
+          MenuItemType        #Output
+          MenuItemName        #LedgerJournalAccountMovement
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #Post
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #PostJournal
+          DataSource          #LedgerJournalTable
+          MenuItemType        #Action
+          MenuItemName        #LedgerJourPost
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #/// <summary>
+            #/// Handles the clicked event of the button.
+            #/// </summary>
+            #/// <remarks>
+            #/// The form is refreshed on this event so that the correct control states are shown for the
+            #/// posted journal.
+            #/// </remarks>
+            #void clicked()
+            #{
+            #    //  Cast the journalFormTable to a LedgerJournalFormTable.
+            #    LedgerJournalFormTable ledgerJournalFormTable = journalFormTable;
+            #    boolean multiSelected;
+            #    ;
+            #
+            #    //  Check if multi-selection posting.
+            #    if (ledgerJournalTable_ds.anyMarked() &&
+            #       ledgerJournalFormTable.isMultiSelection())
+            #    {
+            #        ledgerJournalFormTable.multiSelectPost();
+            #        multiSelected = true;
+            #    }
+            #    else
+            #    {
+            #        super();
+            #    }
+            #
+            #    //
+            #    // For multi selection cases we redraw the window to remove posted journals.
+            #    // A first is done to set focus so the form is set to the proper state.
+            #    //
+            #    if (multiSelected)
+            #    {
+            #        ledgerJournalTable_ds.research();
+            #        ledgerJournalTable_ds.first();
+            #        ledgerJournalTable_ds.mark(1);
+            #        gridOverview.setFocus();
+            #    }
+            #    //
+            #    // Re-read the record and then re-perform button initialization
+            #    // so that the correct lines button is shown and that all of the
+            #    // buttons are in their correct enabled state.
+            #    //
+            #    else
+            #    {
+            #        ledgerJournalTable_DS.reread();
+            #        ledgerJournalTable_DS.active();
+            #    }
+            #}
+            #
+            #
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #WithholdingTaxSlip
+          HelpText            #@SYS317663
+          ElementPosition     #1610612730
+          HierarchyParent     #PrintMenu
+          MenuItemType        #Output
+          MenuItemName        #TaxWithholdSlip_TH
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #editExchRate
+          AutoDeclaration     #Yes
+          HelpText            #@SYS324259
+          ElementPosition     #1533916890
+          HierarchyParent     #Currency
+          DataSource          #LedgerJournalTable
+          DataMethod          #editExchRate
+          MinNoOfDecimals     #4
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REALEDIT
+        PROPERTIES
+          Name                #editExchRateSecond
+          AutoDeclaration     #Yes
+          HelpText            #@SYS324259
+          ElementPosition     #1840700268
+          HierarchyParent     #Currency
+          DataSource          #LedgerJournalTable
+          DataMethod          #editExchRateSecond
+          MinNoOfDecimals     #4
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL SEGMENTEDENTRY
+        PROPERTIES
+          Name                #OffsetAccount
+          AutoDeclaration     #Yes
+          ElementPosition     #1288490187
+          HierarchyParent     #OffsetAccountGroup
+          DataSource          #LedgerJournalTable
+          ReferenceField      #OffsetLedgerDimension
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #jumpRef
+            #public void jumpRef()
+            #{
+            #    dimOffsetAccountController.jumpRef();
+            #}
+          ENDSOURCE
+          SOURCE #loadAutoCompleteData
+            #public void loadAutoCompleteData(LoadAutoCompleteDataEventArgs _e)
+            #{
+            #    super(_e);
+            #
+            #    dimOffsetAccountController.loadAutoCompleteData(_e);
+            #}
+          ENDSOURCE
+          SOURCE #loadSegments
+            #public void loadSegments()
+            #{
+            #    super();
+            #
+            #    dimOffsetAccountController.parmControl(this);
+            #    dimOffsetAccountController.loadSegments();
+            #}
+          ENDSOURCE
+          SOURCE #lookup
+            #public void lookup()
+            #{
+            #    switch (ledgerJournalTable.OffsetAccountType)
+            #    {
+            #        case LedgerJournalACType::Bank:
+            #            BankAccountTable::lookupBankAccount(this);
+            #            break;
+            #        case LedgerJournalACType::Cust:
+            #            CustTable::lookupCustomer(this);
+            #            break;
+            #        case LedgerJournalACType::FixedAssets:
+            #            AssetTable::lookupAccountNum(this);
+            #            break;
+            #        case LedgerJournalACType::Project:
+            #            ProjTable::lookupProjId(this, ledgerJournalTable);
+            #            break;
+            #        case LedgerJournalACType::Vend:
+            #            VendTable::lookupVendor(this);
+            #            break;
+            #        default:
+            #            super();
+            #            break;
+            #    }
+            #}
+          ENDSOURCE
+          SOURCE #segmentValueChanged
+            #public void segmentValueChanged(SegmentValueChangedEventArgs _e)
+            #{
+            #    super(_e);
+            #
+            #    dimOffsetAccountController.segmentValueChanged(_e);
+            #}
+          ENDSOURCE
+          SOURCE #validate
+            #public boolean validate()
+            #{
+            #    boolean isValid;
+            #
+            #    isValid = super();
+            #    isValid = dimOffsetAccountController.validate() && isValid;
+            #
+            #    return isValid;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #CurrencyCode
+          ElementPosition     #613566756
+          HierarchyParent     #Currency
+          DataSource          #LedgerJournalTable
+          DataField           #CurrencyCode
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupBillOfExchange_BankAccountId
+          ElementPosition     #1610612733
+          HierarchyParent     #BillOfExchange
+          DataSource          #LedgerJournalTable
+          DataField           #BankAccountId
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #    ;
+            #
+            #    ret = super();
+            #
+            #    if (ledgerJournalTable.JournalType == LedgerJournalType::CustPaymRemittance)
+            #    {
+            #        if(ledgerJournalTable.BankAccountId)
+            #        {
+            #            journalLines.enabled(true);
+            #        }
+            #        else
+            #        {
+            #            journalLines.enabled(false);
+            #        }
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #GroupPromissorynote_BankAccountId
+          AutoDeclaration     #Yes
+          ElementPosition     #1431655764
+          HierarchyParent     #Promissorynote
+          DataSource          #LedgerJournalTable
+          DataField           #BankAccountId
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #    ;
+            #
+            #    ret = super();
+            #
+            #    if (ledgerJournalTable.JournalType == LedgerJournalType::VendPaymRemittance)
+            #    {
+            #        if(ledgerJournalTable.BankAccountId)
+            #        {
+            #            journalLines.enabled(true);
+            #        }
+            #        else
+            #        {
+            #            journalLines.enabled(false);
+            #        }
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InUseUserId
+          AllowEdit           #No
+          ElementPosition     #1073741822
+          HierarchyParent     #User
+          DataSource          #LedgerJournalTable
+          DataMethod          #InUseUserId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #JournalName
+          AutoDeclaration     #Yes
+          ElementPosition     #390451572
+          HierarchyParent     #GridOverview
+          DataSource          #LedgerJournalTable
+          DataField           #JournalName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #JournalNum
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Skip                #Yes
+          ElementPosition     #1431655764
+          HierarchyParent     #Identification
+          DataSource          #LedgerJournalTable
+          DataField           #JournalNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_DocumentNum
+          ElementPosition     #1431655764
+          HierarchyParent     #DocumentNum
+          DataSource          #LedgerJournalTable
+          DataField           #DocumentNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_GroupBlockId
+          ElementPosition     #1610612733
+          HierarchyParent     #Blocked
+          DataSource          #LedgerJournalTable
+          DataField           #GroupBlockId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_JournalName
+          Skip                #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #Journal
+          DataSource          #LedgerJournalTable
+          DataField           #JournalName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_JournalNum
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Skip                #Yes
+          ElementPosition     #585677358
+          HierarchyParent     #GridOverview
+          DataSource          #LedgerJournalTable
+          DataField           #JournalNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_Log
+          AllowEdit           #No
+          Width               #Column width
+          ElementPosition     #1840700268
+          HierarchyParent     #History
+          MultiLine           #Yes
+          DataSource          #LedgerJournalTable
+          DataField           #Log
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_Name
+          ElementPosition     #780903144
+          HierarchyParent     #GridOverview
+          DataSource          #LedgerJournalTable
+          DataField           #Name
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_Name_2
+          ElementPosition     #1717986916
+          HierarchyParent     #Journal
+          DataSource          #LedgerJournalTable
+          DataField           #Name
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #RejectedBy
+          ElementPosition     #1431655764
+          HierarchyParent     #Approvalprocedure
+          Label               #@sys22205
+          DataSource          #LedgerJournalTable
+          DataField           #RejectedBy
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #ReportedAsReadyBy
+          ElementPosition     #715827882
+          HierarchyParent     #Approvalprocedure
+          DataSource          #LedgerJournalTable
+          DataField           #ReportedAsReadyBy
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #UserBlockIdName
+          AllowEdit           #No
+          Skip                #Yes
+          ElementPosition     #1610612733
+          HierarchyParent     #User
+          DataSource          #LedgerJournalTable
+          DataMethod          #UserBlockIdName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL UTCDATETIMEEDIT
+        PROPERTIES
+          Name                #LedgerJournalTable_PostedDateTime
+          ElementPosition     #1533916890
+          HierarchyParent     #History
+          DataSource          #LedgerJournalTable
+          DataField           #PostedDateTime
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #BlockImage
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #18
+          Height              #12
+          AlignControl        #No
+          HelpText            #@SYS62410
+          ElementPosition     #1561806288
+          HierarchyParent     #GridOverview
+          Imagemode           #Size to fit
+          BackStyle           #Transparent
+          Label               #@SYS10653
+          DataSource          #LedgerJournalTable
+          DataMethod          #LockImage
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_10_ViewDetails unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_10_ViewDetails
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_10_ViewDetails
+    Origin              #{E25F70A1-D8FB-4620-9A7A-B604C7F59717}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #LedgerJournalTable
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

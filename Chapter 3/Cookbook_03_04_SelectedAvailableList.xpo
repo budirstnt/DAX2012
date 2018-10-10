@@ -1,0 +1,473 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : InventBuyerGroupList unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #InventBuyerGroupList
+    EnforceFKRelation 1
+    PROPERTIES
+      Name                #InventBuyerGroupList
+      CreateRecIdIndex    #Yes
+      PrimaryIndex        #SurrogateKey
+      ClusterIndex        #SurrogateKey
+      Origin              #{A2D9C22F-3793-4E3A-AB43-A2A408FFA7E0}
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #CustAccount
+        STRING
+        PROPERTIES
+          Name                #CustAccount
+          Table               #InventBuyerGroupList
+          Origin              #{762F1950-5E03-4B73-9241-4BF43ACF0C41}
+          ExtendedDataType    #CustAccount
+          StringSize          #20
+        ENDPROPERTIES
+        
+      FIELD #GroupId
+        STRING
+        PROPERTIES
+          Name                #GroupId
+          Table               #InventBuyerGroupList
+          Origin              #{2B01BE85-939A-4FA2-B3F0-BC1DFC81F7F5}
+          ExtendedDataType    #ItemBuyerGroupId
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+    ENDGROUPS
+    
+    INDICES
+      #InventBuyerGroupIdx
+      PROPERTIES
+        Name                #InventBuyerGroupIdx
+        Origin              #{C13D931A-CB62-4DB4-ADAD-9CAEE23CD9F0}
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #GroupId
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+      REFERENCE #InventBuyerGroup
+        PROPERTIES
+          Name                #InventBuyerGroup
+          Table               #InventBuyerGroup
+          UseDefaultRoleNames #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #GroupId
+            RelatedField        #Group
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #InventBuyerGroup
+  PROPERTIES
+    Name                #InventBuyerGroup
+    Origin              #{39EDE4F3-B388-4C44-B6C3-C64398A7FB00}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    SysListPanelRelationTable sysListPanel;
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    container columns;
+      #    #ResAppl
+      #
+      #    columns = [fieldNum(CustTable, AccountNum)];
+      #
+      #    sysListPanel = SysListPanelRelationTable::newForm(
+      #        element,
+      #        element.controlId(
+      #            formControlStr(InventBuyerGroup,Customers)),
+      #        "Selected",
+      #        "Available",
+      #        #ImageCustomer,
+      #        tableNum(InventBuyerGroupList),
+      #        fieldNum(InventBuyerGroupList,CustAccount),
+      #        fieldNum(InventBuyerGroupList,GroupId),
+      #        tableNum(CustTable),
+      #        fieldNum(CustTable,AccountNum),
+      #        columns);
+      #
+      #    super();
+      #
+      #    sysListPanel.init();
+      #
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventBuyerGroup
+          Table               #InventBuyerGroup
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #active
+          #int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    inventBuyerGroup_Group.allowEdit(!inventBuyerGroup.RecId);
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS54030
+      DataSource          #InventBuyerGroup
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #715827882
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup
+          ElementPosition     #715827882
+          HierarchyParent     #ActionPaneTab
+          DataSource          #InventBuyerGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #BuyerGroups
+          MultiSelect         #No
+          ShowRowLabels       #No
+          DataSource          #InventBuyerGroup
+          AlternateRowShading #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Body
+          Visible             #No
+          Height              #Column height
+          ElementPosition     #1193046470
+          Style               #BorderlessGridContainer
+          Columnspace         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1670265058
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #BuyerGroups
+          ElementPosition     #1073741822
+          HierarchyParent     #Tab
+          Caption             #Buyer groups
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Customers
+          ElementPosition     #1610612733
+          HierarchyParent     #Tab
+          Caption             #Customers
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #pageActivated
+            #public void pageActivated()
+            #{
+            #    sysListPanel.parmRelationRangeValue(
+            #        InventBuyerGroup.Group);
+            #
+            #    sysListPanel.parmRelationRangeRecId(
+            #        InventBuyerGroup.RecId);
+            #
+            #    sysListPanel.fill();
+            #
+            #    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1073741822
+          HierarchyParent     #NewDeleteGroup
+          Text                #@sys14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #536870911
+          HierarchyParent     #NewDeleteGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InventBuyerGroup_Description
+          ElementPosition     #1610612733
+          HierarchyParent     #Grid
+          DataSource          #InventBuyerGroup
+          DataField           #Description
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InventBuyerGroup_Group
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #Grid
+          DataSource          #InventBuyerGroup
+          DataField           #Group
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_03_04_SelectedAvailableList unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_03_04_SelectedAvailableList
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_03_04_SelectedAvailableList
+    Origin              #{FA374157-24C8-444A-AB89-A7FEA4767DDD}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 44
+      UTILOBJECTID 100410
+      NODETYPE 204
+      NAME #InventBuyerGroupList
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #InventBuyerGroup
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

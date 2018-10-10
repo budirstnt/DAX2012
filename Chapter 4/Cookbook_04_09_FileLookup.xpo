@@ -1,0 +1,2115 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : VendFormletterParameters unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #VendFormletterParameters
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #VendFormletterParameters
+      Label               #@SYS75438
+      FormRef             #VendFormletterParameters
+      ConfigurationKey    #LedgerBasic
+      SecurityKey         #VendTables
+      MaxAccessMode       #Edit
+      CacheLookup         #Found
+      CreateRecIdIndex    #Yes
+      TableGroup          #Parameter
+      PrimaryIndex        #Key
+      ClusterIndex        #Key
+      ModifiedDateTime    #Yes
+      DEL_modifiedTime    #Yes
+      ModifiedBy          #Yes
+      DeveloperDocumentation  #@SYS126100
+      Origin              #{2C18051D-0000-1000-C030-8AC47163E18C}
+      LegacyId            #1309
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #DEL_LocalCurrencyAmount
+        ENUM
+        PROPERTIES
+          Name                #DEL_LocalCurrencyAmount
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #VendFormletterParameters
+          Origin              #{475794B3-E293-48D8-AE99-79C6A0169982}
+          LegacyId            #18
+          ExtendedDataType    #LocalCurrencyAmount
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ExternalItemOverwriteAppend
+        ENUM
+        PROPERTIES
+          Name                #ExternalItemOverwriteAppend
+          ConfigurationKey    #LogisticsBasic
+          Table               #VendFormletterParameters
+          Origin              #{79CE4129-30EB-48EB-BBB7-5E00E6B7898F}
+          LegacyId            #2
+          ExtendedDataType    #PurchExternalItemOverwriteAppend
+          EnumType            #OverwriteAppend
+        ENDPROPERTIES
+        
+      FIELD #InventDimInvoice
+        INT
+        PROPERTIES
+          Name                #InventDimInvoice
+          HelpText            #@SYS75782
+          Table               #VendFormletterParameters
+          Origin              #{B1A26541-3F39-4E73-AFC5-03CAF0A87303}
+          LegacyId            #16
+          ExtendedDataType    #InventDimFixed
+        ENDPROPERTIES
+        
+      FIELD #InventDimPackingSlip
+        INT
+        PROPERTIES
+          Name                #InventDimPackingSlip
+          HelpText            #@SYS333838
+          Table               #VendFormletterParameters
+          Origin              #{E96A4981-A81F-43E3-9F03-E4730087F0DB}
+          LegacyId            #15
+          ExtendedDataType    #InventDimFixed
+        ENDPROPERTIES
+        
+      FIELD #InventDimPurchaseAgreement
+        INT
+        PROPERTIES
+          Name                #InventDimPurchaseAgreement
+          HelpText            #@SYS75779
+          Table               #VendFormletterParameters
+          Origin              #{77588C49-41A3-49B5-B1FB-67AF0516370B}
+          LegacyId            #29
+          ExtendedDataType    #InventDimFixed
+        ENDPROPERTIES
+        
+      FIELD #InventDimPurchaseOrder
+        INT
+        PROPERTIES
+          Name                #InventDimPurchaseOrder
+          HelpText            #@SYS75779
+          Table               #VendFormletterParameters
+          Origin              #{EDBCA483-1B1C-4149-90B6-940226642F0C}
+          LegacyId            #13
+          ExtendedDataType    #InventDimFixed
+        ENDPROPERTIES
+        
+      FIELD #InventDimPurchReq
+        INT
+        PROPERTIES
+          Name                #InventDimPurchReq
+          Table               #VendFormletterParameters
+          Origin              #{15ABDD80-6736-4DCD-96C5-1A550EEB5324}
+          LegacyId            #22
+          ExtendedDataType    #InventDimFixed
+        ENDPROPERTIES
+        
+      FIELD #InventDimReceiptsList
+        INT
+        PROPERTIES
+          Name                #InventDimReceiptsList
+          HelpText            #@SYS75780
+          Table               #VendFormletterParameters
+          Origin              #{C2BBF28A-DE64-4589-B3FA-EB2E4B7BA70E}
+          LegacyId            #14
+          ExtendedDataType    #InventDimFixed
+        ENDPROPERTIES
+        
+      FIELD #InventDimRFQ
+        INT
+        PROPERTIES
+          Name                #InventDimRFQ
+          HelpText            #@SYS75782
+          Table               #VendFormletterParameters
+          Origin              #{2635B75D-527B-4B25-B92E-117FFF78D24C}
+          LegacyId            #19
+          ExtendedDataType    #InventDimFixed
+        ENDPROPERTIES
+        
+      FIELD #ItemDimPlacement
+        ENUM
+        PROPERTIES
+          Name                #ItemDimPlacement
+          ConfigurationKey    #LogisticsBasic
+          Table               #VendFormletterParameters
+          Origin              #{CC410D0D-DBA8-4B62-A4BF-AE00E1A15AC0}
+          LegacyId            #12
+          EnumType            #ItemDimFormLetter
+        ENDPROPERTIES
+        
+      FIELD #ItemDimSeparator
+        STRING
+        PROPERTIES
+          Name                #ItemDimSeparator
+          Label               #@SYS70222
+          HelpText            #@SYS70223
+          ConfigurationKey    #LogisticsBasic
+          Table               #VendFormletterParameters
+          Origin              #{FC855EE6-9ECF-4FA5-8FA7-3E9E2476038F}
+          LegacyId            #11
+          ExtendedDataType    #char
+          StringSize          #1
+        ENDPROPERTIES
+        
+      FIELD #itemNameAndTxt2Description
+        ENUM
+        PROPERTIES
+          Name                #itemNameAndTxt2Description
+          ConfigurationKey    #LogisticsBasic
+          Table               #VendFormletterParameters
+          Origin              #{BAA6B2B8-BBD9-4E6F-939B-4D86ADE14AA4}
+          LegacyId            #3
+          ExtendedDataType    #ItemNameAndDescription
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ItemNum
+        ENUM
+        PROPERTIES
+          Name                #ItemNum
+          Table               #VendFormletterParameters
+          Origin              #{4BE56E6E-8BF4-4889-BE50-3F9C3F6D5AAA}
+          LegacyId            #8
+          ExtendedDataType    #PurchOurYourBothType
+          EnumType            #OurYourBoth
+        ENDPROPERTIES
+        
+      FIELD #Key
+        INT
+        PROPERTIES
+          Name                #Key
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Visible             #No
+          Table               #VendFormletterParameters
+          Origin              #{DEA44A2B-5700-4F50-B167-99DFFF2B0A22}
+          LegacyId            #1
+          ExtendedDataType    #ParametersKey
+        ENDPROPERTIES
+        
+      FIELD #PrePrintLevelPurchAgreement
+        ENUM
+        PROPERTIES
+          Name                #PrePrintLevelPurchAgreement
+          Label               #@SYS15512
+          HelpText            #@SYS1770
+          ConfigurationKey    #LogisticsBasic
+          Table               #VendFormletterParameters
+          Origin              #{C45F2F13-4C5F-49C4-A668-A13CABBB3415}
+          LegacyId            #30
+          EnumType            #PrePrintLevel
+        ENDPROPERTIES
+        
+      FIELD #PrePrintLevelPurchorder
+        ENUM
+        PROPERTIES
+          Name                #PrePrintLevelPurchorder
+          Label               #@SYS15512
+          HelpText            #@SYS1770
+          ConfigurationKey    #LogisticsBasic
+          Table               #VendFormletterParameters
+          Origin              #{EF082B04-EB9B-4D83-8A1D-5C8F4CB672B6}
+          LegacyId            #9
+          EnumType            #PrePrintLevel
+        ENDPROPERTIES
+        
+      FIELD #PrePrintLevelPurchRFQ
+        ENUM
+        PROPERTIES
+          Name                #PrePrintLevelPurchRFQ
+          Label               #@SYS15512
+          HelpText            #@SYS1770
+          ConfigurationKey    #LogisticsBasic
+          Table               #VendFormletterParameters
+          Origin              #{BA292FED-03BC-4D66-8362-7278F24BE9F5}
+          LegacyId            #20
+          EnumType            #PrePrintLevel
+        ENDPROPERTIES
+        
+      FIELD #PrintAgreementClassification
+        ENUM
+        PROPERTIES
+          Name                #PrintAgreementClassification
+          Table               #VendFormletterParameters
+          Origin              #{7D24B08D-DC0E-4EFB-8878-8AF87E03A3A7}
+          LegacyId            #23
+          ExtendedDataType    #PrintAgreementClassification
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintCashDiscount
+        ENUM
+        PROPERTIES
+          Name                #PrintCashDiscount
+          Table               #VendFormletterParameters
+          Origin              #{B9B3D3AB-15CD-4D72-A8AC-A752FC5DA09C}
+          LegacyId            #25
+          ExtendedDataType    #PrintCashDiscount
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintContractReference
+        ENUM
+        PROPERTIES
+          Name                #PrintContractReference
+          Table               #VendFormletterParameters
+          Origin              #{F2C602D8-6A47-4E3F-B796-CEA4636B6999}
+          LegacyId            #24
+          ExtendedDataType    #PrintContractReference
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintDeliveryTerm
+        ENUM
+        PROPERTIES
+          Name                #PrintDeliveryTerm
+          Table               #VendFormletterParameters
+          Origin              #{B40814D7-5506-465F-A158-E0F49C1BCB4B}
+          LegacyId            #28
+          ExtendedDataType    #PrintDeliveryTerm
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintEuroAmount
+        ENUM
+        PROPERTIES
+          Name                #PrintEuroAmount
+          Table               #VendFormletterParameters
+          Origin              #{13BC2334-9855-46A3-8E75-B78B4441ED6E}
+          LegacyId            #5
+          ExtendedDataType    #PrintEuroAmount
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintIntracomVAT
+        ENUM
+        PROPERTIES
+          Name                #PrintIntracomVAT
+          Label               #@SYS92928
+          HelpText            #@SYS92929
+          Table               #VendFormletterParameters
+          CountryRegionCodes  #ES
+          Origin              #{99BE50FA-BC23-4234-9407-2E2B303F5B76}
+          LegacyId            #17
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintInvoiceVATNum
+        ENUM
+        PROPERTIES
+          Name                #PrintInvoiceVATNum
+          Table               #VendFormletterParameters
+          Origin              #{3509AB74-037C-4B06-91B7-FB0A46911BAD}
+          LegacyId            #10
+          ExtendedDataType    #PrintInvoiceVATNum
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintMaxIsEnforced
+        ENUM
+        PROPERTIES
+          Name                #PrintMaxIsEnforced
+          Table               #VendFormletterParameters
+          Origin              #{85DC74A6-C312-4A78-839C-77AB65DC16ED}
+          LegacyId            #21
+          ExtendedDataType    #PrintMaxIsEnforced
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintModeOfDelivery
+        ENUM
+        PROPERTIES
+          Name                #PrintModeOfDelivery
+          Table               #VendFormletterParameters
+          Origin              #{869CAC92-368F-447E-905B-1566EC01E9D1}
+          LegacyId            #27
+          ExtendedDataType    #PrintModeOfDelivery
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PrintPayment
+        ENUM
+        PROPERTIES
+          Name                #PrintPayment
+          Table               #VendFormletterParameters
+          Origin              #{91242CAB-7947-48B7-A567-B153B5278593}
+          LegacyId            #26
+          ExtendedDataType    #PrintPayment
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #TaxPrintTaxFreeBalance
+        ENUM
+        PROPERTIES
+          Name                #TaxPrintTaxFreeBalance
+          Table               #VendFormletterParameters
+          Origin              #{A879F74A-6ED2-43A8-8EE6-A2A9940B17DF}
+          LegacyId            #6
+          ExtendedDataType    #TaxPrintTaxFreeBalance
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #TaxSpecPrintLevel
+        ENUM
+        PROPERTIES
+          Name                #TaxSpecPrintLevel
+          Table               #VendFormletterParameters
+          Origin              #{F2667601-E3B6-47B2-ABDE-094ED4A0E968}
+          LegacyId            #7
+          EnumType            #TaxSpecPrintLevel
+        ENDPROPERTIES
+        
+      FIELD #TermsAndConditions
+        STRING
+        PROPERTIES
+          Name                #TermsAndConditions
+          Label               #Terms & conditions
+          Table               #VendFormletterParameters
+          Origin              #{834077CF-4ECD-47DA-BA58-447838EE5495}
+          ExtendedDataType    #FilenameOpen
+          StringSize          #259
+        ENDPROPERTIES
+        
+      FIELD #TotalsFirstLastPage
+        ENUM
+        PROPERTIES
+          Name                #TotalsFirstLastPage
+          Label               #@SYS8311
+          Table               #VendFormletterParameters
+          Origin              #{95F25DC1-E8A9-4CAE-88D5-D401B2BA138F}
+          LegacyId            #4
+          ExtendedDataType    #TotalsFirstLast
+          EnumType            #FirstLast
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ItemNum
+          #itemNameAndTxt2Description
+          #ExternalItemOverwriteAppend
+          #ItemDimPlacement
+          #ItemDimSeparator
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Amount
+        PROPERTIES
+          Name                #Amount
+          Label               #@SYS6928
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrintEuroAmount
+          #TotalsFirstLastPage
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #DeliveryTerms
+        PROPERTIES
+          Name                #DeliveryTerms
+          Label               #@SYS27703
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrintModeOfDelivery
+          #PrintDeliveryTerm
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #InventoryDimensions
+        PROPERTIES
+          Name                #InventoryDimensions
+          Label               #@SYS53627
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #InventDimPurchaseOrder
+          #InventDimReceiptsList
+          #InventDimPackingSlip
+          #InventDimInvoice
+          #InventDimRFQ
+          #InventDimPurchReq
+          #InventDimPurchaseAgreement
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Invoice
+        PROPERTIES
+          Name                #Invoice
+          Label               #@SYS12128
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrintInvoiceVATNum
+          #PrintIntracomVAT
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ItemDescription
+        PROPERTIES
+          Name                #ItemDescription
+          Label               #@SYS80470
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #itemNameAndTxt2Description
+          #ExternalItemOverwriteAppend
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ItemDimensions
+        PROPERTIES
+          Name                #ItemDimensions
+          Label               #@SYS70071
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ItemDimPlacement
+          #ItemDimSeparator
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ItemNumber
+        PROPERTIES
+          Name                #ItemNumber
+          Label               #@SYS12836
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ItemNum
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Payment
+        PROPERTIES
+          Name                #Payment
+          Label               #@SYS55132
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrintCashDiscount
+          #PrintPayment
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #PrePrintPurchaseAgreement
+        PROPERTIES
+          Name                #PrePrintPurchaseAgreement
+          Label               #@SYS190134
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrePrintLevelPurchAgreement
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #PurchaseAgreement
+        PROPERTIES
+          Name                #PurchaseAgreement
+          Label               #@SYS190134
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrintMaxIsEnforced
+          #PrintAgreementClassification
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #PurchaseOrder
+        PROPERTIES
+          Name                #PurchaseOrder
+          Label               #@SYS25545
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrePrintLevelPurchorder
+          #TermsAndConditions
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #PurchaseRFQ
+        PROPERTIES
+          Name                #PurchaseRFQ
+          Label               #@SYS106909
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrePrintLevelPurchRFQ
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Reference
+        PROPERTIES
+          Name                #Reference
+          Label               #@SYS112248
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PrintContractReference
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #SalesTax
+        PROPERTIES
+          Name                #SalesTax
+          Label               #@SYS22916
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #TaxSpecPrintLevel
+          #TaxPrintTaxFreeBalance
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #Key
+      PROPERTIES
+        Name                #Key
+        AllowDuplicates     #No
+        Origin              #{2B030001-051D-1000-4B65-790000000000}
+        LegacyId            #1
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Key
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #find
+        #client server static VendFormletterParameters  find(boolean _forupdate = false)
+        #{
+        #    VendFormletterParameters parameter;
+        #
+        #    parameter.selectForUpdate(_forupdate);
+        #
+        #    select firstonly parameter
+        #        index Key
+        #        where parameter.Key == 0;
+        #
+        #    if (!parameter && !parameter.isTmp())
+        #    {
+        #        Company::createParameter(parameter);
+        #    }
+        #
+        #    return parameter;
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #PurchFormLetterParameters
+  PROPERTIES
+    Name                #PurchFormLetterParameters
+    Origin              #{81CE1735-9FD1-4016-8677-9774FDAEB1E5}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    boolean inventDimParmAllowCreatePurchaseOrder;
+      #    boolean inventDimParmAllowCreatePackingSlip;
+      #    boolean inventDimParmAllowCreateReceiptsList;
+      #    boolean inventDimParmAllowCreateRFQ;
+      #    boolean inventDimParmAllowCreatePurchReq;
+      #    boolean inventDimParmAllowCreateAgreementConfirm;
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    vendFormletterParameters_ds.write();
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #fileNameLookupFilename
+      #public str fileNameLookupFilename()
+      #{
+      #    Filename    path;
+      #    Filename    name;
+      #    Filename    type;
+      #
+      #    [path, name, type] = fileNameSplit(
+      #        VendFormletterParameters.TermsAndConditions);
+      #
+      #    return name + type;
+      #}
+    ENDSOURCE
+    SOURCE #fileNameLookupFilter
+      #public container fileNameLookupFilter()
+      #{
+      #    #File
+      #
+      #    return [WinAPI::fileType(#txt), #AllFilesName+#txt];
+      #}
+    ENDSOURCE
+    SOURCE #fileNameLookupInitialPath
+      #public str fileNameLookupInitialPath()
+      #{
+      #    container file;
+      #
+      #    file = fileNameSplit(
+      #        VendFormletterParameters.TermsAndConditions);
+      #
+      #    return conPeek(file ,1);
+      #}
+    ENDSOURCE
+    SOURCE #fileNameLookupTitle
+      #public str fileNameLookupTitle()
+      #{
+      #    return "Select Terms & conditions document";
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    List            inventDimAgreementFieldList = InventDim::dimAgreementFieldList();
+      #    ListEnumerator  fieldListEnumerator = inventDimAgreementFieldList.getEnumerator();
+      #    fieldId         fieldId;
+      #
+      #    inventDimParmAllowCreatePurchaseOrder    = true;
+      #    inventDimParmAllowCreatePackingSlip      = true;
+      #    inventDimParmAllowCreateReceiptsList     = true;
+      #    inventDimParmAllowCreateRFQ              = true;
+      #    inventDimParmAllowCreatePurchReq         = true;
+      #    inventDimParmAllowCreateAgreementConfirm = true;
+      #
+      #    super();
+      #
+      #    VendFormletterParameters::find();
+      #    VendFormletterDocument::find();
+      #
+      #    while (fieldListEnumerator.moveNext())
+      #    {
+      #        fieldId = fieldListEnumerator.current();
+      #        inventDimParmAgreementConfirm_DS.object(InventDim::dim2dimParm(fieldId)).enabled(true);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #public void run()
+      #{
+      #    super();
+      #
+      #    inventDimParmPurchaseOrder_DS.create();
+      #    InventDimFixedClass::inventDimFixed2InventDimParm(vendFormletterParameters.InventDimPurchaseOrder,inventDimParmPurchaseOrder);
+      #    inventDimParmPurchaseOrder.write();
+      #
+      #    inventDimParmPackingslip_DS.create();
+      #    InventDimFixedClass::inventDimFixed2InventDimParm(vendFormletterParameters.InventDimPackingSlip,inventDimParmPackingslip);
+      #    inventDimParmPackingslip.write();
+      #
+      #    inventDimParmReceiptslist_DS.create();
+      #    InventDimFixedClass::inventDimFixed2InventDimParm(vendFormletterParameters.InventDimReceiptsList,inventDimParmReceiptslist);
+      #    inventDimParmReceiptslist.write();
+      #
+      #    inventDimParmRFQ_DS.create();
+      #    InventDimFixedClass::inventDimFixed2InventDimParm(vendFormletterParameters.InventDimRFQ,inventDimParmRFQ);
+      #    inventDimParmRFQ.write();
+      #
+      #    inventDimParmPurchReq_DS.create();
+      #    InventDimFixedClass::inventDimFixed2InventDimParm(vendFormletterParameters.InventDimPurchReq,inventDimParmPurchReq);
+      #    inventDimParmPurchReq.write();
+      #
+      #    inventDimParmAgreementConfirm_DS.create();
+      #    InventDimFixedClass::inventDimFixed2InventDimParm(vendFormletterParameters.InventDimPurchaseAgreement,inventDimParmAgreementConfirm);
+      #    inventDimParmAgreementConfirm.write();
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #VendFormletterParameters
+          Table               #VendFormletterParameters
+          AllowCreate         #No
+          AllowDelete         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #write
+          #public void write()
+          #{
+          #    vendFormletterParameters.InventDimPurchaseOrder     = InventDimFixedClass::inventDimParm2InventDimFixed(inventDimParmPurchaseOrder);
+          #    vendFormletterParameters.InventDimPackingSlip       = InventDimFixedClass::inventDimParm2InventDimFixed(inventDimParmPackingSlip);
+          #    vendFormletterParameters.InventDimReceiptsList      = InventDimFixedClass::inventDimParm2InventDimFixed(inventDimParmReceiptsList);
+          #    vendFormletterParameters.InventDimRFQ               = InventDimFixedClass::inventDimParm2InventDimFixed(inventDimParmRFQ);
+          #    vendFormletterParameters.InventDimPurchReq          = InventDimFixedClass::inventDimParm2InventDimFixed(inventDimParmPurchReq);
+          #    vendFormletterParameters.InventDimPurchaseAgreement = InventDimFixedClass::inventDimParm2InventDimFixed(inventDimParmAgreementConfirm);
+          #    super();
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #VendFormletterDocument
+          Table               #VendFormletterDocument
+          AllowCreate         #No
+          AllowDelete         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventDimParmPurchaseOrder
+          Table               #InventDimParm
+          AllowDelete         #No
+          AutoSearch          #No
+          AutoQuery           #No
+          LinkType            #Passive
+          DelayActive         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #create
+          #void create(boolean _append = false)
+          #{
+          #    if (inventDimParmAllowCreatePurchaseOrder)
+          #    {
+          #        super(_append);
+          #        inventDimParmAllowCreatePurchaseOrder = false;
+          #    }
+          #}
+          #
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventDimParmPackingSlip
+          Table               #InventDimParm
+          AllowDelete         #No
+          AutoSearch          #No
+          AutoQuery           #No
+          LinkType            #Passive
+          DelayActive         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #create
+          #public void create(boolean _append = false)
+          #{
+          #    if (inventDimParmAllowCreatePackingSlip)
+          #    {
+          #        super(_append);
+          #        inventDimParmAllowCreatePackingSlip = false;
+          #    }
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventDimParmReceiptslist
+          Table               #InventDimParm
+          AllowDelete         #No
+          AutoSearch          #No
+          AutoQuery           #No
+          LinkType            #Passive
+          DelayActive         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #create
+          #public void create(boolean _append = false)
+          #{
+          #    if (inventDimParmAllowCreateReceiptsList)
+          #    {
+          #        super(_append);
+          #        inventDimParmAllowCreateReceiptsList = false;
+          #    }
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventDimParmRFQ
+          Table               #InventDimParm
+          AllowDelete         #No
+          AutoSearch          #No
+          AutoQuery           #No
+          LinkType            #Passive
+          DelayActive         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #create
+          #public void create(boolean _append = false)
+          #{
+          #    if (inventDimParmAllowCreateRFQ)
+          #    {
+          #        super(_append);
+          #        inventDimParmAllowCreateRFQ = false;
+          #    }
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventDimParmPurchReq
+          Table               #InventDimParm
+          AllowDelete         #No
+          AutoSearch          #No
+          AutoQuery           #No
+          LinkType            #Passive
+          DelayActive         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #create
+          #public void create(boolean _append = false)
+          #{
+          #    if (inventDimParmAllowCreatePurchReq)
+          #    {
+          #        super(_append);
+          #        inventDimParmAllowCreatePurchReq = false;
+          #    }
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventDimParmAgreementConfirm
+          Table               #InventDimParm
+          AllowDelete         #No
+          AutoSearch          #No
+          AutoQuery           #No
+          LinkType            #Passive
+          DelayActive         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD InventSerialIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD WMSPalletIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD WMSLocationIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InventBatchIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InventLocationIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD ConfigIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InventColorIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InventSizeIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InventSiteIdFlag
+            PROPERTIES
+              Enabled             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #create
+          #public void create(boolean _append = false)
+          #{
+          #    if (inventDimParmAllowCreateAgreementConfirm)
+          #    {
+          #        super(_append);
+          #        inventDimParmAllowCreateAgreementConfirm = false;
+          #    }
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS70207
+      Style               #TableOfContents
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          ElementPosition     #1789569705
+          HierarchyParent     #LayoutGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Agreement
+          ElementPosition     #1288490187
+          HierarchyParent     #PurchaseAgreement
+          Caption             #@SYS13887
+          DataSource          #VendFormletterDocument
+          DataGroup           #Agreement
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DeliveryTerms
+          ElementPosition     #715827882
+          HierarchyParent     #ParmGroup
+          DataSource          #VendFormletterParameters
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #DeliveryTerms
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DimAgreement
+          ElementPosition     #1717986916
+          HierarchyParent     #PurchaseAgreementBody
+          Caption             #@SYS55149
+          DataSource          #InventDimParmAgreementConfirm
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #FixedView
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DimPackingSlip
+          ElementPosition     #1431655764
+          HierarchyParent     #PackingSlipBody
+          Caption             #@SYS55149
+          DataSource          #InventDimParmPackingSlip
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #FixedView
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DimPurchaseorder
+          ElementPosition     #1717986916
+          HierarchyParent     #PurchaseOrderBody
+          Caption             #@SYS55149
+          DataSource          #InventDimParmPurchaseOrder
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #FixedView
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DimPurchReq
+          ElementPosition     #1610612733
+          HierarchyParent     #PurchReqBody
+          Caption             #@SYS55149
+          DataSource          #InventDimParmPurchReq
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DimPurchRFQ
+          ElementPosition     #1717986916
+          HierarchyParent     #RFQBody
+          Caption             #@SYS55149
+          DataSource          #InventDimParmRFQ
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #FixedView
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DimReceiptslist
+          ElementPosition     #1431655764
+          HierarchyParent     #ReceiptsListBody
+          Caption             #@SYS55149
+          DataSource          #InventDimParmReceiptslist
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #FixedView
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DocuPurchaseorder
+          ElementPosition     #1288490187
+          HierarchyParent     #PurchaseOrderBody
+          Caption             #@SYS13887
+          DataSource          #VendFormletterDocument
+          DataGroup           #PurchaseOrder
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DocuPurchReq
+          ElementPosition     #1073741822
+          HierarchyParent     #PurchReqBody
+          Caption             #@SYS13887
+          DataSource          #VendFormletterDocument
+          DataGroup           #PurchReq
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DocuPurchRFQ
+          ElementPosition     #1288490187
+          HierarchyParent     #RFQBody
+          Caption             #@SYS13887
+          DataSource          #VendFormletterDocument
+          DataGroup           #PurchaseRFQ
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GeneralTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #General
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupPurchaseorder
+          ElementPosition     #858993458
+          HierarchyParent     #PurchaseOrderBody
+          Caption             #@SYS27573
+          DataSource          #VendFormletterParameters
+          DataGroup           #PurchaseOrder
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupPurchaseRFQ
+          ElementPosition     #858993458
+          HierarchyParent     #RFQBody
+          Caption             #@SYS27573
+          DataSource          #VendFormletterParameters
+          DataGroup           #PurchaseRFQ
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Itemdescription
+          ElementPosition     #1073741823
+          HierarchyParent     #LayoutGroup
+          DataSource          #VendFormletterParameters
+          DataGroup           #ItemDescription
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Itemdimension
+          ElementPosition     #1431655764
+          HierarchyParent     #LayoutGroup
+          DataSource          #VendFormletterParameters
+          DataGroup           #ItemDimensions
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Itemnumber
+          ElementPosition     #715827882
+          HierarchyParent     #LayoutGroup
+          DataSource          #VendFormletterParameters
+          DataGroup           #ItemNumber
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #LayoutGroup
+          ElementPosition     #1610612733
+          HierarchyParent     #General
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PackingSlipBody
+          ElementPosition     #1610612733
+          HierarchyParent     #PackingSlip
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PackingSlipTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #PackingSlip
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ParmGroup
+          ElementPosition     #1288490187
+          HierarchyParent     #PurchaseAgreementBody
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Payment
+          ElementPosition     #1073741823
+          HierarchyParent     #ParmGroup
+          DataSource          #VendFormletterParameters
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #Payment
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PrePrintPurchaseAgreement
+          ElementPosition     #858993458
+          HierarchyParent     #PurchaseAgreementBody
+          Caption             #@SYS27573
+          DataSource          #VendFormletterParameters
+          DataGroup           #PrePrintPurchaseAgreement
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PurchaseAgreement1
+          ElementPosition     #1431655764
+          HierarchyParent     #ParmGroup
+          DataSource          #VendFormletterParameters
+          Columns             #2
+          Columnspace         #50
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #PurchaseAgreement
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PurchaseAgreementBody
+          ElementPosition     #1717986916
+          HierarchyParent     #PurchaseAgreement
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PurchaseAgreementTitle
+          ElementPosition     #858993458
+          HierarchyParent     #PurchaseAgreement
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PurchaseOrderBody
+          ElementPosition     #1610612733
+          HierarchyParent     #PurchaseOrder
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PurchaseOrderTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #PurchaseOrder
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PurchReqBody
+          ElementPosition     #1610612733
+          HierarchyParent     #PurchReq
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PurchReqTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #PurchReq
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ReceiptsListBody
+          ElementPosition     #1610612733
+          HierarchyParent     #ReceiptsList
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ReceiptsListTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #ReceiptsList
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Reference
+          ElementPosition     #1789569705
+          HierarchyParent     #ParmGroup
+          DataSource          #VendFormletterParameters
+          DataGroup           #Reference
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #RFQBody
+          ElementPosition     #1610612733
+          HierarchyParent     #RFQ
+          Style               #TOCTopicSimple
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #RFQTitle
+          ElementPosition     #1073741822
+          HierarchyParent     #RFQ
+          Style               #TOCTitleContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741823
+          Style               #VerticalTabs
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #General
+          ElementPosition     #1073741822
+          HierarchyParent     #Tab
+          Caption             #@SYS2952
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #PackingSlip
+          ElementPosition     #1533916889
+          HierarchyParent     #Tab
+          Caption             #@SYS330155
+          DataSource          #InventDimParmPackingSlip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #PurchaseAgreement
+          ElementPosition     #1994091956
+          HierarchyParent     #Tab
+          Caption             #@SYS190134
+          DataSource          #InventDimParmAgreementConfirm
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #PurchaseOrder
+          ElementPosition     #1227133511
+          HierarchyParent     #Tab
+          Caption             #@SYS25545
+          DataSource          #InventDimParmPurchaseOrder
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #PurchReq
+          ElementPosition     #1840700267
+          HierarchyParent     #Tab
+          Caption             #@SYS94925
+          DataSource          #InventDimParmPurchReq
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #ReceiptsList
+          ElementPosition     #1380525200
+          HierarchyParent     #Tab
+          Caption             #@SYS25756
+          DataSource          #InventDimParmReceiptslist
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #RFQ
+          ElementPosition     #1687308578
+          HierarchyParent     #Tab
+          Caption             #@SYS102691
+          DataSource          #InventDimParmRFQ
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #PrintMgmt
+          Left                #Auto (right)
+          NeededPermission    #Manual
+          HelpText            #@SYS68918
+          ConfigurationKey    #LogisticsBasic
+          SecurityKey         #VendMisc
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS54502
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    PrintMgmtSetupContext setupContext = new PrintMgmtSetupContext();
+            #    ;
+            #
+            #    super();
+            #
+            #    setupContext.addHierarchyContext(PrintMgmtHierarchyType::Purch, PrintMgmtNodeType::Purch);
+            #    setupContext.parmCaller(element);
+            #    PrintMgmt::launchSetup(setupContext);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimPurchReq_ConfigIdFlag
+          ElementPosition     #613566756
+          HierarchyParent     #DimPurchReq
+          DataSource          #InventDimParmPurchReq
+          DataField           #ConfigIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimPurchReq_InventColorIdFlag
+          ElementPosition     #1227133512
+          HierarchyParent     #DimPurchReq
+          DataSource          #InventDimParmPurchReq
+          DataField           #InventColorIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimPurchReq_InventLocationIdFlag
+          ElementPosition     #1840700268
+          HierarchyParent     #DimPurchReq
+          DataSource          #InventDimParmPurchReq
+          DataField           #InventLocationIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimPurchReq_InventSiteIdFlag
+          ElementPosition     #1533916890
+          HierarchyParent     #DimPurchReq
+          DataSource          #InventDimParmPurchReq
+          DataField           #InventSiteIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimPurchReq_InventSizeIdFlag
+          ElementPosition     #920350134
+          HierarchyParent     #DimPurchReq
+          DataSource          #InventDimParmPurchReq
+          DataField           #InventSizeIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimPurchRFQ_WMSLocationIdFlag
+          Visible             #No
+          ElementPosition     #1757032074
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #WMSLocationIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimPurchRFQ_WMSPalletIdFlag
+          Visible             #No
+          ElementPosition     #1952257860
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #WMSPalletIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimRFQ_ConfigIdFlag
+          ElementPosition     #390451572
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #ConfigIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimRFQ_InventBatchIdFlag
+          ElementPosition     #1366580502
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #InventBatchIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimRFQ_InventColorIdFlag
+          ElementPosition     #780903144
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #InventColorIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimRFQ_InventLocationIdFlag
+          ElementPosition     #1171354716
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #InventLocationIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimRFQ_InventSerialIdFlag
+          ElementPosition     #1561806288
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #InventSerialIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimRFQ_InventSiteIdFlag
+          ElementPosition     #976128930
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #InventSiteIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #DimRFQ_InventSizeIdFlag
+          ElementPosition     #585677358
+          HierarchyParent     #DimPurchRFQ
+          DataSource          #InventDimParmRFQ
+          DataField           #InventSizeIdFlag
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #StaticText
+          ElementPosition     #1431655764
+          HierarchyParent     #GeneralTitle
+          Text                #@SYS341075
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #StaticText1
+          ElementPosition     #1431655764
+          HierarchyParent     #PurchaseOrderTitle
+          Text                #@SYS341076
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #StaticText2
+          ElementPosition     #1431655764
+          HierarchyParent     #ReceiptsListTitle
+          Text                #@SYS341077
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #StaticText3
+          ElementPosition     #1431655764
+          HierarchyParent     #PackingSlipTitle
+          Text                #@SYS341078
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #StaticText4
+          ElementPosition     #1431655764
+          HierarchyParent     #RFQTitle
+          Text                #@SYS341079
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #StaticText5
+          ElementPosition     #1431655764
+          HierarchyParent     #PurchReqTitle
+          Text                #@SYS341080
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #StaticText6
+          ElementPosition     #1431655764
+          HierarchyParent     #PurchaseAgreementTitle
+          Text                #@SYS341082
+          Style               #MainInstruction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_04_09_FileLookup unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_04_09_FileLookup
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_04_09_FileLookup
+    Origin              #{582C6806-A15D-418A-B9DA-F507AE61DB84}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 44
+      UTILOBJECTID 1309
+      NODETYPE 204
+      NAME #VendFormletterParameters
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #PurchFormLetterParameters
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

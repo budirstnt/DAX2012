@@ -1,0 +1,270 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysSetupFormRun unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysSetupFormRun
+    PROPERTIES
+      Name                #SysSetupFormRun
+      Extends             #FormRun
+      RunOn               #Client
+      Origin              #{2D0F0283-0000-1000-B5DF-784DC362FB4F}
+      LegacyId            #643
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #addAboutButton
+        #private void addAboutButton()
+        #{
+        #    FormActionPaneControl    actionPane;
+        #    FormActionPaneTabControl actionPaneTab;
+        #    FormCommandButtonControl cmdAbout;
+        #    FormButtonGroupControl   btngrp;
+        #    #define.taskAbout(259)
+        #
+        #    actionPane = this.design().controlNum(1);
+        #    if (!actionPane ||
+        #        !(actionPane is FormActionPaneControl) ||
+        #        actionPane.style() == ActionPaneStyle::Strip)
+        #    {
+        #        return;
+        #    }
+        #
+        #    actionPaneTab = actionPane.controlNum(1);
+        #    if (!actionPaneTab ||
+        #        !(actionPaneTab is FormActionPaneTabControl))
+        #    {
+        #        return;
+        #    }
+        #
+        #    btngrp = actionPaneTab.addControl(
+        #        FormControlType::ButtonGroup, 'ButtonGroup');
+        #    btngrp.caption("About");
+        #
+        #    cmdAbout = btngrp.addControl(
+        #        FormControlType::CommandButton, 'About');
+        #    cmdAbout.command(#taskAbout);
+        #    cmdAbout.imageLocation(SysImageLocation::EmbeddedResource);
+        #    cmdAbout.normalImage('412');
+        #    cmdAbout.big(NoYes::Yes);
+        #    cmdAbout.saveRecord(NoYes::No);
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #// This is a framework class. Customizing this class may cause problems with future upgrades to the software.
+        #public class SysSetupFormRun extends FormRun
+        #{
+        #    SysWorkflowFormControls     workflowControls;
+        #
+        ##if.never
+        #    #define.CurrentVersion(1)
+        #    #localmacro.CurrentList
+        #    #endmacro
+        ##endif
+        #}
+      ENDSOURCE
+      SOURCE #docCursor
+        #Common docCursor()
+        #{
+        #    if (infolog.docuHandlingActive())
+        #    {
+        #        return super();
+        #    }
+        #    else
+        #    {
+        #        return null;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #getActiveWorkflowConfiguration
+        #public Common getActiveWorkflowConfiguration()
+        #{
+        #    Common workflowConfiguration;
+        #
+        #    if (workflowControls)
+        #        workflowConfiguration = workflowControls.getActiveWorkflowVersion();
+        #
+        #    return workflowConfiguration;
+        #}
+      ENDSOURCE
+      SOURCE #getActiveWorkflowTrackingStatus
+        #public Common getActiveWorkflowTrackingStatus()
+        #{
+        #    Common trackingStatusTable;
+        #
+        #    if (workflowControls)
+        #        trackingStatusTable = workflowControls.getActiveWorkflowTrackingStatus();
+        #
+        #    return trackingStatusTable;
+        #}
+      ENDSOURCE
+      SOURCE #getActiveWorkflowWorkItem
+        #public Common getActiveWorkflowWorkItem()
+        #{
+        #    Common workItem;
+        #
+        #    if (workflowControls)
+        #        workItem = workflowControls.getActiveWorkflowWorkItem();
+        #
+        #    return workItem;
+        #}
+      ENDSOURCE
+      SOURCE #init
+        #public void init()
+        #{
+        #    super();
+        #
+        #    if (this.isWorkflowEnabled())
+        #    {
+        #        workflowControls = SysWorkflowFormControls::construct(this);
+        #        workflowControls.initControls();
+        #    }
+        #}
+        #
+      ENDSOURCE
+      SOURCE #loadUserSetting
+        #/// <summary>
+        #/// Loads the user settings when a form is created.
+        #/// </summary>
+        #/// <remarks>
+        #/// To override this method on a form, right-click the Methods node below the form, click Override
+        #/// Method, and then click loadUserSetting.For information about best practices dealing with forms and
+        #/// code, see <see cref="No Code in Forms" />.
+        #/// </remarks>
+        #public void loadUserSetting()
+        #{
+        #    SysSaveSetup    sysSaveSetup;
+        #    Args            args = this.args();
+        #    formName        formName;
+        #
+        #    if (args)
+        #    {
+        #        formName = args.name();
+        #    }
+        #
+        #    super();
+        #
+        #    switch (formName)
+        #    {
+        #        case formstr(smmPhone):
+        #            break;
+        #        default:
+        #            sysSaveSetup = SysSaveSetup::construct(this);
+        #            sysSaveSetup.loadFormSetup();
+        #    }
+        #}
+        #
+      ENDSOURCE
+      SOURCE #loadWorkflowConfiguration
+        #public Common loadWorkflowConfiguration()
+        #{
+        #    Common ret;
+        #
+        #    ret = super();
+        #
+        #    if (ret.RecId == 0)
+        #    {
+        #        if (this.isWorkflowEnabled() && workflowControls != null)
+        #        {
+        #            ret = Workflow::findWorkflowConfigurationToActivate(workflowControls.getWorkflowDocumentTable(), this.workflowType());
+        #        }
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #void new(xArgs args)
+        #{;
+        #    //BP deviation documented - derivation of formRun class has to call new formRun method.
+        #    super(args);
+        #}
+      ENDSOURCE
+      SOURCE #run
+        #public void run()
+        #{
+        #    this.addAboutButton();
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #saveUserSetting
+        #/// <summary>
+        #/// Saves the user settings.
+        #/// </summary>
+        #/// <remarks>
+        #/// To override this method on a form, right-click the Methods node below the form, click Override
+        #/// Method, and then click saveUserSetting.For information about best practices dealing with forms and
+        #/// code, see <see cref="No Code in Forms" /> .
+        #/// </remarks>
+        #public void saveUserSetting()
+        #{
+        #    SysSaveSetup    sysSaveSetup = SysSaveSetup::construct(this);
+        #    ;
+        #    sysSaveSetup.saveFormSetup();
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #task
+        #public int task(int _p1)
+        #{
+        #    #task
+        #    FormDataSource formDataSource;
+        #
+        #    int ret;
+        #
+        #    if (_p1 == #taskFilter)
+        #    {
+        #        formDataSource = this.objectSet();
+        #        if (formDataSource &&
+        #            formDataSource.queryRun() &&
+        #            formDataSource.queryRun().args() &&
+        #            !formDataSource.queryRun().args().caller())
+        #        {
+        #            formDataSource.queryRun().args().caller(this);
+        #        }
+        #    }
+        #
+        #    ret = super(_p1);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #updateWorkflowControls
+        #public void updateWorkflowControls()
+        #{
+        #    if (workflowControls)
+        #        workflowControls.updateControls();
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_06_SysSetupFormRun unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_06_SysSetupFormRun
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_06_SysSetupFormRun
+    Origin              #{9E7A1862-9CC4-4702-A837-C1FA3712A70C}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 643
+      NODETYPE 329
+      NAME #SysSetupFormRun
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

@@ -1,0 +1,2604 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysSetupForm
+  PROPERTIES
+    Name                #SysSetupForm
+    Origin              #{7A462486-4937-446C-998A-A43A9E160459}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    #resAppl
+      #    #resource
+      #
+      #    SysSetupForm            sysSetupForm;
+      #
+      #    str                     treeAllFieldsText;
+      #
+      #    int                     lastParentIdx;
+      #    int                     lastIdx;
+      #
+      #    container               visibleCon;
+      #    container               allowEditCon;
+      #
+      #    UtilElements            utilElements;
+      #    Name                    lastValueDesignName;
+      #    userId                  lastValueUserId;
+      #
+      #    boolean                 loadFromUser;
+      #
+      #    Map                     loadFromUserMap;
+      #
+      #    boolean                 showDevInfo;
+      #    ImageListAppl_Query     imagelist;
+      #
+      #    // Yellow Message Bar Control
+      #    Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessagePane yellowBarPane;
+      #    Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessageBar yellowBar;
+      #    Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessageBarType yellowBarType;
+      #}
+    ENDSOURCE
+    SOURCE #changeSelection
+      #void changeSelection(FormControl control)
+      #{
+      #    int idx = 0;
+      #    ;
+      #    if (control)
+      #    {
+      #        idx = sysSetupForm.formControlTreeControl2Idx(control.id(), controlTree.getRoot());
+      #        if (idx)
+      #        {
+      #            controlTree.select( idx );
+      #        }
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    ;
+      #    sysSetupForm.fieldFormRunClose();
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #closeSelectRecord
+      #public void closeSelectRecord(Common _selectedRecord)
+      #{
+      #    super(_selectedRecord);
+      #}
+    ENDSOURCE
+    SOURCE #createYellowBarMessagePane
+      #private void createYellowBarMessagePane()
+      #{
+      #    // grab the instance of the message bar control and set its properties
+      #    yellowBarPane = YellowBarMessagePane.control();
+      #
+      #    // we're not using any actions, so we don't need the control to be part of the tab sequence
+      #    yellowBarPane.set_Enabled(false);
+      #
+      #    // we'll host a single message
+      #    yellowBarPane.set_MaximumMessageBars(1);
+      #}
+      #
+    ENDSOURCE
+    SOURCE #disableLayoutChanges
+      #public void disableLayoutChanges()
+      #{
+      #    FormRun editFormRun;
+      #
+      #    ControlGrp.enabled(false);
+      #    PropertiesGroup.enabled(false);
+      #    QueryTree.enabled(false);
+      #
+      #    // Show the warning
+      #    this.showWarningMessage();
+      #
+      #    // Disable any other changes and prevent the new value in SysLastValues from being overwritten.
+      #    editFormRun = element.args().caller();
+      #    editFormRun.blockPersonalization(true);
+      #    editFormRun.skipSaveUserSetting(true);
+      #}
+    ENDSOURCE
+    SOURCE #fillQueryTree
+      #void fillQueryTree()
+      #{
+      #    int                     rootid;
+      #    int                     treeId;
+      #    int                     dataSourceNo;
+      #    FormTreeItem            formTreeItem;
+      #    FormDataSource          formRunDataSource;
+      #    str                     nodeText;
+      #
+      #    FormRun                 setupRunForm;
+      #    Form                    setupForm;
+      #
+      #    boolean                 queryExist;
+      #    ;
+      #
+      #    if (!showDevInfo || !element.args().caller())
+      #    {
+      #        queryPage.visible(false);
+      #        return;
+      #    }
+      #
+      #    setupRunForm    = element.args().caller();
+      #    setupForm       = setupRunForm.form();
+      #
+      #    queryTree.setImagelist( imagelist.imageList() );
+      #
+      #    // BP deviation documented
+      #    formTreeItem = new FormTreeItem(setupForm.name(),imagelist.image(#ImageForm),-1,null);
+      #    rootId = queryTree.addItem(0,FormTreeAdd::Root,formTreeItem);
+      #
+      #    for (datasourceNo = 1; dataSourceNo <= setupForm.dataSourceCount(); dataSourceNo++)
+      #    {
+      #        formRunDataSource = setupRunForm.dataSource(dataSourceNo);
+      #
+      #        if (formRunDataSource.equal(formRunDataSource.masterObjectSet()))
+      #        {
+      #            nodeText = setupForm.dataSource(dataSourceNo).name();
+      #            // BP deviation documented
+      #            formTreeItem = new FormTreeItem(nodeText,imagelist.image(#ImageQuery),1,null);
+      #
+      #            treeId = queryTree.addItem(rootId,FormTreeAdd::Last,formTreeItem);
+      #
+      #            this.fillQueryTreeFormDatasource(formRunDataSource, treeId);
+      #
+      #            queryTree.expand(treeId,FormTreeExpand::Expand);
+      #
+      #            queryExist = true;
+      #        }
+      #    }
+      #
+      #    queryTree.expand(rootId,FormTreeExpand::Expand);
+      #
+      #    if (!queryExist)
+      #        queryPage.visible(false);
+      #}
+    ENDSOURCE
+    SOURCE #fillQueryTreeFormDatasource
+      #void fillQueryTreeFormDatasource(FormDataSource formDataSource, int rootId)
+      #{
+      #    Query                   query;
+      #    QueryBuildDataSource    queryBuildDataSource;
+      #    int                     i;
+      #
+      #    if (! formDataSource.queryRun())
+      #        return;
+      #
+      #    query    = formDataSource.queryRun().query();
+      #
+      #    for (i = 1; i <= query.childDataSourceCount(); i++)
+      #    {
+      #        queryBuildDataSource = query.childDataSourceNo(i);
+      #
+      #        this.fillQueryTreeQueryDatasource(queryBuildDataSource, rootId, true);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #fillQueryTreeQueryDatasource
+      #void fillQueryTreeQueryDatasource(QueryBuildDataSource queryBuildDataSource, int rootId, boolean top = false)
+      #{
+      #    int                 i;
+      #
+      #    QueryBuildDataSource    childDatasource;
+      #    QueryBuildFieldList     queryBuildFieldList;
+      #    QueryBuildRange         queryBuildRange;
+      #    QueryBuildLink          queryBuildLink;
+      #    QueryBuildDynalink      queryBuildDynalink;
+      #
+      #    int                     sourceRootId;
+      #    int                     treeId;
+      #    FormTreeItem            formTreeItem;
+      #    str                     nodeText;
+      #    int                     imageNo;
+      #    DictField               dictField;
+      #    ;
+      #
+      #
+      #    if (queryBuildDataSource.enabled())
+      #    {
+      #        nodeText = tableid2name(queryBuildDataSource.table());
+      #        if (nodeText != queryBuildDataSource.name())
+      #            nodeText = strfmt('%1 (%2)',queryBuildDataSource.name(),nodeText);
+      #
+      #        // BP deviation documented
+      #        formTreeItem = new FormTreeItem(
+      #            nodeText,
+      #               imagelist.image(#ImageDataSource),
+      #            -1,
+      #            queryBuildDataSource.table());
+      #        sourceRootId = queryTree.addItem(rootId, FormTreeAdd::Last, formTreeItem);
+      #
+      #        // Dynalink
+      #
+      #        if (queryBuildDataSource.dynalinkCount())
+      #        {
+      #            formTreeItem = new FormTreeItem('Dynalink',imagelist.image(#ImageRelations),-1,null);
+      #            treeId  = queryTree.addItem(sourceRootId,FormTreeAdd::Last,formTreeItem);
+      #
+      #            for (i = 1; i <= queryBuildDataSource.dynalinkCount(); i++)
+      #            {
+      #                queryBuildDynalink = queryBuildDataSource.dynalink(i);
+      #                nodeText = strfmt('%1.%2 == %3.%4', tableid2name(queryBuildDataSource.table()),
+      #                                                    fieldid2name(queryBuildDataSource.table(),queryBuildDynalink.field()),
+      #                                                    tableid2name(queryBuildDynalink.cursor().TableId),
+      #                                                    fieldid2name(queryBuildDynalink.cursor().TableId, queryBuildDynalink.dynamicField()));
+      #
+      #                // BP deviation documented
+      #                formTreeItem = new FormTreeItem(nodeText,imagelist.image(#ImageRelation),-1,null);
+      #                queryTree.addItem(treeId,FormTreeAdd::Last,formTreeItem);
+      #            }
+      #        }
+      #
+      #        // Fields
+      #
+      #        queryBuildFieldList = queryBuildDataSource.fields();
+      #
+      #        if (!queryBuildFieldList.dynamic())
+      #        {
+      #            formTreeItem = new FormTreeItem('Fields',imagelist.image(#ImageFields),-1,null);
+      #            treeId  = queryTree.addItem(sourceRootId,FormTreeAdd::Last,formTreeItem);
+      #
+      #            for (i = 1; i <= queryBuildFieldList.fieldCount(); i ++)
+      #            {
+      #                nodeText = '';
+      #                if (queryBuildFieldList.fieldKind(i) != SelectionField::Database)
+      #                {
+      #                    nodeText = strfmt('%1(%2)',queryBuildFieldList.fieldKind(i),fieldid2name(queryBuildDataSource.table(),queryBuildFieldList.field(i)));
+      #                    imageNo = imagelist.findFieldKind(queryBuildFieldList.fieldKind(i));
+      #                }
+      #                else
+      #                {
+      #                    nodeText = fieldid2name(queryBuildDataSource.table(),queryBuildFieldList.field(i));
+      #
+      #                    dictField = SysDictField::findfieldById(queryBuildDataSource.table(), queryBuildFieldList.field(i));
+      #
+      #                    imageNo = imagelist.findFieldImage(dictField.baseType());
+      #                }
+      #
+      #                // BP deviation documented
+      #                formTreeItem = new FormTreeItem(nodeText,imageNo,-1,null);
+      #                queryTree.addItem(treeId,FormTreeAdd::Last,formTreeItem);
+      #            }
+      #        }
+      #
+      #        // Sorting
+      #
+      #        if (queryBuildDataSource.sortFieldCount())
+      #        {
+      #
+      #            switch(queryBuildDataSource.orderMode())
+      #            {
+      #                case OrderMode::OrderBy:
+      #                    nodeText = 'Order by';
+      #                    break;
+      #                case OrderMode::GroupBy:
+      #                    nodeText = 'Group by';
+      #                    break;
+      #            }
+      #            // BP deviation documented
+      #            formTreeItem = new FormTreeItem(strfmt('Sorting (%1)',nodeText),imagelist.image(#ImageQuerySortings),-1,null);
+      #            treeId  = queryTree.addItem(sourceRootId,FormTreeAdd::Last,formTreeItem);
+      #
+      #            for (i = 1; i <= queryBuildDataSource.sortFieldCount(); i++)
+      #            {
+      #                nodeText = fieldid2name(queryBuildDataSource.table(),queryBuildDataSource.sortField(i));
+      #
+      #                if (queryBuildDataSource.sortDirection(i) == SortOrder::Ascending)
+      #                {
+      #                    imageNo = imagelist.image(#ImageQuerySortingAscending);
+      #                }
+      #                else
+      #                {
+      #                    imageNo = imagelist.image(#ImageQuerySortingDescending);
+      #                }
+      #
+      #                // BP deviation documented
+      #                formTreeItem = new FormTreeItem(nodeText,imageNo,-1,null);
+      #                queryTree.addItem(treeId,FormTreeAdd::Last,formTreeItem);
+      #            }
+      #        }
+      #
+      #        // Index ?
+      #
+      #        if (queryBuildDataSource.sortIndexCount())
+      #        {
+      #            nodeText = strfmt('Index: %1',indexid2name(queryBuildDataSource.table(),queryBuildDataSource.sortIndex(1)));
+      #
+      #            // BP deviation documented
+      #            formTreeItem = new FormTreeItem(nodeText,imagelist.image(#ImageQuerySortings),-1,null);
+      #            treeId  = queryTree.addItem(sourceRootId,FormTreeAdd::Last,formTreeItem);
+      #        }
+      #
+      #        // Ranges
+      #
+      #        if (queryBuildDataSource.rangeCount())
+      #        {
+      #            formTreeItem = new FormTreeItem('Ranges',imagelist.image(#ImageQueryRange),-1,null);
+      #            treeId  = queryTree.addItem(sourceRootId,FormTreeAdd::Last,formTreeItem);
+      #
+      #            for (i = 1; i <= queryBuildDataSource.rangeCount(); i++)
+      #            {
+      #                queryBuildRange = queryBuildDataSource.range(i);
+      #                nodeText = strfmt('%1 == %2',fieldid2name(queryBuildDataSource.table(),queryBuildRange.field()),queryBuildRange.value());
+      #
+      #                dictField = SysDictField::findFieldById(queryBuildDataSource.table(), queryBuildRange.field());
+      #                imageNo = imagelist.findFieldImage(dictField.baseType());
+      #
+      #                // BP deviation documented
+      #                formTreeItem = new FormTreeItem(nodeText,imageNo,-1,null);
+      #                queryTree.addItem(treeId,FormTreeAdd::Last,formTreeItem);
+      #            }
+      #        }
+      #
+      #        // Relation
+      #
+      #        if (queryBuildDataSource.linkCount())
+      #        {
+      #            formTreeItem = new FormTreeItem('Relation',imagelist.image(#ImageRelations),-1,null);
+      #            treeId  = queryTree.addItem(sourceRootId,FormTreeAdd::Last,formTreeItem);
+      #
+      #            for (i = 1; i <= queryBuildDataSource.linkCount(); i++)
+      #            {
+      #                queryBuildLink = queryBuildDataSource.link(i);
+      #
+      #                nodeText = strfmt('%1.%2 == %3.%4', tableid2name(queryBuildLink.relatedTable()),
+      #                                                    fieldid2name(queryBuildLink.relatedTable(),queryBuildLink.relatedField()),
+      #                                                    tableid2name(queryBuildLink.table()),
+      #                                                    fieldid2name(queryBuildLink.table(),queryBuildLink.field()));
+      #
+      #                // BP deviation documented
+      #                formTreeItem = new FormTreeItem(nodeText,imagelist.image(#ImageRelation),-1,null);
+      #                queryTree.addItem(treeId,FormTreeAdd::Last,formTreeItem);
+      #            }
+      #        }
+      #
+      #        // Datasources
+      #
+      #        if (queryBuildDataSource.childDataSourceCount())
+      #        {
+      #            formTreeItem = new FormTreeItem('Data Sources',imagelist.image(#ImageDataSources),-1,null);
+      #            treeId  = queryTree.addItem(sourceRootId,FormTreeAdd::Last,formTreeItem);
+      #
+      #            for (i = 1; i <= queryBuildDataSource.childDataSourceCount(); i++)
+      #            {
+      #                childDatasource = queryBuildDataSource.childDataSourceNo(i);
+      #                this.fillQueryTreeQueryDatasource(childDatasource, treeId);
+      #            }
+      #            queryTree.expand(treeId,FormTreeExpand::Expand);
+      #        }
+      #
+      #        queryTree.expand(sourceRootId,FormTreeExpand::Expand);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #formControlBuildText
+      #// Label with development information
+      #str formControlBuildText(FormRun formRun,FormControl formControl)
+      #{
+      #    FormStringControl       formStringControl;
+      #    FormRealControl         formRealControl;
+      #    FormIntControl          formIntControl;
+      #    FormDateControl         formDateControl;
+      #    FormTimeControl         formTimeControl;
+      #    FormDateTimeControl     formDateTimeControl;
+      #
+      #    FormCheckBoxControl     formCheckBoxControl;
+      #    FormListBoxControl      formListBoxControl;
+      #    FormComboBoxControl     formComboBoxControl;
+      #    FormRadioControl        formRadioControl;
+      #
+      #    FormGroupControl        formGroupControl;
+      #    FormReferenceControl    formReferenceControl;
+      #    FormBuildFunctionButtonControl formBuildFunctionButtonControl;
+      #    MenuItemType            menuItemType;
+      #    MenuFunction            menuFunction;
+      #
+      #    str                     controlText;
+      #
+      #    int                     dataSource;
+      #    str                     dataSourceName;
+      #    tableId                 tableId;
+      #
+      #    int                     dataField;
+      #    str                     dataFieldName;
+      #    int                     dataIndex;
+      #    str                     dataMethod;
+      #    str                     dataGroup;
+      #    str                     menuFunctionClass;
+      #
+      #    switch(formControl.handle())
+      #    {
+      #        case classnum(FormStringControl):
+      #
+      #            formStringControl = formControl;
+      #
+      #            dataSource  = formStringControl.dataSource();
+      #            dataField   = formStringControl.dataField();
+      #            dataMethod  = formStringControl.dataMethod();
+      #            dataIndex   = formStringControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormRealControl):
+      #
+      #            formRealControl = formControl;
+      #
+      #            dataSource  = formRealControl.dataSource();
+      #            dataField   = formRealControl.dataField();
+      #            dataMethod  = formRealControl.dataMethod();
+      #            dataIndex   = formRealControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormIntControl):
+      #
+      #            formIntControl = formControl;
+      #
+      #            dataSource  = formIntControl.dataSource();
+      #            dataField   = formIntControl.dataField();
+      #            dataMethod  = formIntControl.dataMethod();
+      #            dataIndex   = formIntControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormDateControl):
+      #
+      #            formDateControl = formControl;
+      #
+      #            dataSource  = formDateControl.dataSource();
+      #            dataField   = formDateControl.dataField();
+      #            dataMethod  = formDateControl.dataMethod();
+      #            dataIndex   = formDateControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormTimeControl):
+      #
+      #            formTimeControl = formControl;
+      #
+      #            dataSource  = formTimeControl.dataSource();
+      #            dataField   = formTimeControl.dataField();
+      #            dataMethod  = formTimeControl.dataMethod();
+      #            dataIndex   = formTimeControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormDateTimeControl):
+      #
+      #            formDateTimeControl = formControl;
+      #
+      #            dataSource  = formDateTimeControl.dataSource();
+      #            dataField   = formDateTimeControl.dataField();
+      #            dataMethod  = formDateTimeControl.dataMethod();
+      #            dataIndex   = formDateTimeControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormCheckBoxControl):
+      #
+      #            formCheckBoxControl = formControl;
+      #
+      #            dataSource  = formCheckBoxControl.dataSource();
+      #            dataField   = formCheckBoxControl.dataField();
+      #            dataMethod  = formCheckBoxControl.dataMethod();
+      #            break;
+      #
+      #        case classnum(FormListBoxControl):
+      #
+      #            formListBoxControl = formControl;
+      #
+      #            dataSource  = formListBoxControl.dataSource();
+      #            dataField   = formListBoxControl.dataField();
+      #            dataMethod  = formListBoxControl.dataMethod();
+      #            dataIndex   = formListBoxControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormComboBoxControl):
+      #
+      #            formComboBoxControl = formControl;
+      #
+      #            dataSource  = formComboBoxControl.dataSource();
+      #            dataField   = formComboBoxControl.dataField();
+      #            dataMethod  = formComboBoxControl.dataMethod();
+      #            dataIndex   = formComboBoxControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormRadioControl):
+      #
+      #            formRadioControl = formControl;
+      #
+      #            dataSource  = formRadioControl.dataSource();
+      #            dataField   = formRadioControl.dataField();
+      #            dataMethod  = formRadioControl.dataMethod();
+      #            dataIndex   = formRadioControl.arrayIndex();
+      #            break;
+      #
+      #        case classnum(FormGroupControl):
+      #            formGroupControl = formControl;
+      #
+      #            dataSource  = formGroupControl.dataSource();
+      #            if (formGroupControl.dataGroup())
+      #                dataGroup = formGroupControl.caption();
+      #
+      #            break;
+      #
+      #        case classnum(FormFunctionButtonControl):
+      #
+      #            formBuildFunctionButtonControl = formRun.form().design().control(formControl.id());
+      #
+      #            menuItemType = formBuildFunctionButtonControl.menuItemType();
+      #            controlText = strfmt('%1\n%2/%3',formControl.name(),menuItemType,formBuildFunctionButtonControl.menuItemName());
+      #
+      #            menuFunction = new MenuFunction(formBuildFunctionButtonControl.menuItemName(),menuItemType);
+      #            if (menuFunction)
+      #            {
+      #                switch(menuFunction.objectType())
+      #                {
+      #                    case UtilElementType::Form:
+      #                        menuFunctionClass = 'Form';
+      #                        break;
+      #
+      #                    case UtilElementType::Report:
+      #                        menuFunctionClass = 'Report';
+      #                        break;
+      #
+      #                    case UtilElementType::Job:
+      #                        menuFunctionClass = 'Job';
+      #                        break;
+      #
+      #                    case UtilElementType::Class:
+      #                        menuFunctionClass = 'Class';
+      #                        break;
+      #
+      #                    case UtilElementType::Query:
+      #                        menuFunctionClass = 'Query';
+      #                        break;
+      #
+      #                    default:
+      #                        menuFunctionClass = '';
+      #
+      #                }
+      #                controlText = strfmt('%1  - > %2/%3',controlText,menuFunctionClass,menuFunction.object());
+      #            }
+      #
+      #            return controlText;
+      #
+      #        case classnum(FormReferenceGroupControl):
+      #        case classnum(FormSegmentedEntryControl):
+      #
+      #            formReferenceControl = formControl;
+      #
+      #            dataSource  = formReferenceControl.dataSource();
+      #            dataField   = formReferenceControl.dataField();
+      #            dataGroup   = formReferenceControl.replacementFieldGroup();
+      #
+      #            break;
+      #
+      #
+      #        default:
+      #            return formControl.name();
+      #    }
+      #
+      #    controlText = formControl.name();
+      #
+      #    if (dataSource)
+      #    {
+      #        dataSourceName  = formRun.form().dataSource(dataSource).name();
+      #
+      #        tableId         = formRun.form().dataSource(dataSource).table();
+      #
+      #        if (dataMethod)
+      #        {
+      #            return strfmt('%1\n%2.%3()',formControl.name(),dataSourceName,dataMethod);
+      #
+      #        }
+      #
+      #        if (tableId && dataField)
+      #        {
+      #            dataFieldName = fieldid2name(tableId,dataField);
+      #            controlText = strfmt('%1\n%2',formControl.name(), tableid2name(tableId));
+      #
+      #            if (controlText != dataSourceName)
+      #            {
+      #                controlText += strfmt('(%1)',dataSourceName);
+      #            }
+      #            controlText += strfmt('.%1',dataFieldName);
+      #
+      #            if (dataIndex)
+      #            {
+      #                controlText += strfmt('[%1]',dataIndex);
+      #            }
+      #        }
+      #
+      #        if (dataGroup)
+      #        {
+      #            if (formReferenceControl)
+      #            {
+      #                controlText += '\n' + dataGroup;
+      #            }
+      #            else
+      #            {
+      #                controlText += strfmt('%1\n%2.[%3]',formControl.name(),dataSourceName,dataGroup);
+      #            }
+      #        }
+      #    }
+      #    else if (dataMethod)
+      #    {
+      #        controlText = strfmt('%1\n%2()',formControl.name(),dataMethod);
+      #    }
+      #
+      #    return controlText;
+      #
+      #}
+    ENDSOURCE
+    SOURCE #getFastTabSummary
+      #FastTabSummary getFastTabSummary(FormControl control)
+      #{
+      #    FastTabSummary summaryValue;
+      #    FormControlType controlType;
+      #
+      #    FormDateControl editDate;
+      #    FormGuidControl editGuid;
+      #    FormInt64Control editInt64;
+      #    FormIntControl editInt;
+      #    FormStringControl editString;
+      #    FormTimeControl editTime;
+      #    FormRealControl editReal;
+      #    FormDateTimeControl editDateTime;
+      #    ;
+      #
+      #    controlType = SysFormRun::controlType(classIdGet(control));
+      #
+      #    switch (controlType)
+      #    {
+      #        case FormControlType::Date:
+      #            editDate = control;
+      #            summaryValue = editDate.fastTabSummary();
+      #            break;
+      #        case FormControlType::Guid:
+      #            editGuid = control;
+      #            summaryValue = editGuid.fastTabSummary();
+      #            break;
+      #        case FormControlType::Int64:
+      #            editInt64 = control;
+      #            summaryValue = editInt64.fastTabSummary();
+      #            break;
+      #        case FormControlType::Integer:
+      #            editInt = control;
+      #            summaryValue = editInt.fastTabSummary();
+      #            break;
+      #        case FormControlType::String:
+      #            editString = control;
+      #            summaryValue = editString.fastTabSummary();
+      #            break;
+      #        case FormControlType::Time:
+      #            editTime = control;
+      #            summaryValue = editTime.fastTabSummary();
+      #            break;
+      #        case FormControlType::Real:
+      #            editReal = control;
+      #            summaryValue = editReal.fastTabSummary();
+      #            break;
+      #        case FormControlType::DateTime:
+      #            editDateTime = control;
+      #            summaryValue = editDateTime.fastTabSummary();
+      #            break;
+      #    }
+      #
+      #    return summaryValue;
+      #}
+    ENDSOURCE
+    SOURCE #getUserFastTabSummary
+      #FastTabSummary getUserFastTabSummary(FormControl control)
+      #{
+      #    int summaryValue;
+      #    FormControlType controlType;
+      #
+      #    FormDateControl editDate;
+      #    FormGuidControl editGuid;
+      #    FormInt64Control editInt64;
+      #    FormIntControl editInt;
+      #    FormStringControl editString;
+      #    FormTimeControl editTime;
+      #    FormRealControl editReal;
+      #    FormDateTimeControl editDateTime;
+      #    ;
+      #
+      #    controlType = SysFormRun::controlType(classIdGet(control));
+      #
+      #    switch (controlType)
+      #    {
+      #        case FormControlType::Date:
+      #            editDate = control;
+      #            summaryValue = editDate.userFastTabSummary();
+      #            break;
+      #        case FormControlType::Guid:
+      #            editGuid = control;
+      #            summaryValue = editGuid.userFastTabSummary();
+      #            break;
+      #        case FormControlType::Int64:
+      #            editInt64 = control;
+      #            summaryValue = editInt64.userFastTabSummary();
+      #            break;
+      #        case FormControlType::Integer:
+      #            editInt = control;
+      #            summaryValue = editInt.userFastTabSummary();
+      #            break;
+      #        case FormControlType::String:
+      #            editString = control;
+      #            summaryValue = editString.userFastTabSummary();
+      #            break;
+      #        case FormControlType::Time:
+      #            editTime = control;
+      #            summaryValue = editTime.userFastTabSummary();
+      #            break;
+      #        case FormControlType::Real:
+      #            editReal = control;
+      #            summaryValue = editReal.userFastTabSummary();
+      #            break;
+      #        case FormControlType::DateTime:
+      #            editDateTime = control;
+      #            summaryValue = editDateTime.userFastTabSummary();
+      #            break;
+      #    }
+      #
+      #    if (summaryValue == -1)
+      #    {
+      #        summaryValue = element.getFastTabSummary(control);
+      #    }
+      #
+      #    return summaryValue;
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    FormRun formRun;
+      #    ;
+      #    treeAllFieldsText   = "@SYS6047";
+      #
+      #    super();
+      #
+      #    if (element.args().caller() &&
+      #        SysDictClass::isEqualOrSuperclass(classidget(element.args().caller()), classnum(FormRun)))
+      #    {
+      #        formRun = element.args().caller();
+      #    }
+      #    else
+      #    {
+      #        formRun = this;
+      #    }
+      #
+      #    lastValueUserId = curuserid();
+      #
+      #    sysSetupForm = new SysSetupForm(formRun, this);
+      #    sysSetupForm.parmFormControlTree(controlTree);
+      #
+      #    element.args().object(sysSetupForm);
+      #
+      #    showDevInfo = Global::isDeveloper();
+      #    devControlName.visible(showDevInfo);
+      #    imagelist = new ImageListAppl_Query();
+      #
+      #    ControlFastTabSummary.enumType(enumNum(FastTabSummary));
+      #
+      #    this.createYellowBarMessagePane();
+      #}
+      #
+    ENDSOURCE
+    SOURCE #initParmDefault
+      #public void initParmDefault()
+      #{
+      #}
+    ENDSOURCE
+    SOURCE #isEditControl
+      #Boolean isEditControl(FormControl control)
+      #{
+      #    FormControlType controlType;
+      #    Boolean isEdit = false;
+      #
+      #    controlType = SysFormRun::controlType(classIdGet(control));
+      #
+      #    switch (controlType)
+      #    {
+      #        case FormControlType::Date:
+      #        case FormControlType::Guid:
+      #        case FormControlType::Int64:
+      #        case FormControlType::Integer:
+      #        case FormControlType::String:
+      #        case FormControlType::Time:
+      #        case FormControlType::Real:
+      #        case FormControlType::DateTime:
+      #            isEdit = true;
+      #            break;
+      #    }
+      #
+      #    return isEdit;
+      #}
+    ENDSOURCE
+    SOURCE #lastValueDataAreaId
+      #dataAreaId lastValueDataAreaId()
+      #{
+      #    return curext();
+      #}
+    ENDSOURCE
+    SOURCE #lastValueDesignName
+      #private identifiername lastValueDesignName()
+      #{
+      #    return lastValueDesignName;
+      #}
+    ENDSOURCE
+    SOURCE #lastValueElementName
+      #private identifiername lastValueElementName()
+      #{
+      #    return sysSetupForm.getFormName();
+      #}
+    ENDSOURCE
+    SOURCE #lastValueType
+      #private UtilElementType lastValueType()
+      #{
+      #    return UtilElementType::Usersetup;
+      #}
+    ENDSOURCE
+    SOURCE #lastValueUserId
+      #private userId lastValueUserId()
+      #{
+      #    return lastValueUserId;
+      #}
+    ENDSOURCE
+    SOURCE #loadFromUser
+      #void loadFromUser()
+      #{
+      #    SysLastValue sysLastValue;
+      #    userId       userId;
+      #    ;
+      #    if (!loadFromUserMap)
+      #    {
+      #        loadFromUserMap     = new Map(Types::String, Types::String);
+      #
+      #        while select sysLastValue
+      #            group by UserId
+      #            where sysLastValue.Company      == this.lastValueDataAreaId()
+      #               && sysLastValue.RecordType   == UtilElementType::Usersetup
+      #               && sysLastValue.ElementName  == this.lastValueElementName()
+      #               && sysLastValue.UserId       != curuserid()
+      #               && sysLastValue.DesignName
+      #        {
+      #            loadFromUserMap.insert(sysLastValue.UserId, sysLastValue.UserId);
+      #        }
+      #    }
+      #
+      #    if (loadFromUserMap.elements())
+      #    {
+      #        userId = pickUser(loadFromUserMap, true);
+      #
+      #        if (userId)
+      #        {
+      #            element.loadSetup(userId);
+      #        }
+      #    }
+      #    else
+      #    {
+      #        info("@SYS73299");
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #loadSetup
+      #// AosRunMode::Client
+      #public void loadSetup(userId userId)
+      #{
+      #    SysLastValue    sysLastValue;
+      #    container       value;
+      #    Name            designName;
+      #    Map             map;
+      #    ;
+      #
+      #    select firstonly sysLastValue
+      #        where sysLastValue.Company      == this.lastValueDataAreaId()  &&
+      #              sysLastValue.UserId       == userId                      &&
+      #              sysLastValue.RecordType   == this.lastValueType()  &&
+      #              sysLastValue.ElementName  == this.lastValueElementName() &&
+      #              sysLastValue.DesignName   != '';
+      #
+      #    if (sysLastValue)
+      #    {
+      #        map = new Map(Types::String, Types::String);
+      #
+      #        while select designName from sysLastValue
+      #            where sysLastValue.Company      == this.lastValueDataAreaId()   &&
+      #                  sysLastValue.UserId       == userId                       &&
+      #                  sysLastValue.RecordType   == this.lastValueType()         &&
+      #                  sysLastValue.ElementName  == this.lastValueElementName()  &&
+      #                  sysLastValue.DesignName   != ''
+      #        {
+      #            map.insert(sysLastValue.DesignName, sysLastValue.DesignName);
+      #        }
+      #
+      #        designName = pickList(map, "@SYS28107","@SYS28107", true);
+      #        if (designName)
+      #        {
+      #            value = xSysLastValue::getValue(
+      #                this.lastValueDataAreaId(),
+      #                userId,
+      #                this.lastValueType(),
+      #                this.lastValueElementName(),
+      #                designName);
+      #
+      #
+      #            xSysLastValue::putValue(
+      #                value,
+      #                this.lastValueDataAreaId(),
+      #                curUserId(),
+      #                this.lastValueType(),
+      #                this.lastValueElementName(),
+      #                '');
+      #
+      #            element.disableLayoutChanges();
+      #        }
+      #    }
+      #    else
+      #    {
+      #        info(strfmt("@SYS28106", userId));
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #pack
+      #container pack()
+      #{
+      #    return sysSetupForm.designPackUserSetting();
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #void run()
+      #{
+      #    boolean     canEdit;
+      #    ;
+      #    sysSetupForm.init();
+      #
+      #    formName.text(          sysSetupForm.getFormName());
+      #
+      #    callerName.text(        sysSetupForm.getCallerName());
+      #    callerEditButton.enabled((sysSetupForm.getCallerName() != ''));
+      #
+      #    menuItemName.text(        sysSetupForm.getMenuItemName());
+      #    menuItemEditButton.enabled((sysSetupForm.getMenuItemName() != ''));
+      #
+      #    createdBy.text(         sysSetupForm.getElementCreatedBy());
+      #    createdDate.dateValue(  DateTimeUtil::date(sysSetupForm.getElementCreatedDateTime()));
+      #    createdTime.value(      DateTimeUtil::time(sysSetupForm.getElementCreatedDateTime()));
+      #
+      #    modifiedBy.text(        sysSetupForm.getElementModifiedBy());
+      #    modifiedDate.dateValue( DateTimeUtil::date(sysSetupForm.getElementModifiedDateTime()));
+      #    modifiedTime.value(     DateTimeUtil::time(sysSetupForm.getElementModifiedDateTime()));
+      #
+      #    canEdit = (sysSetupForm.formControlTreeAllowUserSetup(0) != FormAllowUserSetup::No);
+      #
+      #    mainBtnGrp.enabled(canEdit);
+      #
+      #    element.fillQueryTree();
+      #
+      #    super();
+      #
+      #    this.arrange();
+      #}
+      #
+      #
+    ENDSOURCE
+    SOURCE #saveSetup
+      #void saveSetup()
+      #{
+      #    DialogField     setupName;
+      #    Dialog          dialog;
+      #
+      #    dialog = new Dialog();
+      #    dialog.caption("@SYS25458");
+      #    setupName = dialog.addField(extendedTypeStr(Name));
+      #
+      #    // Run the dialog as modal.
+      #    dialog.doRun();
+      #    dialog.formRun().wait(true);
+      #
+      #    if (!dialog.closedOk())
+      #        return;
+      #
+      #    if (setupName.value())
+      #        element.userParmWrite(setupName.value());
+      #}
+    ENDSOURCE
+    SOURCE #selectionChanged
+      #void selectionChanged(FormControl control,boolean updatePromptField = true)
+      #{
+      #    ;
+      #    element.updateTask(control);
+      #
+      #    if (updatePromptField)
+      #    {
+      #        control.displayControl();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #setUserFastTabSummary
+      #void setUserFastTabSummary(FormControl control, FastTabSummary summaryValue)
+      #{
+      #    FormControlType controlType;
+      #
+      #    FormDateControl editDate;
+      #    FormGuidControl editGuid;
+      #    FormInt64Control editInt64;
+      #    FormIntControl editInt;
+      #    FormStringControl editString;
+      #    FormTimeControl editTime;
+      #    FormRealControl editReal;
+      #    FormDateTimeControl editDateTime;
+      #    ;
+      #
+      #    controlType = SysFormRun::controlType(classIdGet(control));
+      #
+      #    switch (controlType)
+      #    {
+      #        case FormControlType::Date:
+      #            editDate = control;
+      #            editDate.userFastTabSummary(summaryValue);
+      #            break;
+      #        case FormControlType::Guid:
+      #            editGuid = control;
+      #            editGuid.userFastTabSummary(summaryValue);
+      #            break;
+      #        case FormControlType::Int64:
+      #            editInt64 = control;
+      #            editInt64.userFastTabSummary(summaryValue);
+      #            break;
+      #        case FormControlType::Integer:
+      #            editInt = control;
+      #            editInt.userFastTabSummary(summaryValue);
+      #            break;
+      #        case FormControlType::String:
+      #            editString = control;
+      #            editString.userFastTabSummary(summaryValue);
+      #            break;
+      #        case FormControlType::Time:
+      #            editTime = control;
+      #            editTime.userFastTabSummary(summaryValue);
+      #            break;
+      #        case FormControlType::Real:
+      #            editReal = control;
+      #            editReal.userFastTabSummary(summaryValue);
+      #            break;
+      #        case FormControlType::DateTime:
+      #            editDateTime = control;
+      #            editDateTime.userFastTabSummary(summaryValue);
+      #            break;
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #showWarningMessage
+      #public void showWarningMessage()
+      #{
+      #    Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessageBarCollection bars;
+      #    int barCount;
+      #
+      #    // Only add the message if it isn't already there
+      #    bars = yellowBarPane.get_MessageBars();
+      #    barCount = bars.get_Count();
+      #    if (barCount == 0)
+      #    {
+      #        this.lock();
+      #
+      #        // create a message bar
+      #        yellowBar = new Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessageBar();
+      #
+      #        // x++ mechanism for getting enum value, in this case let's make it a warning
+      #        // Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessageBarType::Warning
+      #        yellowBarType = Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessageBarType::Warning;
+      #
+      #        yellowBarPane.BeginUpdate();
+      #        yellowBar.set_MessageBarType(yellowBarType);
+      #        yellowBar.set_Enabled(true);
+      #        yellowBar.set_Text(strFmt("@SYS345414", sysSetupForm.getFormRun().design().caption()));
+      #        yellowBarPane.Add(yellowBar);
+      #        yellowBarPane.EndUpdate();
+      #
+      #        this.arrange();
+      #        this.unLock();
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #toggleAllowEdit
+      #void toggleAllowEdit()
+      #{
+      #    FormControl     activeFormControl;
+      #    int             idx = controlTree.getSelection();
+      #    ;
+      #
+      #    if (idx)
+      #    {
+      #        activeFormControl   = sysSetupForm.formControlTreeIdx2Control( idx );
+      #        activeFormControl.userDisable(!controlAllowEdit.value());
+      #        sysSetupForm.formControlTreeUpdateStatus(idx);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #toggleFastTabSummary
+      #void toggleFastTabSummary()
+      #{
+      #    FormControl activeFormControl;
+      #    FastTabSummary summaryValue;
+      #
+      #    int idx = controlTree.getSelection();
+      #    ;
+      #
+      #    if (idx)
+      #    {
+      #        activeFormControl = sysSetupForm.formControlTreeIdx2Control(idx);
+      #
+      #        summaryValue = ControlFastTabSummary.selection();
+      #        element.setUserFastTabSummary(activeFormControl, summaryValue);
+      #
+      #        sysSetupForm.formControlTreeUpdateStatus(idx);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #toggleLockLayout
+      #void toggleLockLayout()
+      #{
+      #    ;
+      #    sysSetupForm.parmLockLayout(moveButtonGrp.enableChilds());
+      #    this.updateTask();
+      #}
+    ENDSOURCE
+    SOURCE #toggleSkip
+      #void toggleSkip()
+      #{
+      #    FormControl     activeFormControl;
+      #    int             idx = controlTree.getSelection();
+      #    ;
+      #
+      #    if (idx)
+      #    {
+      #        activeFormControl = sysSetupForm.formControlTreeIdx2Control(idx);
+      #        activeFormControl.userSkip(controlSkip.value());
+      #        sysSetupForm.formControlTreeUpdateStatus(idx);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #toggleVisible
+      #void toggleVisible()
+      #{
+      #    ;
+      #    sysSetupForm.formControlTreeVisible(!controlVisible.value());
+      #}
+    ENDSOURCE
+    SOURCE #unpack
+      #void unpack(container _pack)
+      #{
+      #
+      #    if (!this.lastValueDesignName())
+      #    {
+      #        sysSetupForm.designUnpackUserSetting(_pack);
+      #    }
+      #    else
+      #    {
+      #        Debug::assert(false);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #updateTask
+      #void updateTask(FormControl control = null)
+      #{
+      #    boolean             enabled;
+      #    int                 layOutIdx   = controlTree.getSelection();
+      #    FormAllowUserSetup  formAllowUserSetup;
+      #    boolean             allowMove, allowAdd;
+      #    ;
+      #
+      #    if (!control)
+      #    {
+      #        control = sysSetupForm.formControlTreeIdx2Control(layoutIdx);
+      #    }
+      #
+      #    if (control)
+      #    {
+      #        formAllowUserSetup = sysSetupForm.formControlTreeAllowUserSetup(layOutIdx);
+      #        enabled            = (formAllowUserSetup != FormAllowUserSetup::No);
+      #
+      #        controlName.text(sysSetupForm.formControlLabel(control, true));
+      #
+      #        controlVisible.value(!control.userHide());
+      #        controlVisible.enabled(enabled && (control.visible() || control.userHide()));
+      #
+      #        controlAllowEdit.value( !control.userDisable());
+      #        controlAllowEdit.enabled(enabled && (control.allowEdit() || control.userDisable()));
+      #
+      #        controlSkip.value( control.userSkip() );
+      #        controlSkip.enabled(enabled && (!control.skip() || control.userSkip()));
+      #
+      #        if (element.isEditControl(control) == true)
+      #        {
+      #            controlFastTabSummary.selection(element.getUserFastTabSummary(control));
+      #            controlFastTabSummary.enabled(enabled);
+      #        }
+      #        else
+      #        {
+      #            controlFastTabSummary.selection(-1);
+      #            controlFastTabSummary.enabled(false);
+      #        }
+      #
+      #        promptEdit.enabled(enabled);
+      #        widthEdit.enabled(enabled);
+      #
+      #        configurationKeys.text(sysSetupForm.formControlConfigurationKeys(control));
+      #        if (element.args() && element.args().caller())
+      #        {
+      #            devControlName.text(element.formControlBuildText(element.args().caller(),control));
+      #        }
+      #    }
+      #    else
+      #    {
+      #        controlVisible.enabled(false);
+      #        controlAllowEdit.enabled(false);
+      #        controlSkip.enabled(false);
+      #        promptEdit.enabled(false);
+      #        widthEdit.enabled(false);
+      #    }
+      #
+      #    promptEdit.update();
+      #    widthEdit.update();
+      #
+      #    allowMove = sysSetupForm.formControlTreeAllowMove(layOutIdx);
+      #
+      #    buttonMoveUp.enabled(allowMove);
+      #    buttonMoveDown.enabled(allowMove);
+      #
+      #    buttonMoveLeft.enabled(sysSetupForm.formControlTreeAllowLeft(layOutIdx));
+      #    buttonMoveRight.enabled(sysSetupForm.formControlTreeAllowRight(layOutIdx));
+      #
+      #    buttonRemove.enabled(sysSetupForm.formControlTreeAllowRemove(layOutIdx));
+      #
+      #    allowAdd = !sysSetupForm.formControlTreeNeverAllowUserAdd(layOutIdx) &&
+      #                sysSetupForm.formControlTreeAllowUserSetup(0) == FormAllowUserSetup::Yes &&
+      #                sysSetupForm.formControlTreeAllowUserSetup(layOutIdx) == FormAllowUserSetup::Yes;
+      #
+      #    SysSetupFormAddFields.enabled(allowAdd);
+      #
+      #}
+    ENDSOURCE
+    SOURCE #userParmWrite
+      #void userParmWrite(Name name)
+      #{
+      #    lastValueDesignName = name;
+      #    xSysLastValue::saveLast(this);
+      #    lastValueDesignName = '';
+      #}
+    ENDSOURCE
+    SOURCE #userPrompt
+      #// BP deviation documented
+      #edit LabelType userPrompt(boolean _set, LabelString _value)
+      #{
+      #    FormControl formControl;
+      #    int         idx = controlTree.getSelection();
+      #    ;
+      #
+      #    if (idx)
+      #    {
+      #        formControl = sysSetupForm.formControlTreeIdx2Control( idx );
+      #    }
+      #
+      #    if (_set && formControl)
+      #    {
+      #        formControl.userPromptText( _value );
+      #        sysSetupForm.formControlTreeUpdateStatus(idx);
+      #    }
+      #
+      #    if (formControl)
+      #        return formControl.userPromptText();
+      #
+      #    return "";
+      #}
+    ENDSOURCE
+    SOURCE #userWidth
+      #// BP deviation documented
+      #edit Integer userWidth(boolean _set,Integer _value)
+      #{
+      #    FormControl     formControl;
+      #    int             w,h;
+      #    int             bw, bh;
+      #    int             idx = controlTree.getSelection();
+      #;
+      #
+      #    if (idx)
+      #    {
+      #        formControl = sysSetupForm.formControlTreeIdx2Control( idx );
+      #    }
+      #
+      #    if(formControl)
+      #    {
+      #        [bw,bh] = formControl.calcControlSize(0,0); // border wodth/height
+      #    }
+      #
+      #    if (_set && formControl)
+      #    {
+      #        if(_value)
+      #             [w,h] = formControl.calcControlSize(_value,1);
+      #             w -= bw; h -= bh; // pure width/height, w/o border
+      #
+      #        formControl.userWidth(w);
+      #        sysSetupForm.formControlTreeUpdateStatus( idx );
+      #    }
+      #
+      #    if (formControl)
+      #    {
+      #        [w,h] = formControl.calcControlSize(1,1);
+      #        w -= bw; h -= bh; // pure width/height, w/o border
+      #        return (formControl.userWidth() / w);
+      #    }
+      #
+      #    return 0;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS25453
+      WindowType          #Popup
+      HideToolbar         #Yes
+      SetCompany          #No
+      Columnspace         #2
+      HideIfEmpty         #No
+      AllowUserSetup      #No
+      StatusBarStyle      #Simple
+      ViewEditMode        #Edit
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          Left                #Auto (left)
+          VerticalSpacing     #4
+          ElementPosition     #1610612734
+          HierarchyParent     #MoveButtonGrp
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup1
+          ElementPosition     #1610612733
+          HierarchyParent     #QueryPage
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ControlBtnGrp
+          Left                #Auto (left)
+          ElementPosition     #1610612734
+          HierarchyParent     #ControlBottomGrp
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #MainBtnGrp
+          AutoDeclaration     #Yes
+          Left                #Auto (left)
+          ElementPosition     #1610612734
+          HierarchyParent     #RightGrp
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #CallerGrp
+          VerticalSpacing     #6
+          ElementPosition     #1610612734
+          HierarchyParent     #Info
+          FrameType           #None
+          Columns             #2
+          Columnspace         #4
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ControlBottomGrp
+          Width               #Column width
+          ElementPosition     #1610612734
+          HierarchyParent     #ControlGrp
+          FrameType           #None
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ControlGrp
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741823
+          HierarchyParent     #LayoutTab
+          FrameType           #Edged 3D
+          Caption             #@SYS27573
+          Columnspace         #2
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #CountGrp
+          NeededPermission    #Manual
+          ConfigurationKey    #SysDevelopmentMorphX
+          SecurityKey         #SysDevelopment
+          ElementPosition     #2013265918
+          HierarchyParent     #Info
+          FrameType           #None
+          OptionValue         #0
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Created
+          ElementPosition     #1073741823
+          HierarchyParent     #CountGrp
+          Caption             #@SYS11408
+          OptionValue         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #FormGrp
+          VerticalSpacing     #6
+          ElementPosition     #1073741823
+          HierarchyParent     #Info
+          FrameType           #None
+          Columns             #2
+          Columnspace         #4
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #MenuItemGrp
+          ElementPosition     #1879048190
+          HierarchyParent     #Info
+          FrameType           #None
+          Columns             #2
+          Columnspace         #4
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Modified
+          ElementPosition     #1879048190
+          HierarchyParent     #CountGrp
+          Caption             #@SYS27395
+          OptionValue         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #MoveButtonGrp
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741823
+          HierarchyParent     #ControlBottomGrp
+          FrameType           #Edged 3D
+          Caption             #@SYS24586
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #public void clicked()
+            #{
+            #    ;
+            #    element.toggleLockLayout();
+            #    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PropertiesGroup
+          AutoDeclaration     #Yes
+          Height              #Column height
+          ElementPosition     #1073741823
+          HierarchyParent     #RightGrp
+          FrameType           #Edged 3D
+          Caption             #@SYS10344
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #RightGrp
+          Left                #Right edge
+          Height              #Column height
+          ElementPosition     #1610612734
+          HierarchyParent     #LayoutTab
+          FrameType           #None
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #YellowBarGroup
+          Width               #Column width
+          ElementPosition     #536870911
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MANAGEDHOST
+        PROPERTIES
+          Name                #YellowBarMessagePane
+          Width               #Column width
+          ElementPosition     #1431655764
+          HierarchyParent     #YellowBarGroup
+          TypeName            #Microsoft.Dynamics.Framework.UI.WinForms.Controls.MessagePane
+          AssemblyName        #Microsoft.Dynamics.Framework.UI.WinForms.Controls, Version=1.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #ControlTab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741823
+          Tabs                #2
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Info
+          ElementPosition     #1610612734
+          HierarchyParent     #ControlTab
+          Caption             #@SYS22719
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #LayoutTab
+          ElementPosition     #1073741823
+          HierarchyParent     #ControlTab
+          Caption             #@SYS27573
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #QueryPage
+          AutoDeclaration     #Yes
+          NeededPermission    #Manual
+          ConfigurationKey    #SysDevelopmentMorphX
+          SecurityKey         #SysDevelopment
+          ElementPosition     #1879048190
+          HierarchyParent     #ControlTab
+          Caption             #@SYS25531
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonMoveDown
+          AutoDeclaration     #Yes
+          Left                #Center
+          HelpText            #@sys74620
+          ElementPosition     #1879048190
+          HierarchyParent     #MoveButtonGrp
+          Text                #@SYS2047
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ;
+            #    sysSetupForm.formControlTreeMoveVertical(false);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonMoveLeft
+          AutoDeclaration     #Yes
+          HelpText            #@sys2801
+          ElementPosition     #1073741823
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS2801
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ;
+            #    sysSetupForm.formControlTreeMoveLeft();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonMoveRight
+          AutoDeclaration     #Yes
+          HelpText            #@sys13169
+          ElementPosition     #1610612734
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS13169
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ;
+            #    sysSetupForm.formControlTreeMoveRight();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonMoveUp
+          AutoDeclaration     #Yes
+          Left                #Center
+          HelpText            #@sys74619
+          ElementPosition     #1073741823
+          HierarchyParent     #MoveButtonGrp
+          Text                #@SYS5474
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ;
+            #    sysSetupForm.formControlTreeMoveVertical(true);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ButtonRemove
+          AutoDeclaration     #Yes
+          AlignControl        #Yes
+          HelpText            #@SYS26394
+          ElementPosition     #1610612734
+          HierarchyParent     #ControlBtnGrp
+          Text                #@SYS26394
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    ;
+            #    sysSetupForm.formControlTreeUserRemove();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #CallerEditButton
+          AutoDeclaration     #Yes
+          NeededPermission    #Manual
+          HelpText            #@SYS453
+          ConfigurationKey    #SysDevelopmentMorphX
+          SecurityKey         #SysDevelopment
+          ElementPosition     #1610612734
+          HierarchyParent     #CallerGrp
+          Text                #@SYS453
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    #AOT
+            #    TreeNode treeNode = infolog.findNode(sysSetupForm.getCallerPath());
+            #    ;
+            #    if (treeNode)
+            #    {
+            #        treeNode.AOTnewWindow();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #EditTable
+          AutoDeclaration     #Yes
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroup1
+          Text                #Edit
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    FormTreeItem formTreeItem;
+            #    TableId      tableId;
+            #    TreeNode     treeNode;
+            #    #AOT
+            #
+            #    formTreeItem = QueryTree.getItem(
+            #        QueryTree.getSelection());
+            #
+            #    tableId = formTreeItem.data();
+            #
+            #    if (!tableId || !tableId2name(tableId))
+            #    {
+            #        return;
+            #    }
+            #
+            #    treeNode = infolog.findNode(
+            #        #TablesPath +
+            #        #AOTDelimiter +
+            #        tableid2name(tableId));
+            #
+            #    if (!treeNode)
+            #    {
+            #        return;
+            #    }
+            #
+            #    treeNode.AOTnewWindow();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #FormEditButton
+          NeededPermission    #Manual
+          HelpText            #@SYS53425
+          ConfigurationKey    #SysDevelopmentMorphX
+          SecurityKey         #SysDevelopment
+          ElementPosition     #1610612734
+          HierarchyParent     #FormGrp
+          Text                #@SYS453
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    #AOT
+            #
+            #    TreeNode treeNode = infolog.findNode(#formsPath + #AOTDelimiter + sysSetupForm.getFormName());
+            #    ;
+            #    if (treeNode)
+            #    {
+            #        treeNode.AOTnewWindow();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Load
+          HelpText            #@SYS8494
+          ElementPosition     #1073741823
+          HierarchyParent     #MainBtnGrp
+          Text                #@SYS8494
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.loadSetup(curuserid());
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #LoadFromUser
+          HelpText            #@SYS28105
+          ElementPosition     #2013265918
+          HierarchyParent     #MainBtnGrp
+          Text                #@SYS28105
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.loadFromUser();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #MenuItemEditButton
+          AutoDeclaration     #Yes
+          NeededPermission    #Manual
+          HelpText            #@sys2475
+          ConfigurationKey    #SysDevelopmentMorphX
+          SecurityKey         #SysDevelopment
+          ElementPosition     #1610612734
+          HierarchyParent     #MenuItemGrp
+          Text                #@SYS453
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    TreeNode treeNode = infolog.findNode(sysSetupForm.getMenuItemPath());
+            #    ;
+            #    if (treeNode)
+            #    {
+            #        treeNode.AOTnewWindow();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Reset
+          HelpText            #@SYS3073
+          ElementPosition     #1879048190
+          HierarchyParent     #MainBtnGrp
+          Text                #@SYS3073
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    xSysLastValue::deleteLast(element);
+            #    element.disableLayoutChanges();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #Save
+          HelpText            #@SYS12229
+          ElementPosition     #1610612734
+          HierarchyParent     #MainBtnGrp
+          Text                #@SYS12229
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.saveSetup();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ControlAllowEdit
+          AutoDeclaration     #Yes
+          HelpText            #@SYS73320
+          ElementPosition     #1879048190
+          HierarchyParent     #PropertiesGroup
+          Label               #@SYS25455
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #boolean modified()
+            #{
+            #    boolean         ret = super();
+            #    ;
+            #    element.toggleAllowEdit();
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ControlSkip
+          AutoDeclaration     #Yes
+          HelpText            #@SYS73318
+          ElementPosition     #2013265918
+          HierarchyParent     #PropertiesGroup
+          Label               #@SYS25456
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #boolean modified()
+            #{
+            #    boolean         ret = super();
+            #    ;
+            #    element.toggleSkip();
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ControlVisible
+          AutoDeclaration     #Yes
+          HelpText            #@SYS73322
+          ElementPosition     #1610612734
+          HierarchyParent     #PropertiesGroup
+          Label               #@SYS25454
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #boolean modified()
+            #{
+            #
+            #    boolean         ret = super();
+            #    ;
+            #
+            #    element.toggleVisible();
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #ControlFastTabSummary
+          AutoDeclaration     #Yes
+          HelpText            #@sys152566
+          ElementPosition     #2080374782
+          HierarchyParent     #PropertiesGroup
+          Label               #@sys152567
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    element.toggleFastTabSummary();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #CreatedDate
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          ElementPosition     #1610612734
+          HierarchyParent     #Created
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #ModifiedDate
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          ElementPosition     #1610612734
+          HierarchyParent     #Modified
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL INTEDIT
+        PROPERTIES
+          Name                #widthEdit
+          AutoDeclaration     #Yes
+          HelpText            #@SYS73315
+          ElementPosition     #2130706430
+          HierarchyParent     #PropertiesGroup
+          ShowZero            #No
+          Label               #@SYS70459
+          DataMethod          #UserWidth
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysSetupFormAddFields
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741823
+          HierarchyParent     #ControlBtnGrp
+          MenuItemName        #SysSetupFormAddFields
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    if (!sysSetupForm.fieldFormRunSetFocus())
+            #    {
+            #        super();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #CallerName
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          HelpText            #@SYS73310
+          ElementPosition     #1073741823
+          HierarchyParent     #CallerGrp
+          Label               #@SYS73311
+          ExtendedDataType    
+            ARRAY 
+              #ClassName
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #ConfigurationKeys
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          NeededPermission    #Manual
+          Height              #Column height
+          HelpText            #@SYS73314
+          SecurityKey         #AdminSetup
+          ElementPosition     #2139095038
+          HierarchyParent     #PropertiesGroup
+          DisplayLength       #30
+          MultiLine           #Yes
+          Label               #@SYS71856
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #ControlName
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          HelpText            #@SYS73321
+          ElementPosition     #1073741823
+          HierarchyParent     #PropertiesGroup
+          Label               #@SYS7399
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #CreatedBy
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          ElementPosition     #1073741823
+          HierarchyParent     #Created
+          ExtendedDataType    
+            ARRAY 
+              #CreatedBy
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DevControlName
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Height              #Column height
+          HelpText            #@SYS98782
+          ElementPosition     #2143289342
+          HierarchyParent     #PropertiesGroup
+          DisplayLength       #30
+          MultiLine           #Yes
+          Label               #@SYS11799
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #FormName
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          HelpText            #@SYS73313
+          ElementPosition     #1073741823
+          HierarchyParent     #FormGrp
+          ExtendedDataType    
+            ARRAY 
+              #FormName
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #MenuItemName
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          HelpText            #@SYS73309
+          ElementPosition     #1073741823
+          HierarchyParent     #MenuItemGrp
+          Label               #@SYS28739
+          ExtendedDataType    
+            ARRAY 
+              #ClassName
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #ModifiedBy
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          ElementPosition     #1073741823
+          HierarchyParent     #Modified
+          ExtendedDataType    
+            ARRAY 
+              #ModifiedBy
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #promptEdit
+          AutoDeclaration     #Yes
+          HelpText            #@SYS73319
+          ElementPosition     #2113929214
+          HierarchyParent     #PropertiesGroup
+          LookupButton        #Never
+          DataMethod          #userPrompt
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #lookup
+            #public void lookup()
+            #{
+            #//    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TIMEEDIT
+        PROPERTIES
+          Name                #CreatedTime
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          ElementPosition     #1879048190
+          HierarchyParent     #Created
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TIMEEDIT
+        PROPERTIES
+          Name                #ModifiedTime
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          ElementPosition     #1879048190
+          HierarchyParent     #Modified
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TREE
+        PROPERTIES
+          Name                #ControlTree
+          Width               #Column width
+          Height              #Column height
+          HelpText            #@SYS98787
+          DragDrop            #Manual
+          ElementPosition     #1073741823
+          HierarchyParent     #ControlGrp
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #beginDrag
+            #public int beginDrag(int _x, int _y)
+            #{
+            #    boolean ret;
+            #    ;
+            #    if (sysSetupForm.formControlTreeBeginDrag())
+            #    {
+            #        ret     = super(_x,_y);
+            #    }
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #dragLeave
+            #public void dragLeave()
+            #{
+            #    super();
+            #    sysSetupForm.formControlTreeDragOverHilite();
+            #}
+          ENDSOURCE
+          SOURCE #dragOver
+            #public FormDrag dragOver(FormControl _dragSource, FormDrag _dragMode, int _x, int _y)
+            #{
+            #    FormDrag formDrag;
+            #    ;
+            #    formDrag = super(_dragSource, _dragMode, _x, _y);
+            #    formDrag = sysSetupForm.formControlTreeDragOver(_dragSource, _x, _y);
+            #
+            #    return formDrag;
+            #}
+            #
+          ENDSOURCE
+          SOURCE #drop
+            #public void drop(FormControl _dragSource, FormDrag _dragMode, int _x, int _y)
+            #{
+            #    int idx;
+            #    ;
+            #
+            #    [idx] = this.hitTest(_x,_y);
+            #
+            #    super(_dragSource, _dragMode, _x, _y);
+            #
+            #    sysSetupForm.formControlTreeDrop(_dragSource, idx);
+            #}
+          ENDSOURCE
+          SOURCE #mouseDown
+            #public int mouseDown(int _x, int _y, int _button, boolean _ctrl, boolean _shift)
+            #{
+            #    int ret;
+            #
+            #    ret = super(_x, _y, _button, _ctrl, _shift);
+            #
+            #    sysSetupForm.formControlTreeMouseDown(_x, _y, _button);
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+          SOURCE #selectionChanged
+            #void selectionChanged(FormTreeItem oldItem, FormTreeItem newItem, FormTreeSelect how)
+            #{
+            #    FormControl     formControl;
+            #    ;
+            #    super(oldItem, newItem, how);
+            #
+            #    formControl = sysSetupForm.formControlTreeIdx2Control(newItem.idx());
+            #    if (formControl)
+            #    {
+            #        element.selectionChanged(formControl);
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TREE
+        PROPERTIES
+          Name                #QueryTree
+          Width               #Column width
+          Height              #Column height
+          HelpText            #@SYS98788
+          ElementPosition     #1073741822
+          HierarchyParent     #QueryPage
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChanged
+            #public void selectionChanged(
+            #    FormTreeItem _oldItem,
+            #    FormTreeItem _newItem,
+            #    FormTreeSelect _how)
+            #{
+            #    super(_oldItem, _newItem, _how);
+            #
+            #    EditTable.enabled(
+            #        tableid2name(_newItem.data()) ? true : false);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_08_05_PersonalizationForm unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_08_05_PersonalizationForm
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_08_05_PersonalizationForm
+    Origin              #{B5BEB605-0E7E-4C97-94D6-621E58A729FE}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #SysSetupForm
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

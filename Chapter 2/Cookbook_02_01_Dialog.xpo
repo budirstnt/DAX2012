@@ -1,0 +1,144 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: CustCreate unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #CustCreate
+    PROPERTIES
+      Name                #CustCreate
+      Extends             #RunBase
+      Origin              #{5A1261D0-B6A9-444D-AE6F-724D638A4B35}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class CustCreate extends RunBase
+        #{
+        #    DialogField    fieldAccount;
+        #    DialogField    fieldName;
+        #    DialogField    fieldGroup;
+        #    DialogField    fieldCurrency;
+        #    DialogField    fieldPaymTermId;
+        #    DialogField    fieldPaymMode;
+        #    CustAccount    custAccount;
+        #    CustName       custName;
+        #    CustGroupId    custGroupId;
+        #    CurrencyCode   currencyCode;
+        #    CustPaymTermId paymTermId;
+        #    CustPaymMode   paymMode;
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #protected Object dialog()
+        #{
+        #    Dialog          dialog;
+        #    DialogGroup     groupCustomer;
+        #    DialogGroup     groupPayment;
+        #
+        #    dialog = super();
+        #
+        #    dialog.caption("Customer information");
+        #
+        #    fieldAccount    = dialog.addField(
+        #        extendedTypeStr(CustVendAC),
+        #        "Customer account");
+        #
+        #    fieldName       = dialog.addField(extendedTypeStr(CustName));
+        #
+        #    dialog.addTabPage("Details");
+        #
+        #    groupCustomer   = dialog.addGroup("Setup");
+        #    fieldGroup      = dialog.addField(
+        #        extendedTypeStr(CustGroupId));
+        #    fieldCurrency   = dialog.addField(
+        #        extendedTypeStr(CurrencyCode));
+        #
+        #    groupPayment    = dialog.addGroup("Payment");
+        #    fieldPaymTermId = dialog.addField(
+        #        extendedTypeStr(CustPaymTermId));
+        #    fieldPaymMode   = dialog.addField(
+        #        extendedTypeStr(CustPaymMode));
+        #
+        #    return dialog;
+        #}
+      ENDSOURCE
+      SOURCE #getFromDialog
+        #public boolean getFromDialog()
+        #{
+        #    custAccount  = fieldAccount.value();
+        #    custName     = fieldName.value();
+        #    custGroupId  = fieldGroup.value();
+        #    currencyCode = fieldCurrency.value();
+        #    paymTermId   = fieldPaymTermId.value();
+        #    paymMode     = fieldPaymMode.value();
+        #    return super();
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    return conNull();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #run
+        #public void run()
+        #{
+        #    info("You have entered customer information:");
+        #    info(strFmt("Account: %1", custAccount));
+        #    info(strFmt("Name: %1", custName));
+        #    info(strFmt("Group: %1", custGroupId));
+        #    info(strFmt("Currency: %1", currencyCode));
+        #    info(strFmt("Terms of payment: %1", paymTermId));
+        #    info(strFmt("Method of payment: %1", paymMode));
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container _packedClass)
+        #{
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    CustCreate custCreate = new CustCreate();
+        #
+        #    if (custCreate.prompt())
+        #    {
+        #        custCreate.run();
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_01_Dialog unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_01_Dialog
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_01_Dialog
+    Origin              #{920D8929-BC56-4EDC-A1FA-480F84AB63D6}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023864
+      NODETYPE 329
+      NAME #CustCreate
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

@@ -1,0 +1,103 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: CreateWordDocument unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #CreateWordDocument
+    #static void CreateWordDocument(Args _args)
+    #{
+    #    Filename    template;
+    #    CustTable   custTable;
+    #    COM         word;
+    #    COM         documents;
+    #    COM         document;
+    #    COM         bookmarks;
+    #    COM         bookmark;
+    #    COM         range;
+    #
+    #    void processBookmark(str _name, str _value)
+    #    {
+    #        if (!bookmarks.exists(_name))
+    #        {
+    #            return;
+    #        }
+    #        bookmark = bookmarks.item(_name);
+    #        range    = bookmark.range();
+    #        range.insertAfter(_value);
+    #    }
+    #
+    #    #define.Word('Word.Application')
+    #    #define.template(@'C:\temp\letter.dotx');
+    #
+    #    custTable = CustTable::find('1101');
+    #
+    #    try
+    #    {
+    #        word = new COM(#Word);
+    #    }
+    #    catch (Exception::Internal)
+    #    {
+    #        if (word == null)
+    #        {
+    #            throw error("Microsoft Word is not installed");
+    #        }
+    #    }
+    #
+    #    documents = word.documents();
+    #    document  = documents.add(#template);
+    #    bookmarks = document.bookmarks();
+    #
+    #    processBookmark(
+    #        'Customer',
+    #        custTable.name());
+    #
+    #    processBookmark(
+    #        'User',
+    #        HcmWorker::find(
+    #            DirPersonUser::current().worker()).name());
+    #
+    #    processBookmark(
+    #        'Company',
+    #        CompanyInfo::find().Name);
+    #
+    #    processBookmark(
+    #        'Phone',
+    #        CompanyInfo::find().phone());
+    #
+    #    word.visible(true);
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{BF365A84-8E64-4F77-BF69-4F9A73B45BC9}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_06_03_WordTemplate unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_06_03_WordTemplate
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_06_03_WordTemplate
+    Origin              #{92626ADD-A7E9-455A-A70C-72C312D3B3CD}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #CreateWordDocument
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

@@ -1,0 +1,77 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: VendTableTmp unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #VendTableTmp
+    PROPERTIES
+      Name                #VendTableTmp
+      Origin              #{02BA466F-D242-4B72-942C-9AAE905BF07F}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class VendTableTmp
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #server static void main(Args _args)
+        #{
+        #    VendTable   vendTable;
+        #
+        #    vendTable.setTmp();
+        #
+        #    vendTable.AccountNum = '1000';
+        #    vendTable.Blocked    = CustVendorBlocked::No;
+        #    vendTable.Party      = 1;
+        #    vendTable.doInsert();
+        #
+        #    vendTable.clear();
+        #    vendTable.AccountNum = '1002';
+        #    vendTable.Blocked    = CustVendorBlocked::All;
+        #    vendTable.Party      = 2;
+        #    vendTable.doInsert();
+        #
+        #    while select vendTable
+        #    {
+        #        info(strFmt(
+        #            "%1 - %2",
+        #            vendTable.AccountNum,
+        #            vendTable.Blocked));
+        #    }
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_05_TmpTable unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_05_TmpTable
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_05_TmpTable
+    Origin              #{E16F82ED-62F2-4CD3-B778-95ED262C0CD1}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023861
+      NODETYPE 329
+      NAME #VendTableTmp
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

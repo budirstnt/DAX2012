@@ -1,0 +1,59 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: SalesOrderPost unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #SalesOrderPost
+    #static void SalesOrderPost(Args _args)
+    #{
+    #    SalesFormLetter salesFormLetter;
+    #    salesTable      salesTable;
+    #
+    #    salesTable = SalesTable::find('SO-101248');
+    #
+    #    salesFormLetter = SalesFormLetter::construct(
+    #        DocumentStatus::PackingSlip);
+    #
+    #    salesFormLetter.update(
+    #        salesTable,
+    #        systemDateGet(),
+    #        SalesUpdate::All,
+    #        AccountOrder::None,
+    #        NoYes::No,
+    #        NoYes::Yes);
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{DF868334-6686-4B84-8D59-C28CECC3230D}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_10_SalesOrderPost unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_10_SalesOrderPost
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_10_SalesOrderPost
+    Origin              #{69946D82-52AA-4A90-BF04-0A9B15636C7A}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #SalesOrderPost
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

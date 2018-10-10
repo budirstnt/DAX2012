@@ -1,0 +1,135 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: VendTableSql unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #VendTableSql
+    PROPERTIES
+      Name                #VendTableSql
+      Origin              #{2C5C0EC9-AA0A-4651-8D2B-4AA5196C4ACB}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class VendTableSql
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #server static void main(Args _args)
+        #{
+        #    UserConnection                  userConnection;
+        #    Statement                       statement;
+        #    str                             sqlStatement;
+        #    SqlSystem                       sqlSystem;
+        #    SqlStatementExecutePermission   sqlPermission;
+        #    ResultSet                       resultSet;
+        #    DictTable                       tblVendTable;
+        #    DictTable                       tblDirPartyTable;
+        #    DictField                       fldParty;
+        #    DictField                       fldAccountNum;
+        #    DictField                       fldDataAreaId;
+        #    DictField                       fldBlocked;
+        #    DictField                       fldRecId;
+        #    DictField                       fldName;
+        #
+        #    tblVendTable     = new DictTable(tableNum(VendTable));
+        #    tblDirPartyTable = new DictTable(tableNum(DirPartyTable));
+        #
+        #    fldParty = new DictField(
+        #        tableNum(VendTable),
+        #        fieldNum(VendTable,Party));
+        #
+        #    fldAccountNum = new DictField(
+        #        tableNum(VendTable),
+        #        fieldNum(VendTable,AccountNum));
+        #
+        #    fldDataAreaId = new DictField(
+        #        tableNum(VendTable),
+        #        fieldNum(VendTable,DataAreaId));
+        #
+        #    fldBlocked = new DictField(
+        #        tableNum(VendTable),
+        #        fieldNum(VendTable,Blocked));
+        #
+        #    fldRecId = new DictField(
+        #        tableNum(DirPartyTable),
+        #        fieldNum(DirPartyTable,RecId));
+        #
+        #    fldName = new DictField(
+        #        tableNum(DirPartyTable),
+        #        fieldNum(DirPartyTable,Name));
+        #
+        #    sqlSystem = new SqlSystem();
+        #
+        #    sqlStatement = 'SELECT %3, %4 FROM %1 ' +
+        #        'JOIN %2 ON %1.%5 = %2.%6 ' +
+        #        'WHERE %7 = %9 AND %8 = %10';
+        #
+        #    sqlStatement = strFmt(
+        #        sqlStatement,
+        #        tblVendTable.name(DbBackend::Sql),
+        #        tblDirPartyTable.name(DbBackend::Sql),
+        #        fldAccountNum.name(DbBackend::Sql),
+        #        fldName.name(DbBackend::Sql),
+        #        fldParty.name(DbBackend::Sql),
+        #        fldRecId.name(DbBackend::Sql),
+        #        fldDataAreaId.name(DbBackend::Sql),
+        #        fldBlocked.name(DbBackend::Sql),
+        #        sqlSystem.sqlLiteral(curext(), true),
+        #        sqlSystem.sqlLiteral(CustVendorBlocked::No, true));
+        #
+        #    userConnection = new UserConnection();
+        #    statement      = userConnection.createStatement();
+        #
+        #    sqlPermission = new SqlStatementExecutePermission(
+        #        sqlStatement);
+        #
+        #    sqlPermission.assert();
+        #
+        #    resultSet      = statement.executeQuery(sqlStatement);
+        #
+        #    CodeAccessPermission::revertAssert();
+        #
+        #    while (resultSet.next())
+        #    {
+        #        info(strFmt(
+        #            "%1 - %2",
+        #            resultSet.getString(1),
+        #            resultSet.getString(2)));
+        #    }
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_09_DirectSql unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_09_DirectSql
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_09_DirectSql
+    Origin              #{1BEAEF89-867E-4335-BCA2-C03C076FF22B}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023862
+      NODETYPE 329
+      NAME #VendTableSql
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

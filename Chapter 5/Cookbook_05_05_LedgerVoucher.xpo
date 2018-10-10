@@ -1,0 +1,105 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: LedgerVoucherPost unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #LedgerVoucherPost
+    #static void LedgerVoucherPost(Args _args)
+    #{
+    #    LedgerVoucher            voucher;
+    #    LedgerVoucherObject      voucherObj;
+    #    LedgerVoucherTransObject voucherTrObj1;
+    #    LedgerVoucherTransObject voucherTrObj2;
+    #    DimensionDynamicAccount  ledgerDim;
+    #    DimensionDynamicAccount  offsetLedgerDim;
+    #    CurrencyExchangeHelper   currencyExchHelper;
+    #    CompanyInfo              companyInfo;
+    #
+    #    ledgerDim =
+    #        DimensionAttributeValueCombination::getLedgerDimension(
+    #            '110180',
+    #            ['Department', 'CostCenter', 'ExpensePurpose'],
+    #            ['OU_2311', 'OU_3568', 'Training']);
+    #
+    #    offsetLedgerDim =
+    #        DimensionAttributeValueCombination::getLedgerDimension(
+    #            '170150',
+    #            ['Department', 'CostCenter', 'ExpensePurpose'],
+    #            ['OU_2311', 'OU_3568', 'Training']);
+    #
+    #    voucher = LedgerVoucher::newLedgerPost(
+    #        DetailSummary::Detail,
+    #        SysModule::Ledger,
+    #        '');
+    #
+    #    voucherObj = LedgerVoucherObject::newVoucher('TEST00001');
+    #
+    #    companyInfo = CompanyInfo::findDataArea(curext());
+    #
+    #    currencyExchHelper = CurrencyExchangeHelper::newExchangeDate(
+    #        Ledger::primaryLedger(companyInfo.RecId),
+    #        voucherObj.parmAccountingDate());
+    #
+    #    voucher.addVoucher(voucherObj);
+    #
+    #    voucherTrObj1 =
+    #        LedgerVoucherTransObject::newTransactionAmountDefault(
+    #            voucherObj,
+    #            LedgerPostingType::LedgerJournal,
+    #            ledgerDim,
+    #            'USD',
+    #            1000,
+    #            currencyExchHelper);
+    #
+    #    voucherTrObj2 =
+    #        LedgerVoucherTransObject::newTransactionAmountDefault(
+    #            voucherObj,
+    #            LedgerPostingType::LedgerJournal,
+    #            offsetLedgerDim,
+    #            'USD',
+    #            -1000,
+    #            currencyExchHelper);
+    #
+    #    voucher.addTrans(voucherTrObj1);
+    #    voucher.addTrans(voucherTrObj2);
+    #
+    #    voucher.end();
+    #
+    #    info(strFmt(
+    #        "Voucher '%1' has been posted", voucher.lastVoucher()));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{6EC42E44-8915-4752-9044-BAA950FC59AB}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_05_LedgerVoucher unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_05_LedgerVoucher
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_05_LedgerVoucher
+    Origin              #{583778A8-CCAB-4D6D-847E-37848DC393F6}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #LedgerVoucherPost
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

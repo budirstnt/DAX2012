@@ -1,0 +1,76 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: MCR
+
+; Microsoft Dynamics AX Macro: VendTableNotBlocked unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #VendTableNotBlocked
+    #(%1.Blocked == CustVendorBlocked::No)
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{638F2F6C-7A25-416A-87F5-655CF4EC4203}
+  ENDPROPERTIES
+  
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: VendTableMacro unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #VendTableMacro
+    #static void VendTableMacro(Args _args)
+    #{
+    #    VendTable   vendTable;
+    #
+    #    while select vendTable
+    #        where #VendTableNotBlocked(vendTable)
+    #    {
+    #        info(strFmt(
+    #            "%1 - %2",
+    #            vendTable.AccountNum,
+    #            vendTable.name()));
+    #    }
+    #}
+    #
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{882C3729-F9F9-40A3-927F-F072137741A7}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_08_Macro unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_08_Macro
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_08_Macro
+    Origin              #{31A75015-23A8-495A-B292-9AF2569040F2}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 4
+      UTILOBJECTID 0
+      NODETYPE 218
+      NAME #VendTableNotBlocked
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #VendTableMacro
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

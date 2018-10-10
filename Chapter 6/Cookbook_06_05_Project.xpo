@@ -1,0 +1,95 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: CreateProjectFile unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #CreateProjectFile
+    #static void CreateProjectFile(Args _args)
+    #{
+    #    ProjTable        projTable;
+    #    ProjForecastEmpl forecastEmpl;
+    #    COM              msproject;
+    #    COM              projects;
+    #    COM              project;
+    #    COM              tasks;
+    #    COM              task;
+    #    int              n;
+    #    #define.MSProject('MSProject.Application')
+    #
+    #    projTable = ProjTable::find('10001');
+    #
+    #    try
+    #    {
+    #        msproject = new COM(#MSProject);
+    #    }
+    #    catch (Exception::Internal)
+    #    {
+    #        if (msproject == null)
+    #        {
+    #            throw error(
+    #                "Microsoft Project is not installed");
+    #        }
+    #    }
+    #
+    #    projects = msproject.Projects();
+    #    project  = projects.Add();
+    #
+    #    tasks = project.Tasks();
+    #
+    #    task = tasks.Add();
+    #    task.Name(ProjTable.Name);
+    #    task.OutlineLevel(1);
+    #
+    #    while select forecastEmpl
+    #        where forecastEmpl.ProjId  == projTable.ProjId
+    #           && forecastEmpl.ModelId == 'Total'
+    #    {
+    #        task = tasks.Add();
+    #        task.OutlineLevel(2);
+    #        task.Name(forecastEmpl.Txt);
+    #        task.Start(forecastEmpl.SchedFromDate);
+    #        task.Duration(forecastEmpl.SchedTimeHours*60);
+    #        if (n)
+    #        {
+    #            task.LinkPredecessors(tasks.UniqueID(n));
+    #        }
+    #        n = task.UniqueID();
+    #    }
+    #
+    #    msproject.visible(true);
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{C7D0D98F-9B9C-4641-B2E0-3AF53812046C}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_06_05_Project unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_06_05_Project
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_06_05_Project
+    Origin              #{1092F724-D2AA-44B6-A37F-C2D9B6FEFB60}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #CreateProjectFile
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

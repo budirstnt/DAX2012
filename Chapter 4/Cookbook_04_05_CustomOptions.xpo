@@ -1,0 +1,62 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: PickList unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #PickList
+    #static void PickList(Args _args)
+    #{
+    #    Map choices;
+    #    str ret;
+    #
+    #    choices = new Map(
+    #        Types::Integer,
+    #        Types::String);
+    #
+    #    choices.insert(1, "Axapta 3.0");
+    #    choices.insert(2, "Dynamics AX 4.0");
+    #    choices.insert(3, "Dynamics AX 2009");
+    #    choices.insert(4, "Dynamics AX 2012");
+    #
+    #    ret = pickList(choices, "", "Choose version");
+    #
+    #    if (ret)
+    #    {
+    #        info(strFmt("You've selected option No. %1", ret));
+    #    }
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{FD156623-90C0-49A8-8B9A-EEF68A630273}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_04_05_CustomOptions unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_04_05_CustomOptions
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_04_05_CustomOptions
+    Origin              #{923808F5-0A3D-4DF2-BB04-B0D0318FAAC9}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #PickList
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

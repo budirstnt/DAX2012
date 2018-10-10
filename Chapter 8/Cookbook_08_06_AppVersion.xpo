@@ -1,0 +1,834 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: ApplicationVersion unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #ApplicationVersion
+    PROPERTIES
+      Name                #ApplicationVersion
+      Origin              #{2D1202F6-0000-1000-09BE-ED6D44E4FB29}
+      LegacyId            #758
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #// This is a framework class. Customizing this class may cause problems with future upgrades to the software.
+        #public class ApplicationVersion
+        #{
+        #    //ApplicationVersion.
+        #}
+      ENDSOURCE
+      SOURCE #nonStaticApplBuildNo
+        #SysBuildNo nonStaticApplBuildNo()
+        #{
+        #    return ApplicationVersion::applBuildNo();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #applBuildNo
+        #static SysBuildNo applBuildNo()
+        #{
+        #    return '6.0.947.0';
+        #}
+      ENDSOURCE
+      SOURCE #applLayerVers
+        #/// <summary>
+        #/// Returns the version number of the solution in the layer where this method is defined.
+        #/// </summary>
+        #/// <returns>
+        #/// The version number.
+        #/// </returns>
+        #/// <remarks>
+        #/// The version number is displayed in the About box. Even when it is overlayered.
+        #/// </remarks>
+        #private static client str applLayerVers()
+        #{
+        #    return '6.0.947.0';
+        #}
+      ENDSOURCE
+      SOURCE #bmAppl
+        #static str bmAppl()
+        #{
+        #    return ''; // Benchmark will be overwrited when the BM layer is added.
+        #}
+      ENDSOURCE
+      SOURCE #buildNo
+        #static SysBuildNo buildNo()
+        #{
+        #    return ApplicationVersion::applBuildNo();
+        #}
+      ENDSOURCE
+      SOURCE #fpkSlnIsvApplAll
+        #/// <summary>
+        #/// Returns the concatenated version numbers of the solutions in the FPK - ISV layers.
+        #/// </summary>
+        #/// <returns>
+        #/// The version numbers.
+        #/// </returns>
+        #/// <remarks>
+        #/// The version number is displayed in the About box.
+        #/// </remarks>
+        #static public client str fpkSlnIsvApplAll()
+        #{
+        #    UtilElements utilElements;
+        #    str versionNumber;
+        #    str sourceFromLayer;
+        #    #define.delimiter(' / ')
+        #
+        #    //
+        #    // For each implementation of the applLayerVers method...
+        #    //
+        #    while select utilElements
+        #        order by UtilLevel
+        #        where utilElements.RecordType == UtilElementType::ClassStaticMethod &&
+        #              utilElements.ParentId == classnum(ApplicationVersion) &&
+        #              utilElements.Name == staticmethodstr(ApplicationVersion, applLayerVers) &&
+        #              utilElements.UtilLevel >= UtilEntryLevel::fpk &&
+        #              utilElements.UtilLevel <= UtilEntryLevel::isv
+        #    {
+        #        //
+        #        // Add delimiter
+        #        //
+        #        if (versionNumber && !strEndsWith(versionNumber, #Delimiter))
+        #        {
+        #            versionNumber += #Delimiter;
+        #        }
+        #
+        #        //
+        #        // Add version number
+        #        //
+        #        try
+        #        {
+        #            sourceFromLayer = conpeek(utilElements.Source, 1);
+        #            //BP Deviation documented
+        #            versionNumber += runbuf(sourceFromLayer);
+        #        }
+        #        catch
+        #        {
+        #            exceptionTextFallThrough();
+        #        }
+        #    }
+        #
+        #    return versionNumber;
+        #}
+      ENDSOURCE
+      SOURCE #glsAppl
+        #static str glsAppl()
+        #{
+        #    return '';
+        #}
+      ENDSOURCE
+      SOURCE #hfxAppl
+        #static str hfxAppl()
+        #{
+        #    return '';
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #static void main(Args args)
+        #{
+        #;
+        #    Box::info(xInfo::productName()+' '+xInfo::releaseVersion() + '\n' +
+        #              'Application Build #'+ ApplicationVersion::buildNo(),'','');
+        #}
+      ENDSOURCE
+      SOURCE #usrAppl
+        #static str usrAppl()
+        #{
+        #    return '1.0.0';
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysAbout
+  PROPERTIES
+    Name                #SysAbout
+    Origin              #{0B080000-0000-1000-5379-7341626F7574}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #}
+    ENDSOURCE
+    SOURCE #getKernelBuildNo
+      #str getKernelBuildNo()
+      #{
+      #    str major,minor
+      #    ;
+      #    [major,minor] = str2con(xInfo::buildNo(),'.');
+      #    return major+'.'+minor;
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #// AOSRunMode::client
+      #void run()
+      #{
+      #    str glsVersionNumber = ApplicationVersion::glsAppl();
+      #    str hfxVersionNumber = ApplicationVersion::hfxAppl();
+      #    str fpkSlnIsvVersionNumber = ApplicationVersion::fpkSlnIsvApplAll();
+      #    str kernelVersionInformation = xInfo::releaseVersion() + '.' + this.getKernelBuildNo();
+      #    str applicationVersionInformation = ApplicationVersion::buildNo();
+      #    str copyrightInformation = WinAPI::getFileVersionInfoEx(xInfo::componentName(), 'LegalCopyright');
+      #    str serialNumberInformation = xInfo::serialNo();
+      #    str usrVersionNumber = ApplicationVersion::usrAppl();
+      #
+      #    super();
+      #    element.lock();
+      #
+      #    productName.text(xInfo::productRegisteredName() + ' ' + xInfo::releaseYear());
+      #
+      #    kernelVersion.text(strFmt("@SYS340808",kernelVersionInformation));
+      #    applicationVersion.text(strFmt("@SYS340809",applicationVersionInformation));
+      #
+      #
+      #    if (glsVersionNumber)
+      #    {
+      #        localizationVersion.text('Localization version: ' + glsVersionNumber );
+      #    }
+      #
+      #    if (hfxVersionNumber)
+      #    {
+      #        hotfixVersion.text('Hot Fix version: ' + hfxVersionNumber);
+      #    }
+      #
+      #    if (fpkSlnIsvVersionNumber)
+      #    {
+      #        solutionVersion.text('Solution version: ' + fpkSlnIsvVersionNumber);
+      #    }
+      #
+      #    copyRight.text(strFmt("@SYS340813",copyrightInformation));
+      #
+      #    productLicenseInformation.text("@SYS98059");
+      #
+      #    licenseHolder.text(xInfo::licenseName() ? xInfo::licenseName() : 'Internal');
+      #    serialNumber.text(strFmt("@SYS340810",serialNumberInformation));
+      #
+      #    copyrightNotice.text("@SYS108988");
+      #
+      #    attribution.text(strfmtLB("@SYS343934"));
+      #
+      #    if (usrVersionNumber)
+      #    {
+      #        CustomVersion.text('Custom version: ' + usrVersionNumber);
+      #    }
+      #
+      #    element.unLock(true);
+      #}
+      #
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS53716
+      Frame               #Dialog
+      SaveSize            #No
+      HideToolbar         #Yes
+      SetCompany          #No
+      HideIfEmpty         #No
+      AllowUserSetup      #No
+      Scrollbars          #No
+      Style               #Dialog
+      ViewEditMode        #Edit
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          Left                #Auto (left)
+          ElementPosition     #1431655764
+          HierarchyParent     #BottomGrp
+          Style               #DialogCommitContainer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #BottomGrp
+          ElementPosition     #1431655764
+          Style               #DialogCommit
+          AlignChild          #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #CopyRightNoticeGroup
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1610612733
+          HierarchyParent     #LeftGroup
+          FrameType           #Edged 3D Line
+          LeftMargin          #0
+          RightMargin         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #DetailGrp
+          ElementPosition     #715827882
+          Style               #DialogContent
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Graphic
+          ElementPosition     #1073741822
+          HierarchyParent     #DetailGrp
+          TopMargin           #7
+          LeftMargin          #7
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Group
+          Width               #Column width
+          ElementPosition     #1073741822
+          HierarchyParent     #LeftGroup
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #LeftGroup
+          ElementPosition     #1073741822
+          HierarchyParent     #MainGrp
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Links
+          ElementPosition     #1610612733
+          HierarchyParent     #RightGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #MainGrp
+          Width               #Column width
+          VerticalSpacing     #0
+          ElementPosition     #1610612734
+          HierarchyParent     #DetailGrp
+          FrameType           #Edged 3D Line
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #RightGroup
+          ElementPosition     #1610612733
+          HierarchyParent     #MainGrp
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #VersionInfoGroup
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1073741822
+          HierarchyParent     #RightGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #CommandButton
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroup
+          DefaultButton       #Yes
+          Command             #263
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #InstalledModels
+          ElementPosition     #1073741823
+          HierarchyParent     #Links
+          Text                #@SYS342480
+          Border              #None
+          ColorScheme         #RGB
+          BackStyle           #Transparent
+          BackgroundColor     #237 247 255
+          ForegroundColor     #0 102 204
+          Style               #Link
+          MenuItemName        #SysModelsInstalled
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysLicenseAgreement
+          ElementPosition     #1789569705
+          HierarchyParent     #Links
+          Text                #@SYS343950
+          Border              #None
+          ColorScheme         #RGB
+          BackStyle           #Transparent
+          BackgroundColor     #237 247 255
+          ForegroundColor     #0 102 204
+          Style               #Link
+          MenuItemName        #SysLicenseAgreement
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SysPrivacyStatement
+          ElementPosition     #715827882
+          HierarchyParent     #Links
+          Border              #None
+          ColorScheme         #RGB
+          BackStyle           #Transparent
+          BackgroundColor     #237 247 255
+          ForegroundColor     #0 102 204
+          Style               #Link
+          MenuItemType        #Action
+          MenuItemName        #SysPrivacyStatement
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SystemInfo
+          ElementPosition     #1431655764
+          HierarchyParent     #Links
+          Border              #None
+          ColorScheme         #RGB
+          BackStyle           #Transparent
+          BackgroundColor     #237 247 255
+          ForegroundColor     #0 102 204
+          Style               #Link
+          MenuItemType        #Action
+          MenuItemName        #systemInfo
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #ApplicationVersion
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1171354716
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #Copyright
+          AutoDeclaration     #Yes
+          Width               #Column width
+          VerticalSpacing     #15
+          ElementPosition     #1288490187
+          HierarchyParent     #Group
+          Text                #
+          Bold                #Normal
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #CustomVersion
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1952257860
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #HotfixVersion
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1561806288
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #KernelVersion
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #976128930
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #LicenseHolder
+          AutoDeclaration     #Yes
+          Left                #14
+          Width               #Column width
+          ElementPosition     #585677358
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+          Bold                #Normal
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #LocalizationVersion
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1366580502
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #ProductLicenseInformation
+          AutoDeclaration     #Yes
+          Width               #Column width
+          VerticalSpacing     #3
+          ElementPosition     #390451572
+          HierarchyParent     #VersionInfoGroup
+          Text                #@SYS98059
+          Bold                #Normal
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #ProductName
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #858993458
+          HierarchyParent     #Group
+          Text                #
+          Bold                #Bold
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #SerialNumber
+          AutoDeclaration     #Yes
+          Left                #14
+          Width               #Column width
+          ElementPosition     #780903144
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+          Bold                #Normal
+          DisplayHeight       #1
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #SolutionVersion
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1757032074
+          HierarchyParent     #VersionInfoGroup
+          Text                #
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Attribution
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #Column width
+          Skip                #Yes
+          AlignControl        #No
+          ElementPosition     #1717986916
+          HierarchyParent     #Group
+          DisplayLength       #70
+          DisplayHeight       #10
+          MultiLine           #Yes
+          ShowLabel           #No
+          ViewEditMode        #View
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #CopyRightNotice
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #Column width
+          Skip                #Yes
+          AlignControl        #No
+          ElementPosition     #1431655764
+          HierarchyParent     #CopyRightNoticeGroup
+          DisplayLength       #70
+          DisplayHeight       #8
+          MultiLine           #Yes
+          ShowLabel           #No
+          ViewEditMode        #View
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL WINDOW
+        PROPERTIES
+          Name                #VerticalGraphic
+          AutoDeclaration     #Yes
+          AlignControl        #No
+          ElementPosition     #1431655764
+          HierarchyParent     #Graphic
+          ImageResource       #13013
+          BackStyle           #Transparent
+          ShowLabel           #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_08_06_AppVersion unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_08_06_AppVersion
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_08_06_AppVersion
+    Origin              #{EAF19CD6-FB41-43BB-9491-368AC5C7D471}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 758
+      NODETYPE 329
+      NAME #ApplicationVersion
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #SysAbout
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

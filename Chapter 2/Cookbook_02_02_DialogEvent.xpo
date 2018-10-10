@@ -1,0 +1,132 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: CustSelect unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #CustSelect
+    PROPERTIES
+      Name                #CustSelect
+      Extends             #RunBase
+      Origin              #{B9DAF1F3-E4AC-4A74-8B96-7BCCD9F8D31C}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class CustSelect extends RunBase
+        #{
+        #    DialogField fieldAccount;
+        #    DialogField fieldName;
+        #    DialogField fieldGroup;
+        #    DialogField fieldCurrency;
+        #    DialogField fieldPaymTermId;
+        #    DialogField fieldPaymMode;
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #protected Object dialog()
+        #{
+        #    Dialog          dialog;
+        #    DialogGroup     groupCustomer;
+        #    DialogGroup     groupPayment;
+        #
+        #    dialog = super();
+        #
+        #    dialog.caption("Customer information");
+        #    dialog.allowUpdateOnSelectCtrl(true);
+        #
+        #    fieldAccount    = dialog.addField(
+        #        extendedTypeStr(CustAccount),
+        #        "Customer account");
+        #
+        #    fieldName       = dialog.addField(extendedTypeStr(CustName));
+        #    fieldName.enabled(false);
+        #
+        #    dialog.addTabPage("Details");
+        #
+        #    groupCustomer   = dialog.addGroup("Setup");
+        #    fieldGroup      = dialog.addField(
+        #        extendedTypeStr(CustGroupId));
+        #    fieldCurrency   = dialog.addField(
+        #        extendedTypeStr(CurrencyCode));
+        #    fieldGroup.enabled(false);
+        #    fieldCurrency.enabled(false);
+        #
+        #    groupPayment    = dialog.addGroup("Payment");
+        #    fieldPaymTermId = dialog.addField(
+        #        extendedTypeStr(CustPaymTermId));
+        #    fieldPaymMode   = dialog.addField(
+        #        extendedTypeStr(CustPaymMode));
+        #    fieldPaymTermId.enabled(false);
+        #    fieldPaymMode.enabled(false);
+        #
+        #    return dialog;
+        #}
+      ENDSOURCE
+      SOURCE #dialogSelectCtrl
+        #public void dialogSelectCtrl()
+        #{
+        #    CustTable custTable;
+        #
+        #    custTable = CustTable::find(fieldAccount.value());
+        #    fieldName.value(custTable.name());
+        #    fieldGroup.value(custTable.CustGroup);
+        #    fieldCurrency.value(custTable.Currency);
+        #    fieldPaymTermId.value(custTable.PaymTermId);
+        #    fieldPaymMode.value(custTable.PaymMode);
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    return conNull();
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container _packedClass)
+        #{
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    CustSelect custSelect = new CustSelect();
+        #
+        #    if (CustSelect.prompt())
+        #    {
+        #        CustSelect.run();
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_02_DialogEvent unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_02_DialogEvent
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_02_DialogEvent
+    Origin              #{115A6F78-6068-4652-90C9-E9088FD7B8C7}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023865
+      NODETYPE 329
+      NAME #CustSelect
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

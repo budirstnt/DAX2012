@@ -1,0 +1,653 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: ImageListAppl_Cust unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #ImageListAppl_Cust
+    PROPERTIES
+      Name                #ImageListAppl_Cust
+      Extends             #ImageListAppl
+      RunOn               #Client
+      Origin              #{AD9E21E4-BD81-4A0B-A053-BEA80637BB40}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #build
+        #protected void build()
+        #{
+        #    super();
+        #    this.add(#ImageCustomer);
+        #    this.add(#ImageWarning);
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class ImageListAppl_Cust extends ImageListAppl
+        #{
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysListPanelRelationTableCallback unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysListPanelRelationTableCallback
+    PROPERTIES
+      Name                #SysListPanelRelationTableCallback
+      Extends             #SysListPanelRelationTable
+      Origin              #{2D211277-0000-1000-BA86-5E0D4BB8CAD6}
+      LegacyId            #4727
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #// This is a framework class. Customizing this class may cause problems with future upgrades to the software.
+        #class SysListPanelRelationTableCallback extends SysListPanelRelationTable
+        #{
+        #    identifiername leftMethod, rightMethod;
+        #}
+      ENDSOURCE
+      SOURCE #getData
+        #container getData()
+        #{
+        #    container leftdata, rightData;
+        #    DictClass dictClass;
+        #
+        #    if (!leftMethod && !rightMethod)
+        #    {
+        #        return SysListPanelRelationTable::server_getData(
+        #                                    relationTable,
+        #                                    relationField,
+        #                                    relationRangeField,
+        #                                    relationRangeValue,
+        #                                    dataTable,
+        #                                    dataField,
+        #                                    dataContainerFieldIds,
+        #                                    dataRangeField,
+        #                                    this.parmDataRangeValue()
+        #                                   );
+        #    }
+        #
+        #    if (leftMethod)
+        #    {
+        #        dictClass = new DictClass(classidget(formRun));
+        #        //BP Deviation Documented
+        #        leftData = dictClass.callObject(leftMethod, formRun);
+        #    }
+        #    else
+        #    {
+        #        leftData = SysListPanelRelationTable::getLeftData(
+        #                                    relationTable,
+        #                                    relationField,
+        #                                    relationRangeField,
+        #                                    relationRangeValue,
+        #                                    dataTable,
+        #                                    dataField,
+        #                                    dataContainerFieldIds,
+        #                                    dataRangeField,
+        #                                    this.parmDataRangeValue()
+        #                                   );
+        #    }
+        #
+        #    if (rightMethod)
+        #    {
+        #        dictClass = new DictClass(classidget(formRun));
+        #        //BP Deviation Documented
+        #        rightData = dictClass.callObject(rightMethod, formRun);
+        #    }
+        #    else
+        #    {
+        #        rightData = SysListPanelRelationTable::getRightData(
+        #                                    relationTable,
+        #                                    relationField,
+        #                                    relationRangeField,
+        #                                    relationRangeValue,
+        #                                    dataTable,
+        #                                    dataField,
+        #                                    dataContainerFieldIds,
+        #                                    dataRangeField,
+        #                                    this.parmDataRangeValue()
+        #                                   );
+        #    }
+        #    return [leftData, rightData];
+        #}
+      ENDSOURCE
+      SOURCE #parmLeftMethod
+        #identifiername parmLeftMethod(identifiername _leftMethod = leftMethod)
+        #{
+        #    leftMethod = _leftMethod;
+        #
+        #    return leftMethod;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmRightMethod
+        #identifiername parmRightMethod(identifiername _rightMethod = rightMethod)
+        #{
+        #    rightMethod = _rightMethod;
+        #
+        #    return rightMethod;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #construct
+        #static SysListPanelRelationTableCallback construct()
+        #{
+        #    return new SysListPanelRelationTableCallback();
+        #}
+      ENDSOURCE
+      SOURCE #newForm
+        #static SysListPanelRelationTableCallback newForm(FormRun         formRun,
+        #                                                 int             parentId,
+        #                                                 str             captionLeft,
+        #                                                 str             captionRight,
+        #                                                 int             imageId,
+        #                                                 tableId         relationTable,
+        #                                                 fieldId         relationField,
+        #                                                 fieldId         relationRangeField,
+        #                                                 tableId         dataTable,
+        #                                                 fieldId         dataField,
+        #                                                 container       dataContainerFieldIds,
+        #                                                 fieldId         dataRangeField = 0,
+        #                                                 AnyType         dataRangeValue = '',
+        #                                                 identifiername  validateMethod = '',
+        #                                                 identifiername  leftMethod = '',
+        #                                                 identifiername  rightMethod = '',
+        #                                                 int             itemsNeeded = 0,
+        #                                                 ImageListAppl   _imageListAppl = null
+        #                                                 )
+        #{
+        #    SysListPanelRelationTableCallback sysListPanel = SysListPanelRelationTableCallback::construct();
+        #    ;
+        #    sysListPanel.parmFormRun(formRun);
+        #    sysListPanel.parmParentId(parentId);
+        #    sysListPanel.parmCaptionLeft(captionLeft);
+        #    sysListPanel.parmCaptionRight(captionRight);
+        #    sysListPanel.parmImageId(imageId);
+        #    sysListPanel.parmRelationTable(relationTable);
+        #    sysListPanel.parmRelationField(relationField);
+        #    sysListPanel.parmRelationRangeField(relationRangeField);
+        #    sysListPanel.parmDataTable(dataTable);
+        #    sysListPanel.parmDataField(dataField);
+        #    sysListPanel.parmDataContainerFieldIds(dataContainerFieldIds);
+        #    sysListPanel.parmDataRangeField(dataRangeField);
+        #    sysListPanel.parmDataRangeValue(dataRangeValue);
+        #    sysListPanel.parmValidateMethod(validateMethod);
+        #    sysListPanel.parmLeftMethod(leftMethod);
+        #    sysListPanel.parmRightMethod(rightMethod);
+        #    sysListPanel.parmItemsNeeded(itemsNeeded);
+        #    sysListPanel.parmImageList(_imageListAppl);
+        #    sysListPanel.build();
+        #    return sysListPanel;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #InventBuyerGroup
+  PROPERTIES
+    Name                #InventBuyerGroup
+    Origin              #{39EDE4F3-B388-4C44-B6C3-C64398A7FB00}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #availableCustomers
+      #private container availableCustomers()
+      #{
+      #    container            ret;
+      #    container            data;
+      #    CustTable            custTable;
+      #    InventBuyerGroupList groupList;
+      #
+      #    while select custTable
+      #        notExists join firstOnly groupList
+      #            where groupList.CustAccount == custTable.AccountNum
+      #               && groupList.GroupId     == InventBuyerGroup.Group
+      #    {
+      #        data = [custTable.AccountNum,
+      #                (custTable.Blocked==CustVendorBlocked::No ?
+      #                    #ImageCustomer :
+      #                    #ImageWarning),
+      #                custTable.AccountNum,
+      #                custTable.name()];
+      #
+      #        ret = conIns(ret, conLen(ret)+1, data);
+      #    }
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #selectedCustomers
+      #private container selectedCustomers()
+      #{
+      #    container            ret;
+      #    container            data;
+      #    CustTable            custTable;
+      #    InventBuyerGroupList groupList;
+      #
+      #    while select custTable
+      #        exists join groupList
+      #            where groupList.CustAccount == custTable.AccountNum
+      #               && groupList.GroupId     == InventBuyerGroup.Group
+      #    {
+      #        data = [custTable.AccountNum,
+      #                (custTable.Blocked==CustVendorBlocked::No ?
+      #                    #ImageCustomer :
+      #                    #ImageWarning),
+      #                custTable.AccountNum,
+      #                custTable.name()];
+      #
+      #        ret = conIns(ret, conLen(ret)+1, data);
+      #    }
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    SysListPanelRelationTableCallback sysListPanel;
+      #    #ResAppl
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    container columns;
+      #    ImageListAppl_Cust imageListAppl;
+      #
+      #    columns = [0, 0];
+      #
+      #    imageListAppl = new ImageListAppl_Cust(
+      #        Imagelist::smallIconWidth(),
+      #        Imagelist::smallIconHeight());
+      #
+      #    sysListPanel = SysListPanelRelationTableCallback::newForm(
+      #        element,
+      #        element.controlId(
+      #            formControlStr(InventBuyerGroup,Customers)),
+      #        "Selected",
+      #        "Available",
+      #        0,
+      #        tableNum(InventBuyerGroupList),
+      #        fieldNum(InventBuyerGroupList,CustAccount),
+      #        fieldNum(InventBuyerGroupList,GroupId),
+      #        tableNum(CustTable),
+      #        fieldNum(CustTable,AccountNum),
+      #        columns,
+      #        0,
+      #        '',
+      #        '',
+      #        identifierStr(selectedCustomers),
+      #        identifierStr(availableCustomers),
+      #        0,
+      #        imageListAppl);
+      #
+      #    super();
+      #
+      #    sysListPanel.init();
+      #
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #InventBuyerGroup
+          Table               #InventBuyerGroup
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #active
+          #int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    inventBuyerGroup_Group.allowEdit(!inventBuyerGroup.RecId);
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS54030
+      DataSource          #InventBuyerGroup
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #715827882
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup
+          ElementPosition     #715827882
+          HierarchyParent     #ActionPaneTab
+          DataSource          #InventBuyerGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          HierarchyParent     #BuyerGroups
+          MultiSelect         #No
+          ShowRowLabels       #No
+          DataSource          #InventBuyerGroup
+          AlternateRowShading #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Body
+          Visible             #No
+          Height              #Column height
+          ElementPosition     #1193046470
+          Style               #BorderlessGridContainer
+          Columnspace         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1670265058
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #BuyerGroups
+          ElementPosition     #1073741822
+          HierarchyParent     #Tab
+          Caption             #Buyer groups
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Customers
+          ElementPosition     #1610612733
+          HierarchyParent     #Tab
+          Caption             #Customers
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #pageActivated
+            #public void pageActivated()
+            #{
+            #    sysListPanel.parmRelationRangeValue(
+            #        InventBuyerGroup.Group);
+            #
+            #    sysListPanel.parmRelationRangeRecId(
+            #        InventBuyerGroup.RecId);
+            #
+            #    sysListPanel.fill();
+            #
+            #    super();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1073741822
+          HierarchyParent     #NewDeleteGroup
+          Text                #@sys14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #536870911
+          HierarchyParent     #NewDeleteGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InventBuyerGroup_Description
+          ElementPosition     #1610612733
+          HierarchyParent     #Grid
+          DataSource          #InventBuyerGroup
+          DataField           #Description
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InventBuyerGroup_Group
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #Grid
+          DataSource          #InventBuyerGroup
+          DataField           #Group
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_03_05_PreloadingImages unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_03_05_PreloadingImages
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_03_05_PreloadingImages
+    Origin              #{2DD14A0E-9587-4568-BF4A-2A2CDE4D0470}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023857
+      NODETYPE 329
+      NAME #ImageListAppl_Cust
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 4727
+      NODETYPE 329
+      NAME #SysListPanelRelationTableCallback
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #InventBuyerGroup
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

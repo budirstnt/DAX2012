@@ -1,0 +1,3152 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: NumberSeqModuleCustomer unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #NumberSeqModuleCustomer
+    PROPERTIES
+      Name                #NumberSeqModuleCustomer
+      Extends             #NumberSeqApplicationModule
+      RunOn               #Server
+      Origin              #{2D170000-0000-1000-90D7-D56D9923106E}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #public class NumberSeqModuleCustomer extends NumberSeqApplicationModule
+        #{
+        #
+        #}
+      ENDSOURCE
+      SOURCE #initializeReference
+        #/// <summary>
+        #///    Performs module-specific initialization of a <c>NumberSequenceReference</c> object.
+        #/// </summary>
+        #/// <param name="_reference">
+        #///    The instance of the <c>NumberSequenceReference</c> object to initialize.
+        #/// </param>
+        #/// <param name="_datatype">
+        #///    The data type to be used by the <c>NumberSequenceReference</c> object.
+        #/// </param>
+        #/// <param name="_scope">
+        #///    The scope to be used by the <c>NumberSequenceReference</c> object.
+        #/// </param>
+        #/// <remarks>
+        #///    This is the place to implement the specific initialization of a <c>NumberSequenceReference</c>
+        #///    object for fields that are too dynamic to be configured on the <c>NumberSequenceDatatype</c>
+        #///    object. The default implementation does nothing, but can be overridden to set dynamic values for
+        #///    the <c>AllowSameAs</c> property, based on the context specified by the
+        #///    <c>NumberSequenceDatatype</c> and <c>NumberSequenceScope</c> objects.
+        #/// </remarks>
+        #public void initializeReference(NumberSequenceReference _reference, NumberSeqDatatype _datatype, NumberSeqScope _scope)
+        #{
+        #    #ISOCountryRegionCodes
+        #
+        #    super(_reference, _datatype, _scope);
+        #
+        #    switch (_datatype.parmDatatypeId())
+        #    {
+        #        case extendedtypenum(CustInvoiceVoucher):
+        #        case extendedtypenum(CustCreditNoteVoucher):
+        #            if (SysCountryRegionCode::isLegalEntityInCountryRegion([#isoIT]))
+        #            {
+        #                _reference.AllowSameAs = true;
+        #            }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #loadModule
+        #/// <summary>
+        #///    Configures all the data types that are being used by the module.
+        #/// </summary>
+        #/*
+        #Detailed description of how to setup references for number sequences can
+        #be found i method loadModule() on the 'father' class: NumberSeqApplicationModule.
+        #*/
+        #
+        #protected void loadModule()
+        #{
+        #    NumberSeqDatatype datatype = NumberSeqDatatype::construct();
+        #    ;
+        #    /* Setup Customer numbers */
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustAccount));
+        #    datatype.parmConfigurationKeyId(configurationkeynum(ledgerBasic));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53967"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardHighest(999999);
+        #    datatype.parmSortField(1);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(OneTimeCustomerAccount));
+        #    datatype.parmConfigurationKeyId(configurationkeynum(ledgerBasic));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53969"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardHighest(999999);
+        #    datatype.parmSortField(2);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    /* Setup posting numbers */
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustInvoiceId));
+        #    datatype.parmReferenceLabel(literalstr("@SYS23028"));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53968"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmIsGroupEnabled(NoYes::Yes);
+        #    datatype.parmSortField(3);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustCreditNoteId));
+        #    datatype.parmReferenceLabel(literalstr("@SYS73517"));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53970"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmIsGroupEnabled(NoYes::Yes);
+        #    datatype.parmSortField(4);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CollectionLetterNum));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53972"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmSortField(5);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(InterestNote));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53973"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmSortField(6);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustPaymId));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53974"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmSortField(7);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustOverPaymId));
+        #    datatype.parmReferenceHelp(literalstr("@SYS54075"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmSortField(8);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustBillOfExchangeID));
+        #    datatype.parmReferenceHelp(literalstr("@SYS71452"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmSortField(9);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    /* Setup voucher numbers */
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustInvoiceVoucher));
+        #    datatype.parmReferenceLabel(literalstr("@SYS73519"));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53979"));
+        #    datatype.parmDatatypeSameAsId(extendedtypenum(CustInvoiceId));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardLowest(30000000);
+        #    datatype.parmWizardHighest(39999999);
+        #    datatype.parmIsGroupEnabled(NoYes::Yes);
+        #    datatype.parmSortField(10);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustCreditNoteVoucher));
+        #    datatype.parmReferenceLabel(literalstr("@SYS73520"));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53980"));
+        #    datatype.parmDatatypeSameAsId(extendedtypenum(CustCreditNoteId));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardLowest(40000000);
+        #    datatype.parmWizardHighest(49999999);
+        #    datatype.parmIsGroupEnabled(NoYes::Yes);
+        #    datatype.parmSortField(11);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CollectionLetterVoucher));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53977"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardLowest(50000000);
+        #    datatype.parmWizardHighest(59999999);
+        #    datatype.parmSortField(12);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(InterestNoteVoucher));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53978"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardLowest(60000000);
+        #    datatype.parmWizardHighest(69999999);
+        #    datatype.parmSortField(13);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustExchAdjVoucher));
+        #    datatype.parmReferenceHelp(literalstr("@SYS54013"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardLowest(70000000);
+        #    datatype.parmWizardHighest(79999999);
+        #    datatype.parmSortField(14);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustPaymVoucher));
+        #    datatype.parmReferenceHelp(literalstr("@SYS53985"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardLowest(80000000);
+        #    datatype.parmWizardHighest(89999999);
+        #    datatype.parmSortField(15);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustCloseVoucher));
+        #    datatype.parmReferenceHelp(literalstr("@SYS54012"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardLowest(90000000);
+        #    datatype.parmWizardHighest(99999999);
+        #    datatype.parmSortField(16);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(CustPaymManVoucher));
+        #    datatype.parmReferenceHelp(literalstr("@SYS58060"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmSortField(17);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(BankRemittanceFileIdCust));
+        #    datatype.parmReferenceHelp(literalstr("@SYS58060"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardHighest(999999);
+        #    datatype.parmSortField(18);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedtypenum(RecurrenceInvoiceId));
+        #    datatype.parmConfigurationKeyId(configurationkeynum(ledgerBasic));
+        #    datatype.parmReferenceHelp(literalstr("@SYS318923"));
+        #    datatype.parmWizardIsContinuous(true);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::No);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::No);
+        #    datatype.parmWizardHighest(999999);
+        #    datatype.parmSortField(19);
+        #
+        #    datatype.addParameterType(NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #
+        #    datatype.parmDatatypeId(extendedTypeNum(CustGroupId));
+        #    datatype.parmReferenceHelp("Customer group ID");
+        #    datatype.parmWizardIsContinuous(false);
+        #    datatype.parmWizardIsManual(NoYes::No);
+        #    datatype.parmWizardIsChangeDownAllowed(NoYes::Yes);
+        #    datatype.parmWizardIsChangeUpAllowed(NoYes::Yes);
+        #    datatype.parmWizardHighest(999);
+        #    datatype.parmSortField(20);
+        #    datatype.addParameterType(
+        #        NumberSeqParameterType::DataArea, true, false);
+        #    this.create(datatype);
+        #}
+      ENDSOURCE
+      SOURCE #numberSeqModule
+        #/// <summary>
+        #///    Retrieves the ID of the application-specific module for this class.
+        #/// </summary>
+        #/// <returns>
+        #///    The module-specific ID.
+        #/// </returns>
+        #public NumberSeqModule numberSeqModule()
+        #{
+        #    return NumberSeqModule::Cust;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: NumberSeqLoadAll unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #NumberSeqLoadAll
+    #static void NumberSeqLoadAll(Args _args)
+    #{
+    #    NumberSeqApplicationModule::loadAll();
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{B1842612-51ED-4402-BA15-F0015E4A050E}
+  ENDPROPERTIES
+  
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : CustParameters unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #CustParameters
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #CustParameters
+      Label               #@SYS24210
+      FormRef             #CustParameters
+      TableContents       #Default data
+      ConfigurationKey    #LedgerBasic
+      SecurityKey         #CustTables
+      MaxAccessMode       #Edit
+      CacheLookup         #Found
+      CreateRecIdIndex    #Yes
+      TableGroup          #Parameter
+      PrimaryIndex        #Key
+      ClusterIndex        #Key
+      ModifiedDateTime    #Yes
+      DEL_modifiedTime    #Yes
+      ModifiedBy          #Yes
+      DeveloperDocumentation  #@SYS125074
+      Origin              #{2C0E0043-0000-1000-C2C2-2DE3D5FB1473}
+      LegacyId            #67
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #AccountConsumption
+        ENUM
+        PROPERTIES
+          Name                #AccountConsumption
+          Label               #@SYS9193
+          HelpText            #@SYS1936
+          ConfigurationKey    #LogisticsBasic
+          Table               #CustParameters
+          Origin              #{8A1ED5AF-8F67-4F6B-A5B2-8C7FCE92D85F}
+          LegacyId            #2
+          EnumType            #ItemCust
+        ENDPROPERTIES
+        
+      FIELD #AccountDisc
+        ENUM
+        PROPERTIES
+          Name                #AccountDisc
+          Label               #@SYS6791
+          HelpText            #@SYS10345
+          ConfigurationKey    #LogisticsBasic
+          Table               #CustParameters
+          Origin              #{9F143005-D955-434B-B4E3-A73519199B95}
+          LegacyId            #4
+          EnumType            #ItemCust
+        ENDPROPERTIES
+        
+      FIELD #AccountPositions
+        INT
+        PROPERTIES
+          Name                #AccountPositions
+          Table               #CustParameters
+          Origin              #{1D6C53E3-661B-4B97-BF35-A68A7E4EF9AD}
+          LegacyId            #1
+          ExtendedDataType    #AccountPositions
+        ENDPROPERTIES
+        
+      FIELD #AccountRevenue
+        ENUM
+        PROPERTIES
+          Name                #AccountRevenue
+          Label               #@SYS11499
+          HelpText            #@SYS12629
+          ConfigurationKey    #LogisticsBasic
+          Table               #CustParameters
+          Origin              #{A9EA149C-4577-4704-B794-E6767B36A5D7}
+          LegacyId            #3
+          EnumType            #ItemCust
+        ENDPROPERTIES
+        
+      FIELD #AdjustmentDateToUse
+        ENUM
+        PROPERTIES
+          Name                #AdjustmentDateToUse
+          Table               #CustParameters
+          Origin              #{36E1A5DB-180A-447C-89A3-39E07CE9D3AD}
+          LegacyId            #142
+          EnumType            #CustInterestAdjustmentDateToUse
+        ENDPROPERTIES
+        
+      FIELD #AutomaticTotalDiscount
+        ENUM
+        PROPERTIES
+          Name                #AutomaticTotalDiscount
+          Table               #CustParameters
+          Origin              #{FC5420B1-1671-4C1D-8B88-276D2014915A}
+          LegacyId            #21
+          ExtendedDataType    #TradeAutomaticTotalDiscount
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #AutoSettle
+        ENUM
+        PROPERTIES
+          Name                #AutoSettle
+          Table               #CustParameters
+          Origin              #{A39D9D41-DA42-4200-8B22-23F235ED6CD3}
+          LegacyId            #8
+          ExtendedDataType    #AutoSettle
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #BankCustPaymIdTable
+        INT64
+        PROPERTIES
+          Name                #BankCustPaymIdTable
+          Table               #CustParameters
+          Origin              #{0D8E8A0D-A444-4EEA-AAB3-28327A43B066}
+          LegacyId            #114
+          ExtendedDataType    #BankCustPaymIdRecId
+        ENDPROPERTIES
+        
+      FIELD #BillsJournalsValidations
+        ENUM
+        PROPERTIES
+          Name                #BillsJournalsValidations
+          Label               #@SYS96474
+          HelpText            #@SYS96475
+          Table               #CustParameters
+          CountryRegionCodes  #ES
+          Origin              #{1010CD81-BC09-43F5-8F8E-19836267EB09}
+          LegacyId            #52
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #BudgetSettle
+        STRING
+        PROPERTIES
+          Name                #BudgetSettle
+          Label               #@SYS6252
+          HelpText            #@SYS3593
+          ConfigurationKey    #LedgerBasic
+          Table               #CustParameters
+          Origin              #{346A64F6-23B2-4253-B996-BCA6E9BEBD1D}
+          LegacyId            #16
+          ExtendedDataType    #LedgerAllocateKeyId
+        ENDPROPERTIES
+        
+      FIELD #CancelPaymentReasonReq
+        ENUM
+        PROPERTIES
+          Name                #CancelPaymentReasonReq
+          Table               #CustParameters
+          Origin              #{BEF98366-18B5-4B1F-B8AA-8FF6BE038C5B}
+          LegacyId            #70
+          ExtendedDataType    #CancelPaymentReasonReq
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CashDisc
+        ENUM
+        PROPERTIES
+          Name                #CashDisc
+          Label               #@SYS8435
+          HelpText            #@SYS11573
+          Table               #CustParameters
+          Origin              #{334B7C64-CA78-4DE0-8084-0B90545A0324}
+          LegacyId            #5
+          EnumType            #UnspecificSpecific
+        ENDPROPERTIES
+        
+      FIELD #CashDiscForCreditNote
+        ENUM
+        PROPERTIES
+          Name                #CashDiscForCreditNote
+          Table               #CustParameters
+          Origin              #{4F18EC47-B767-4274-93E6-C4CF81F3629B}
+          LegacyId            #82
+          ExtendedDataType    #CashDiscForCreditNote
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CashDiscForPartialPaym
+        ENUM
+        PROPERTIES
+          Name                #CashDiscForPartialPaym
+          Table               #CustParameters
+          Origin              #{1C5B2EAB-9CCA-4D80-B327-31359B2CE3CD}
+          LegacyId            #83
+          ExtendedDataType    #CashDiscForPartialPaym
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CashDiscVAT
+        ENUM
+        PROPERTIES
+          Name                #CashDiscVAT
+          Table               #CustParameters
+          Origin              #{3854E02B-434B-4404-9F53-A33603043CF8}
+          LegacyId            #6
+          ExtendedDataType    #CustCashDiscVat
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ClearingLedgerDimension
+        INT64
+        PROPERTIES
+          Name                #ClearingLedgerDimension
+          Label               #@SYS3286
+          HelpText            #@SYS9008
+          ConfigurationKey    #LedgerAdvCashflowForecast
+          Table               #CustParameters
+          Origin              #{E1A8FF6F-99F3-45E0-8B2E-0C2A521E46E9}
+          LegacyId            #104
+          ExtendedDataType    #LedgerDimensionDefaultAccount
+        ENDPROPERTIES
+        
+      FIELD #CollectionLetterCodeUpdate
+        ENUM
+        PROPERTIES
+          Name                #CollectionLetterCodeUpdate
+          Table               #CustParameters
+          Origin              #{3BF1522D-B3AB-4929-8E6E-475476E4FC93}
+          LegacyId            #37
+          EnumType            #CustPostedPrinted
+        ENDPROPERTIES
+        
+      FIELD #CollectionsExcludeDisputedTransactions
+        ENUM
+        PROPERTIES
+          Name                #CollectionsExcludeDisputedTransactions
+          Label               #@SYS130596
+          HelpText            #@SYS130597
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{7FF31476-0063-425E-A4C1-1483A5D8733A}
+          LegacyId            #193
+          ExtendedDataType    #CustCollectionsExcludeDisputedTrans
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CollectionsGeneralSysEmailId
+        STRING
+        PROPERTIES
+          Name                #CollectionsGeneralSysEmailId
+          HelpText            #@SYS129432
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{E467FD5B-9AC4-459B-B4D1-3ED6161D577B}
+          LegacyId            #23
+          ExtendedDataType    #CustCollectionsGeneralSysEmailId
+        ENDPROPERTIES
+        
+      FIELD #CollectionsOMTeam
+        INT64
+        PROPERTIES
+          Name                #CollectionsOMTeam
+          Table               #CustParameters
+          Origin              #{B2839CC0-8DC3-4101-A4D8-4AD6CEDCA9FC}
+          LegacyId            #118
+          ExtendedDataType    #CustCollectionsTeamRecId
+        ENDPROPERTIES
+        
+      FIELD #CollectionsSalespersonSysEmailId
+        STRING
+        PROPERTIES
+          Name                #CollectionsSalespersonSysEmailId
+          HelpText            #@SYS138900
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{72A8AF76-FBF8-4C84-9E50-D9432ABD7806}
+          LegacyId            #84
+          ExtendedDataType    #CustCollectionsSalespersonSysEmailId
+        ENDPROPERTIES
+        
+      FIELD #CollectionsStatementSysEmailId
+        STRING
+        PROPERTIES
+          Name                #CollectionsStatementSysEmailId
+          HelpText            #@SYS129433
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{8CA8C853-19E9-4A08-895E-A306A148A4A4}
+          LegacyId            #25
+          ExtendedDataType    #CustCollectionsStatementSysEmailId
+        ENDPROPERTIES
+        
+      FIELD #CollectionsStatRepInterval
+        STRING
+        PROPERTIES
+          Name                #CollectionsStatRepInterval
+          HelpText            #@SYS129434
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{772802BE-814C-4F45-A19A-292D4D0DBAD3}
+          LegacyId            #88
+          ExtendedDataType    #CustVendAgingBucketLookUp
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #CollectionsWriteOffLedgerJournalName
+        STRING
+        PROPERTIES
+          Name                #CollectionsWriteOffLedgerJournalName
+          HelpText            #@SYS129428
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{E282E8D2-89B1-46EF-8274-6D5446C4DD9F}
+          LegacyId            #90
+          ExtendedDataType    #CustWriteOffJournalName
+        ENDPROPERTIES
+        
+      FIELD #CollectionsWriteOffReasonTable
+        STRING
+        PROPERTIES
+          Name                #CollectionsWriteOffReasonTable
+          HelpText            #@SYS129430
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{6811E4C4-C76C-42B9-A0B0-B22679F3B14F}
+          LegacyId            #92
+          ExtendedDataType    #CustWriteOffReasonCode
+        ENDPROPERTIES
+        
+      FIELD #CollectionsWriteOffSeparateSalesTax
+        ENUM
+        PROPERTIES
+          Name                #CollectionsWriteOffSeparateSalesTax
+          HelpText            #@SYS129431
+          ConfigurationKey    #Collections
+          Table               #CustParameters
+          Origin              #{7AF55079-C05C-47B8-9289-37C954DBBF14}
+          LegacyId            #93
+          ExtendedDataType    #CustWriteOffSeparateSalesTax
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CreditCardCostCenterDimensionAttribute
+        INT64
+        PROPERTIES
+          Name                #CreditCardCostCenterDimensionAttribute
+          Table               #CustParameters
+          Origin              #{961280CA-9E05-4746-992C-EBC4CEE1282F}
+          LegacyId            #191
+          ExtendedDataType    #CreditCardCostCenterDimensionAttribute
+        ENDPROPERTIES
+        
+      FIELD #CreditCardEstShippingChargeMax
+        REAL
+        PROPERTIES
+          Name                #CreditCardEstShippingChargeMax
+          Label               #@SYS101381
+          HelpText            #@SYS116868
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{185B1ED1-DCAE-45D3-8A71-6805EAAE544D}
+          LegacyId            #67
+          ExtendedDataType    #AmountCur
+        ENDPROPERTIES
+        
+      FIELD #CreditCardEstShippingChargeType
+        ENUM
+        PROPERTIES
+          Name                #CreditCardEstShippingChargeType
+          Table               #CustParameters
+          Origin              #{BA2CE5B6-4851-4E70-A4F6-43F69D78D504}
+          LegacyId            #65
+          EnumType            #CreditCardEstShippingChargeType
+        ENDPROPERTIES
+        
+      FIELD #CreditCardEstShippingChargeValue
+        REAL
+        PROPERTIES
+          Name                #CreditCardEstShippingChargeValue
+          Label               #@SYS71361
+          HelpText            #@SYS116870
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{2813FF0C-5F8E-48C7-AC41-85A98D86A61A}
+          LegacyId            #64
+          ExtendedDataType    #RealBase
+        ENDPROPERTIES
+        
+      FIELD #CreditCardNotes
+        STRING
+        PROPERTIES
+          Name                #CreditCardNotes
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{F12E9666-5DD6-4B90-95AB-508593AFDFE6}
+          LegacyId            #51
+          ExtendedDataType    #CreditCardNotes
+          StringSize          #254
+        ENDPROPERTIES
+        
+      FIELD #CreditCardPostingAccountType
+        ENUM
+        PROPERTIES
+          Name                #CreditCardPostingAccountType
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{7C1DD236-78F6-4957-92C9-4D204024B20D}
+          LegacyId            #119
+          EnumType            #LedgerJournalACType
+        ENDPROPERTIES
+        
+      FIELD #CreditCardPostingBankTransactionType
+        STRING
+        PROPERTIES
+          Name                #CreditCardPostingBankTransactionType
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{63F95E6A-E86A-44F5-9718-8E740A10C07E}
+          LegacyId            #121
+          ExtendedDataType    #BankTransactionType
+        ENDPROPERTIES
+        
+      FIELD #CreditCardPostingLedgerDimension
+        INT64
+        PROPERTIES
+          Name                #CreditCardPostingLedgerDimension
+          Label               #@SYS24500
+          HelpText            #@SYS122135
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{575BD8B4-81AF-4F21-BDF7-A5A2CB06E61D}
+          LegacyId            #91
+          ExtendedDataType    #DimensionDynamicDefaultAccount
+        ENDPROPERTIES
+        
+      FIELD #CreditCardPreapprovalLastNoOfDays
+        INT
+        PROPERTIES
+          Name                #CreditCardPreapprovalLastNoOfDays
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{69D69215-0FD9-4651-B30B-82EB392D888C}
+          LegacyId            #68
+          ExtendedDataType    #CreditCardPreapprovalLastNoOfDays
+        ENDPROPERTIES
+        
+      FIELD #CreditCardPreAuthorization
+        ENUM
+        PROPERTIES
+          Name                #CreditCardPreAuthorization
+          ConfigurationKey    #CreditCard
+          Table               #CustParameters
+          Origin              #{E8DE690B-0C10-4756-A635-FFA1B178D747}
+          LegacyId            #54
+          ExtendedDataType    #CreditCardPreAuthorization
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CreditError
+        ENUM
+        PROPERTIES
+          Name                #CreditError
+          Table               #CustParameters
+          Origin              #{68728C70-1AC1-459D-819F-5F1A13AA8AA0}
+          LegacyId            #10
+          ExtendedDataType    #CustCreditError
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CreditIdentificationRequire
+        ENUM
+        PROPERTIES
+          Name                #CreditIdentificationRequire
+          Table               #CustParameters
+          Origin              #{92579364-1E64-4FEB-86B7-915359F1D3D1}
+          LegacyId            #79
+          EnumType            #CreditIdentificationRequireType
+        ENDPROPERTIES
+        
+      FIELD #CreditInvoicingReport
+        ENUM
+        PROPERTIES
+          Name                #CreditInvoicingReport
+          Label               #@SYS99721
+          HelpText            #@SYS99722
+          Table               #CustParameters
+          CountryRegionCodes  #ES,SE,PL
+          Origin              #{B333101C-BAB3-4617-8518-DA1B641CCBDA}
+          LegacyId            #66
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CreditLimit
+        REAL
+        PROPERTIES
+          Name                #CreditLimit
+          Table               #CustParameters
+          Origin              #{D4F4EB85-1885-4518-B3EC-9742A6C37E68}
+          LegacyId            #78
+          ExtendedDataType    #CustLimit
+        ENDPROPERTIES
+        
+      FIELD #CreditLimitCheckFreeInvoice
+        ENUM
+        PROPERTIES
+          Name                #CreditLimitCheckFreeInvoice
+          Table               #CustParameters
+          Origin              #{FA7EDD60-F7C4-4E02-B954-BDA8D772514D}
+          LegacyId            #130
+          ExtendedDataType    #CreditLimitCheckFreeInvoice
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CreditLimitCheckSales
+        ENUM
+        PROPERTIES
+          Name                #CreditLimitCheckSales
+          Table               #CustParameters
+          Origin              #{C74E8948-8E63-49B8-BDDC-E8C2AB8E659F}
+          LegacyId            #131
+          ExtendedDataType    #CreditLimitCheckSales
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CreditLineError
+        ENUM
+        PROPERTIES
+          Name                #CreditLineError
+          Table               #CustParameters
+          Origin              #{48C60EC8-7337-4679-BF47-79995283C75A}
+          LegacyId            #31
+          ExtendedDataType    #CreditLineError
+          EnumType            #CreditLineErrorType
+        ENDPROPERTIES
+        
+      FIELD #CreditMaxCheck
+        ENUM
+        PROPERTIES
+          Name                #CreditMaxCheck
+          Table               #CustParameters
+          Origin              #{B6D27BE5-8A97-489A-904F-DF4A030ED72D}
+          LegacyId            #22
+          ExtendedDataType    #CustCreditMaxCheck
+          EnumType            #TypeOfCreditmaxCheck
+        ENDPROPERTIES
+        
+      FIELD #CustInterestCalc
+        ENUM
+        PROPERTIES
+          Name                #CustInterestCalc
+          Table               #CustParameters
+          Origin              #{15F3A39E-4329-4708-9F64-CE1CA28902A9}
+          LegacyId            #38
+          EnumType            #CustInterestCalc
+        ENDPROPERTIES
+        
+      FIELD #CustInvoiceRefNum_FI
+        ENUM
+        PROPERTIES
+          Name                #CustInvoiceRefNum_FI
+          Table               #CustParameters
+          Origin              #{A9BB6C3E-433F-4228-A3B1-2FBC653883A2}
+          LegacyId            #56
+          ExtendedDataType    #CustInvoiceRefNum_FI
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #CustNameFromVATNum
+        ENUM
+        PROPERTIES
+          Name                #CustNameFromVATNum
+          Label               #@SYS112096
+          HelpText            #@SYS112095
+          Table               #CustParameters
+          CountryRegionCodes  #ES
+          Origin              #{026DA996-3B50-4E05-B25F-8B29B1740D75}
+          LegacyId            #59
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DefaultCust
+        STRING
+        PROPERTIES
+          Name                #DefaultCust
+          Label               #@SYS22686
+          HelpText            #@SYS22687
+          Table               #CustParameters
+          Origin              #{CC34CC10-FFBC-4DB0-A15E-BBE9AB8F4019}
+          LegacyId            #18
+          ExtendedDataType    #CustAccount
+          StringSize          #20
+        ENDPROPERTIES
+        
+      FIELD #DEL_ClearingAccount
+        STRING
+        PROPERTIES
+          Name                #DEL_ClearingAccount
+          Label               #@SYS3286
+          HelpText            #@SYS9008
+          Visible             #No
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          IgnoreEDTRelation   #Yes
+          Origin              #{F6FF61F6-B115-4A90-96C8-0953ED13734A}
+          LegacyId            #15
+          ExtendedDataType    #LedgerAccount
+          StringSize          #20
+        ENDPROPERTIES
+        
+      FIELD #DEL_CreditCardMaxReEntryAttempt
+        INT
+        PROPERTIES
+          Name                #DEL_CreditCardMaxReEntryAttempt
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{7F8A1888-5A1F-4899-BCEF-C8C15DEBCF31}
+          LegacyId            #69
+          ExtendedDataType    #CreditCardMaxReEntryAttempt
+        ENDPROPERTIES
+        
+      FIELD #DEL_CreditCardPostingAccount
+        STRING
+        PROPERTIES
+          Name                #DEL_CreditCardPostingAccount
+          HelpText            #@SYS122135
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{2EE3939A-9474-4FA9-8B55-3B623C76B376}
+          LegacyId            #120
+          ExtendedDataType    #LedgerJournalAC
+          StringSize          #20
+        ENDPROPERTIES
+        
+      FIELD #DEL_CreditInvoicing
+        ENUM
+        PROPERTIES
+          Name                #DEL_CreditInvoicing
+          Label               #@SYS99718
+          HelpText            #@SYS99719
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          CountryRegionCodes  #ES,SE,PL
+          Origin              #{12DE3103-5ACA-42C6-8791-DB8A692A632A}
+          LegacyId            #62
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CreditLineCheck
+        ENUM
+        PROPERTIES
+          Name                #DEL_CreditLineCheck
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{6AC23CD8-4D47-40A1-8D25-7775EE57A110}
+          LegacyId            #32
+          EnumType            #ABC
+        ENDPROPERTIES
+        
+      FIELD #DEL_CreditLineCheckFreeInvoice
+        ENUM
+        PROPERTIES
+          Name                #DEL_CreditLineCheckFreeInvoice
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{F9D1964F-6AA4-4AFE-A145-FD726C0A6FF1}
+          LegacyId            #30
+          EnumType            #ABC
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustAccountOrgIdCreate
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustAccountOrgIdCreate
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{E128E02B-D176-4BE9-9A82-F8E34F99D340}
+          LegacyId            #75
+          ExtendedDataType    #CustVendAccountOrgIdCreate
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustCreatePaymJournalInvoice
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustCreatePaymJournalInvoice
+          Label               #@SYS96384
+          HelpText            #@SYS96383
+          ConfigurationKey    #SysDeletedObjects41
+          Table               #CustParameters
+          Origin              #{93C9D7C1-C024-4A2C-9271-BACE9F76ADE8}
+          LegacyId            #47
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustInvoiceGoodsDiscount_IT
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustInvoiceGoodsDiscount_IT
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{1F8F9202-A8C9-4AE4-979F-4A44F9801C59}
+          LegacyId            #49
+          ExtendedDataType    #CustInvoiceGoodsDiscount_IT
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustInvoiceInfo_FI
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustInvoiceInfo_FI
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{D141AF99-D745-48F2-8A6B-91042CA30AD9}
+          LegacyId            #61
+          ExtendedDataType    #CustInvoiceInfo_FI
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustMandatoryOrgId
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustMandatoryOrgId
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{14F5B73D-530B-4EC4-89E5-ABE71D50EB7C}
+          LegacyId            #77
+          ExtendedDataType    #CustVendMandatoryOrgId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustMultipleInterestRates
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustMultipleInterestRates
+          Label               #@SYS97218
+          HelpText            #@SYS97219
+          Visible             #No
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{CFDF72F3-83D9-4084-A1E3-9678F45AF1AE}
+          LegacyId            #60
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustOrgIdValidate
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustOrgIdValidate
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{1B6441F6-8534-44FB-917C-CB080208404B}
+          LegacyId            #76
+          ExtendedDataType    #CustVendOrgIdValidate
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustPaym_NO
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustPaym_NO
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{15A45FC1-9621-4B39-A917-03F728A81631}
+          LegacyId            #50
+          ExtendedDataType    #CustVendPaym_NO
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_CustPaymPostingDateOptions_IT
+        ENUM
+        PROPERTIES
+          Name                #DEL_CustPaymPostingDateOptions_IT
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{0F6061DD-431D-4504-A111-1296F827B735}
+          LegacyId            #7
+          ExtendedDataType    #CustPaymPostingDateOptions_IT
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_InvReferenceNumberSequenceCode_FI
+        STRING
+        PROPERTIES
+          Name                #DEL_InvReferenceNumberSequenceCode_FI
+          Label               #@SYS97578
+          Visible             #No
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          CountryRegionCodes  #FI
+          IgnoreEDTRelation   #Yes
+          Origin              #{3F0064D9-F7CE-4F56-92CF-984121482D00}
+          LegacyId            #57
+          ExtendedDataType    #NumberSequenceCode
+        ENDPROPERTIES
+        
+      FIELD #DEL_PackingSlipDateCheck_IT
+        ENUM
+        PROPERTIES
+          Name                #DEL_PackingSlipDateCheck_IT
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{69392EF5-A7CD-410E-8532-E09F9AD63D7C}
+          LegacyId            #48
+          ExtendedDataType    #PackingSlipDateCheck_IT
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #DEL_PaymIdType
+        STRING
+        PROPERTIES
+          Name                #DEL_PaymIdType
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{7B111598-8411-49EF-8EA8-516A964A0FAB}
+          LegacyId            #80
+          ExtendedDataType    #BankCustPaymIdType
+        ENDPROPERTIES
+        
+      FIELD #DEL_ReprintOriginals_IS
+        ENUM
+        PROPERTIES
+          Name                #DEL_ReprintOriginals_IS
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustParameters
+          Origin              #{C0E4E427-BB9F-4C9A-B756-3327F7EC4C54}
+          LegacyId            #73
+          EnumType            #ReprintOriginals_IS
+        ENDPROPERTIES
+        
+      FIELD #Due2Payment
+        STRING
+        PROPERTIES
+          Name                #Due2Payment
+          ConfigurationKey    #LedgerAdvCashflowForecast
+          Table               #CustParameters
+          Origin              #{FE9B0829-0EFC-4C64-B5F4-A604F6459E48}
+          LegacyId            #13
+          ExtendedDataType    #CustClearingPeriod
+        ENDPROPERTIES
+        
+      FIELD #DueToTransDate
+        ENUM
+        PROPERTIES
+          Name                #DueToTransDate
+          Label               #@SYS96480
+          HelpText            #@SYS96481
+          Table               #CustParameters
+          CountryRegionCodes  #ES
+          Origin              #{E7BA483A-2BA2-40D4-8CB9-DD937B4D5CF6}
+          LegacyId            #53
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #EnableProject
+        ENUM
+        PROPERTIES
+          Name                #EnableProject
+          Label               #@SYS314791
+          HelpText            #@SYS314852
+          ConfigurationKey    #ProjBasic
+          Table               #CustParameters
+          Origin              #{4DF7B235-74B2-449E-8138-0FE71E2494D8}
+          LegacyId            #147
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #Invoice2Due
+        STRING
+        PROPERTIES
+          Name                #Invoice2Due
+          HelpText            #@SYS10732
+          ConfigurationKey    #LedgerAdvCashflowForecast
+          Table               #CustParameters
+          Origin              #{4B8AD82E-68FD-4995-AE86-41B6C6CE1B50}
+          LegacyId            #12
+          ExtendedDataType    #PaymTermId
+        ENDPROPERTIES
+        
+      FIELD #InvoicePeriod
+        STRING
+        PROPERTIES
+          Name                #InvoicePeriod
+          Label               #@SYS18993
+          HelpText            #@SYS18994
+          ConfigurationKey    #LedgerAdvCashflowForecast
+          Table               #CustParameters
+          Origin              #{6ABDFCC8-2CE4-42CF-BAC1-96CA0BFCAB2D}
+          LegacyId            #11
+          ExtendedDataType    #PaymTermId
+        ENDPROPERTIES
+        
+      FIELD #InvoiceReferenceNumberFormula_FI
+        ENUM
+        PROPERTIES
+          Name                #InvoiceReferenceNumberFormula_FI
+          Table               #CustParameters
+          Origin              #{981C90DA-CE04-4CE5-A5CF-6A903B18C0A0}
+          LegacyId            #58
+          EnumType            #InvoiceReferenceNumberFormulaType_FI
+        ENDPROPERTIES
+        
+      FIELD #InvoiceReferenceNumberSequenceTable
+        INT64
+        PROPERTIES
+          Name                #InvoiceReferenceNumberSequenceTable
+          Table               #CustParameters
+          CountryRegionCodes  #FI
+          Origin              #{771EA343-DC3D-4661-954A-B8C80C9B71D7}
+          LegacyId            #201
+          ExtendedDataType    #RefRecId
+        ENDPROPERTIES
+        
+      FIELD #Key
+        INT
+        PROPERTIES
+          Name                #Key
+          AllowEditOnCreate   #No
+          AllowEdit           #No
+          Visible             #No
+          Table               #CustParameters
+          Origin              #{50AB9072-FC5E-4ACF-BD41-896789E4FB07}
+          LegacyId            #24
+          ExtendedDataType    #ParametersKey
+        ENDPROPERTIES
+        
+      FIELD #MandatoryInvoiceVATNum
+        ENUM
+        PROPERTIES
+          Name                #MandatoryInvoiceVATNum
+          Table               #CustParameters
+          Origin              #{A769FFD7-314C-4694-9AF2-55C1FC8A97A0}
+          LegacyId            #26
+          ExtendedDataType    #MandatoryInvoiceVATNum
+          EnumType            #TaxVATNumCountryRegionType
+        ENDPROPERTIES
+        
+      FIELD #MandatoryItemTaxGroup
+        ENUM
+        PROPERTIES
+          Name                #MandatoryItemTaxGroup
+          Label               #@SYS113314
+          HelpText            #@SYS113315
+          Table               #CustParameters
+          Origin              #{DF612E7D-0342-4822-9833-FC90E79E6BC0}
+          LegacyId            #8004
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #MandatoryTaxGroup
+        ENUM
+        PROPERTIES
+          Name                #MandatoryTaxGroup
+          HelpText            #@SYS113317
+          Table               #CustParameters
+          Origin              #{56AB0E6F-2E5A-4B70-AFAF-6973656AE68B}
+          LegacyId            #8005
+          ExtendedDataType    #CustVendMandatoryTaxGroup
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #MandatoryVATNum
+        ENUM
+        PROPERTIES
+          Name                #MandatoryVATNum
+          HelpText            #@SYS63313
+          Table               #CustParameters
+          Origin              #{DFC67EEC-3C12-4929-9EE8-72F8F5218B8E}
+          LegacyId            #27
+          ExtendedDataType    #MandatoryAccountVATNum
+          EnumType            #TaxVATNumCountryRegionType
+        ENDPROPERTIES
+        
+      FIELD #MarkOpenInvoiceLine
+        ENUM
+        PROPERTIES
+          Name                #MarkOpenInvoiceLine
+          Label               #@SYS134066
+          HelpText            #@SYS134068
+          Table               #CustParameters
+          Origin              #{D7D6D9B0-E7A6-4437-B8E8-2F903F4DC29C}
+          LegacyId            #103
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #MaximumWaiveDays
+        INT
+        PROPERTIES
+          Name                #MaximumWaiveDays
+          Label               #@SYS313613
+          HelpText            #@SYS313614
+          Table               #CustParameters
+          Origin              #{F829B48C-2FA7-4830-BE44-C4BBAE506232}
+          LegacyId            #140
+          ExtendedDataType    #Days
+        ENDPROPERTIES
+        
+      FIELD #MaxMSTDiff
+        REAL
+        PROPERTIES
+          Name                #MaxMSTDiff
+          Label               #@SYS18991
+          HelpText            #@SYS18992
+          Table               #CustParameters
+          Origin              #{CAFBF28C-E545-425D-9514-37BD9F18530F}
+          LegacyId            #9
+          ExtendedDataType    #AmountMST
+        ENDPROPERTIES
+        
+      FIELD #MaxMSTOverUnder
+        REAL
+        PROPERTIES
+          Name                #MaxMSTOverUnder
+          Label               #@SYS59497
+          HelpText            #@SYS59496
+          Table               #CustParameters
+          Origin              #{F23B5C1D-E97E-434F-820D-1BB98018BE9A}
+          LegacyId            #35
+          ExtendedDataType    #AmountMST
+        ENDPROPERTIES
+        
+      FIELD #MinimumWaiveDays
+        INT
+        PROPERTIES
+          Name                #MinimumWaiveDays
+          Label               #@SYS313612
+          HelpText            #@SYS313615
+          Table               #CustParameters
+          Origin              #{5049F34E-000F-48DF-8CB5-A4192A613C9D}
+          LegacyId            #141
+          ExtendedDataType    #Days
+        ENDPROPERTIES
+        
+      FIELD #MinRefund
+        REAL
+        PROPERTIES
+          Name                #MinRefund
+          Table               #CustParameters
+          Origin              #{DF101018-F293-463F-B9C4-9A9D4FE5AE55}
+          LegacyId            #19
+          ExtendedDataType    #AmountMinReimbursement
+        ENDPROPERTIES
+        
+      FIELD #MixedPayment
+        ENUM
+        PROPERTIES
+          Name                #MixedPayment
+          Label               #@SYS73875
+          HelpText            #@SYS73876
+          Table               #CustParameters
+          Origin              #{39890045-D6E1-4A56-BDE0-C1A5B24F5E50}
+          LegacyId            #45
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PackagingWeightOnInvoice
+        ENUM
+        PROPERTIES
+          Name                #PackagingWeightOnInvoice
+          Label               #@SYS73000
+          HelpText            #@SYS73001
+          ConfigurationKey    #InventPackaging
+          Table               #CustParameters
+          Origin              #{B8829836-D827-4399-A6A2-33035AC5AAF8}
+          LegacyId            #42
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #PostingProfile
+        STRING
+        PROPERTIES
+          Name                #PostingProfile
+          Table               #CustParameters
+          Origin              #{2ECE8484-8120-470F-8C49-DED4A9A971EE}
+          LegacyId            #17
+          ExtendedDataType    #CustPostingProfile
+        ENDPROPERTIES
+        
+      FIELD #PostingProfileBills
+        STRING
+        PROPERTIES
+          Name                #PostingProfileBills
+          Label               #@SYS69795
+          HelpText            #@SYS71600
+          ConfigurationKey    #CustBillOfExchange
+          Table               #CustParameters
+          Origin              #{FFBFA6F7-5EC3-4F12-B808-FF4F7B6F263A}
+          LegacyId            #41
+          ExtendedDataType    #CustPostingProfile
+        ENDPROPERTIES
+        
+      FIELD #PostingProfileBillsProtested
+        STRING
+        PROPERTIES
+          Name                #PostingProfileBillsProtested
+          Label               #@SYS71709
+          HelpText            #@SYS71769
+          ConfigurationKey    #CustBillOfExchange
+          Table               #CustParameters
+          Origin              #{8C5C2590-5591-464F-BA2A-37DB48911986}
+          LegacyId            #40
+          ExtendedDataType    #CustPostingProfile
+        ENDPROPERTIES
+        
+      FIELD #PostingProfileBillsRemitCollection
+        STRING
+        PROPERTIES
+          Name                #PostingProfileBillsRemitCollection
+          Label               #@SYS73417
+          HelpText            #@SYS73418
+          ConfigurationKey    #CustBillOfExchange
+          Table               #CustParameters
+          Origin              #{1110308B-9984-478F-B9C0-70B720F071AA}
+          LegacyId            #43
+          ExtendedDataType    #CustPostingProfile
+        ENDPROPERTIES
+        
+      FIELD #PostingProfileBillsRemitDiscount
+        STRING
+        PROPERTIES
+          Name                #PostingProfileBillsRemitDiscount
+          Label               #@SYS73388
+          HelpText            #@SYS73419
+          ConfigurationKey    #CustBillOfExchange
+          Table               #CustParameters
+          Origin              #{98558944-E6D2-4D2C-BF17-1BE5111A1CA3}
+          LegacyId            #44
+          ExtendedDataType    #CustPostingProfile
+        ENDPROPERTIES
+        
+      FIELD #PrepaymentPostingProfile
+        STRING
+        PROPERTIES
+          Name                #PrepaymentPostingProfile
+          Label               #@SYS59471
+          HelpText            #@SYS59472
+          Table               #CustParameters
+          Origin              #{720669F8-984B-4074-8AE7-1318A393EDE7}
+          LegacyId            #33
+          ExtendedDataType    #CustPostingProfile
+        ENDPROPERTIES
+        
+      FIELD #ProjLedgerAllowEdit
+        ENUM
+        PROPERTIES
+          Name                #ProjLedgerAllowEdit
+          Label               #@SYS314853
+          HelpText            #@SYS314845
+          ConfigurationKey    #ProjBasic
+          Table               #CustParameters
+          Origin              #{DF19A770-65AF-43E9-BD47-7DB582F87F39}
+          LegacyId            #148
+          ExtendedDataType    #NoYesId
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ReturnOrdersReasonReq
+        ENUM
+        PROPERTIES
+          Name                #ReturnOrdersReasonReq
+          Table               #CustParameters
+          Origin              #{A04F7072-EEC0-4DBD-BB21-441AB3C8D916}
+          LegacyId            #71
+          ExtendedDataType    #ReturnOrdersReasonReq
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #SalesCycle
+        ENUM
+        PROPERTIES
+          Name                #SalesCycle
+          Label               #@SYS96329
+          HelpText            #@SYS96317
+          Table               #CustParameters
+          CountryRegionCodes  #ES
+          Origin              #{E3ACE120-03D7-49C7-983E-ABD580C716AC}
+          LegacyId            #20
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #ShowOlderSettlements
+        ENUM
+        PROPERTIES
+          Name                #ShowOlderSettlements
+          Table               #CustParameters
+          Origin              #{B199AB79-E4AD-453E-B923-69B7FA636F20}
+          LegacyId            #39
+          ExtendedDataType    #CustVendShowOlderSettlements
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #TaxOnPrepayment
+        ENUM
+        PROPERTIES
+          Name                #TaxOnPrepayment
+          Label               #@SYS59469
+          HelpText            #@SYS60837
+          Table               #CustParameters
+          Origin              #{E54E0004-C458-4CA5-9858-2BB39A866CEE}
+          LegacyId            #34
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #TransReversalReasonReq
+        ENUM
+        PROPERTIES
+          Name                #TransReversalReasonReq
+          Table               #CustParameters
+          Origin              #{25889A30-8075-45FA-BB0D-B8214B67EFE8}
+          LegacyId            #72
+          ExtendedDataType    #TransactionReversalReasonReq
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #UseFiscalInvoiceAccount
+        ENUM
+        PROPERTIES
+          Name                #UseFiscalInvoiceAccount
+          Table               #CustParameters
+          Origin              #{86BAD1A9-BFCE-406E-B5EF-744F332BC4E4}
+          LegacyId            #55
+          EnumType            #UseFiscalInvoiceAccount
+        ENDPROPERTIES
+        
+      FIELD #UsePriorityOnAutoSettlement
+        ENUM
+        PROPERTIES
+          Name                #UsePriorityOnAutoSettlement
+          Label               #@SYS191066
+          HelpText            #@SYS191067
+          Table               #CustParameters
+          Origin              #{FA7A2E02-4006-46AE-B476-EE48B4636588}
+          LegacyId            #112
+          ExtendedDataType    #CustSettlePriority
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+      FIELD #UseSettlementPriority
+        ENUM
+        PROPERTIES
+          Name                #UseSettlementPriority
+          Label               #@SYS190897
+          HelpText            #@SYS191065
+          Table               #CustParameters
+          Origin              #{65C8C695-8C5C-4B93-9AB5-38EE20179B99}
+          LegacyId            #94
+          ExtendedDataType    #CustSettlePriority
+          EnumType            #NoYes
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #AccountDisc
+          #CashDisc
+          #CashDiscVAT
+          #AutoSettle
+          #MaxMSTDiff
+          #CreditError
+          #PostingProfile
+          #DefaultCust
+          #MinRefund
+          #CreditMaxCheck
+          #MandatoryVATNum
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #AutomaticTotalDiscount
+        PROPERTIES
+          Name                #AutomaticTotalDiscount
+          Label               #@SYS330449
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #AutomaticTotalDiscount
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #BillOfExchange
+        PROPERTIES
+          Name                #BillOfExchange
+          Label               #@SYS69795
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PostingProfileBills
+          #PostingProfileBillsProtested
+          #PostingProfileBillsRemitCollection
+          #PostingProfileBillsRemitDiscount
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #BillOfExchangeJournals
+        PROPERTIES
+          Name                #BillOfExchangeJournals
+          Label               #@SYS96476
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #BillsJournalsValidations
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #BillOfExchangeProcess
+        PROPERTIES
+          Name                #BillOfExchangeProcess
+          Label               #@SYS96484
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #DueToTransDate
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CashflowForecast
+        PROPERTIES
+          Name                #CashflowForecast
+          Label               #@SYS5727
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #InvoicePeriod
+          #Invoice2Due
+          #Due2Payment
+          #BudgetSettle
+          #ClearingLedgerDimension
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ClosedTransactionEditing
+        PROPERTIES
+          Name                #ClosedTransactionEditing
+          Label               #@SYS58026
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #ShowOlderSettlements
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CollectionLetter
+        PROPERTIES
+          Name                #CollectionLetter
+          Label               #@SYS13960
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CollectionLetterCodeUpdate
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CollectionsAgent
+        PROPERTIES
+          Name                #CollectionsAgent
+          Label               #@SYS129569
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CollectionsStatRepInterval
+          #CollectionsOMTeam
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CollectionsEmailTemplate
+        PROPERTIES
+          Name                #CollectionsEmailTemplate
+          Label               #@SYS80818
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CollectionsGeneralSysEmailId
+          #CollectionsStatementSysEmailId
+          #CollectionsSalespersonSysEmailId
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CollectionsInterest
+        PROPERTIES
+          Name                #CollectionsInterest
+          Label               #@SYS313606
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CustInterestCalc
+          #AdjustmentDateToUse
+          #MinimumWaiveDays
+          #MaximumWaiveDays
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CollectionsLetter
+        PROPERTIES
+          Name                #CollectionsLetter
+          Label               #@SYS13960
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CollectionLetterCodeUpdate
+          #CollectionsExcludeDisputedTransactions
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CollectionsWriteOff
+        PROPERTIES
+          Name                #CollectionsWriteOff
+          Label               #@SYS99195
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CollectionsWriteOffLedgerJournalName
+          #CollectionsWriteOffReasonTable
+          #CollectionsWriteOffSeparateSalesTax
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CreditCard
+        PROPERTIES
+          Name                #CreditCard
+          Label               #@SYS101746
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CreditCardPreAuthorization
+          #CreditCardNotes
+          #CreditCardPreapprovalLastNoOfDays
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CreditCardDataSupport
+        PROPERTIES
+          Name                #CreditCardDataSupport
+          Label               #@SYS327070
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CreditCardCostCenterDimensionAttribute
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CreditCardPosting
+        PROPERTIES
+          Name                #CreditCardPosting
+          Label               #@SYS122139
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CreditCardPostingAccountType
+          #CreditCardPostingLedgerDimension
+          #CreditCardPostingBankTransactionType
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #CreditRating
+        PROPERTIES
+          Name                #CreditRating
+          Label               #@SYS22700
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CreditMaxCheck
+          #CreditLimitCheckSales
+          #CreditLimitCheckFreeInvoice
+          #CreditLineError
+          #CreditIdentificationRequire
+          #CreditLimit
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Customer
+        PROPERTIES
+          Name                #Customer
+          Label               #@SYS302
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #DefaultCust
+          #MinRefund
+          #MandatoryVATNum
+          #MandatoryTaxGroup
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #EstShippingCharge
+        PROPERTIES
+          Name                #EstShippingCharge
+          Label               #@SYS116753
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CreditCardEstShippingChargeValue
+          #CreditCardEstShippingChargeType
+          #CreditCardEstShippingChargeMax
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Interest
+        PROPERTIES
+          Name                #Interest
+          Label               #@SYS313606
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CustInterestCalc
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Invoice
+        PROPERTIES
+          Name                #Invoice
+          Label               #@SYS12128
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CreditError
+          #MandatoryInvoiceVATNum
+          #PackagingWeightOnInvoice
+          #CreditInvoicingReport
+          #UseFiscalInvoiceAccount
+          #CustNameFromVATNum
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Invoice_FI
+        PROPERTIES
+          Name                #Invoice_FI
+          Label               #@SYS70503
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CustInvoiceRefNum_FI
+          #InvoiceReferenceNumberFormula_FI
+          #InvoiceReferenceNumberSequenceTable
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #MarkOpenInvoiceLines
+        PROPERTIES
+          Name                #MarkOpenInvoiceLines
+          Label               #@SYS134067
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #MarkOpenInvoiceLine
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Payment
+        PROPERTIES
+          Name                #Payment
+          Label               #@SYS828
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #AccountPositions
+          #BankCustPaymIdTable
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #PaymentProposal
+        PROPERTIES
+          Name                #PaymentProposal
+          Label               #@SYS66014
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #MixedPayment
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Posting
+        PROPERTIES
+          Name                #Posting
+          Label               #@SYS12919
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PostingProfile
+          #AccountRevenue
+          #AccountConsumption
+          #AccountDisc
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Prepayment
+        PROPERTIES
+          Name                #Prepayment
+          Label               #@SYS59473
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #TaxOnPrepayment
+          #PrepaymentPostingProfile
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Project
+        PROPERTIES
+          Name                #Project
+          Label               #@SYS80304
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #EnableProject
+          #ProjLedgerAllowEdit
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #ReasonCodeRequirements
+        PROPERTIES
+          Name                #ReasonCodeRequirements
+          Label               #@SYS114144
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CancelPaymentReasonReq
+          #ReturnOrdersReasonReq
+          #TransReversalReasonReq
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #SalesCycle
+        PROPERTIES
+          Name                #SalesCycle
+          Label               #@SYS96329
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #SalesCycle
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #SalesTax
+        PROPERTIES
+          Name                #SalesTax
+          Label               #@SYS5878
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CashDiscVAT
+          #MandatoryItemTaxGroup
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Settlement
+        PROPERTIES
+          Name                #Settlement
+          Label               #@SYS10163
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #AutoSettle
+          #CashDisc
+          #MaxMSTDiff
+          #MaxMSTOverUnder
+          #CashDiscForPartialPaym
+          #CashDiscForCreditNote
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #SettlementPriority
+        PROPERTIES
+          Name                #SettlementPriority
+          Label               #@SYS131721
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #UseSettlementPriority
+          #UsePriorityOnAutoSettlement
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #Key
+      PROPERTIES
+        Name                #Key
+        AllowDuplicates     #No
+        Origin              #{2B030001-0043-1000-4B65-790000000000}
+        LegacyId            #1
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #Key
+      ENDINDEXFIELDS
+      
+      #FK_DimensionAttributeValueCombination1
+      PROPERTIES
+        Name                #FK_DimensionAttributeValueCombination1
+        Origin              #{2B260002-0043-1000-0CE3-F9DEB0507A3B}
+        LegacyId            #2
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #CreditCardPostingLedgerDimension
+      ENDINDEXFIELDS
+      
+      #FK_DimensionAttributeValueCombination_Cu
+      PROPERTIES
+        Name                #FK_DimensionAttributeValueCombination_Cu
+        Origin              #{2B280003-0043-1000-0CE3-F9DEB02A92D5}
+        LegacyId            #3
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #ClearingLedgerDimension
+      ENDINDEXFIELDS
+      
+      #BankCustPaymIdTableIdx
+      PROPERTIES
+        Name                #BankCustPaymIdTableIdx
+        Origin              #{2B160006-0043-1000-0831-44A6713205A6}
+        LegacyId            #6
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #BankCustPaymIdTable
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+      REFERENCE #BankCustPaymIdTable
+        PROPERTIES
+          Name                #BankCustPaymIdTable
+          Table               #BankCustPaymIdTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #BankCustPaymIdTable
+          Role                #CustParameters
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #BankCustPaymIdTable
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #BankTransType
+        PROPERTIES
+          Name                #BankTransType
+          Table               #BankTransType
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CreditCardPostingBankTransactionType
+            RelatedField        #BankTransType
+            SourceEDT           #BankTransactionType
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #ClearingLedgerDimension
+        PROPERTIES
+          Name                #ClearingLedgerDimension
+          Table               #DimensionAttributeValueCombination
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #ClearingLedgerDimension
+          Role                #CustParameters
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #ClearingLedgerDimension
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CollectionsOMTeam
+        PROPERTIES
+          Name                #CollectionsOMTeam
+          Table               #OMTeam
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #CollectionsOMTeam
+          Role                #CustParameters
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CollectionsOMTeam
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CreditCardCostCenterDimensionAttribute
+        PROPERTIES
+          Name                #CreditCardCostCenterDimensionAttribute
+          Table               #DimensionAttribute
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CreditCardCostCenterDimensionAttribute
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CreditCardPostingLedgerDimension
+        PROPERTIES
+          Name                #CreditCardPostingLedgerDimension
+          Table               #DimensionAttributeValueCombination
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #CreditCardPostingLedgerDimension
+          Role                #CustParameters
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CreditCardPostingLedgerDimension
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CustLedger_PostingProfile
+        PROPERTIES
+          Name                #CustLedger_PostingProfile
+          Table               #CustLedger
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #CustLedger_PostingProfile
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #PostingProfile
+            RelatedField        #PostingProfile
+            SourceEDT           #CustPostingProfile
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CustLedger_PostingProfileBills
+        PROPERTIES
+          Name                #CustLedger_PostingProfileBills
+          Table               #CustLedger
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #CustLedger_PostingProfileBills
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #PostingProfileBills
+            RelatedField        #PostingProfile
+            SourceEDT           #CustPostingProfile
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CustLedger_PostingProfileBillsProtested
+        PROPERTIES
+          Name                #CustLedger_PostingProfileBillsProtested
+          Table               #CustLedger
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #CustLedger_PostingProfileBillsProtested
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #PostingProfileBillsProtested
+            RelatedField        #PostingProfile
+            SourceEDT           #CustPostingProfile
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CustLedger_PostingProfileBillsRemitDis
+        PROPERTIES
+          Name                #CustLedger_PostingProfileBillsRemitDis
+          Table               #CustLedger
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #CustLedger_PostingProfileBillsRemitDis
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #PostingProfileBillsRemitDiscount
+            RelatedField        #PostingProfile
+            SourceEDT           #CustPostingProfile
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CustLedger_PostingProfileBillsRemotColl
+        PROPERTIES
+          Name                #CustLedger_PostingProfileBillsRemotColl
+          Table               #CustLedger
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #CustLedger_PostingProfileBillsRemotColl
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #PostingProfileBillsRemitCollection
+            RelatedField        #PostingProfile
+            SourceEDT           #CustPostingProfile
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CustLedger_PrepaymentPostingProfile
+        PROPERTIES
+          Name                #CustLedger_PrepaymentPostingProfile
+          Table               #CustLedger
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #CustLedger_PrepaymentPostingProfile
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #PrepaymentPostingProfile
+            RelatedField        #PostingProfile
+            SourceEDT           #CustPostingProfile
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #CustTable
+        PROPERTIES
+          Name                #CustTable
+          Table               #CustTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #DefaultCust
+            RelatedField        #AccountNum
+            SourceEDT           #CustAccount
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #InvoiceReferenceNumberSequenceTable
+        PROPERTIES
+          Name                #InvoiceReferenceNumberSequenceTable
+          Table               #NumberSequenceTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #InvoiceReferenceNumberSequenceTable
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #LedgerAllocateKey
+        PROPERTIES
+          Name                #LedgerAllocateKey
+          Table               #LedgerAllocateKey
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #BudgetSettle
+            RelatedField        #Key
+            SourceEDT           #LedgerAllocateKeyId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #LedgerJournalName
+        PROPERTIES
+          Name                #LedgerJournalName
+          Table               #LedgerJournalName
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE NORMAL
+          PROPERTIES
+            Field               #CollectionsWriteOffLedgerJournalName
+            RelatedField        #JournalName
+            SourceEDT           #CustWriteOffJournalName
+          ENDPROPERTIES
+          
+          REFERENCETYPE EXTERNFIXED
+          PROPERTIES
+            Table               #LedgerJournalName
+            RelatedField        #JournalType
+            SourceEDT           #CustWriteOffJournalName
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #PaymTerm_Due2Payment
+        PROPERTIES
+          Name                #PaymTerm_Due2Payment
+          Table               #PaymTerm
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #PaymTerm_Due2Payment
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #Due2Payment
+            RelatedField        #PaymTermId
+            SourceEDT           #CustClearingPeriod
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #PaymTerm_INvoice2Due
+        PROPERTIES
+          Name                #PaymTerm_INvoice2Due
+          Table               #PaymTerm
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #PaymTerm_INvoice2Due
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #Invoice2Due
+            RelatedField        #PaymTermId
+            SourceEDT           #PaymTermId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #PaymTerm_InvoicePeriod
+        PROPERTIES
+          Name                #PaymTerm_InvoicePeriod
+          Table               #PaymTerm
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #PaymTerm_InvoicePeriod
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #InvoicePeriod
+            RelatedField        #PaymTermId
+            SourceEDT           #PaymTermId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #ReasonTable
+        PROPERTIES
+          Name                #ReasonTable
+          Table               #ReasonTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE NORMAL
+          PROPERTIES
+            Field               #CollectionsWriteOffReasonTable
+            RelatedField        #Reason
+            SourceEDT           #CustWriteOffReasonCode
+          ENDPROPERTIES
+          
+          REFERENCETYPE EXTERNFIXED
+          PROPERTIES
+            Value               #1
+            Table               #ReasonTable
+            RelatedField        #Cust
+            SourceEDT           #CustWriteOffReasonCode
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #StatRepInterval
+        PROPERTIES
+          Name                #StatRepInterval
+          Table               #StatRepInterval
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CollectionsStatRepInterval
+            RelatedField        #Name
+            SourceEDT           #CustVendAgingBucketLookUp
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #SysEmailTable_CollGenSysEmailId
+        PROPERTIES
+          Name                #SysEmailTable_CollGenSysEmailId
+          Table               #SysEmailTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #SysEmailTable_CollGenSysEmailId
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CollectionsGeneralSysEmailId
+            RelatedField        #EmailId
+            SourceEDT           #CustCollectionsGeneralSysEmailId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #SysEmailTable_CollSalespersonsSysEmailId
+        PROPERTIES
+          Name                #SysEmailTable_CollSalespersonsSysEmailId
+          Table               #SysEmailTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #SysEmailTable_CollSalespersonsSysEmailId
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CollectionsSalespersonSysEmailId
+            RelatedField        #EmailId
+            SourceEDT           #CustCollectionsSalespersonSysEmailId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #SysEmailTable_CollStatementSysEmailId
+        PROPERTIES
+          Name                #SysEmailTable_CollStatementSysEmailId
+          Table               #SysEmailTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #SysEmailTable_CollStatementSysEmailId
+          Role                #CustParameters
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #CollectionsStatementSysEmailId
+            RelatedField        #EmailId
+            SourceEDT           #CustCollectionsStatementSysEmailId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+    ENDREFERENCES
+    
+    DELETEACTIONS
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #numRefCustGroupId
+        #public server static NumberSequenceReference numRefCustGroupId()
+        #{
+        #    return NumberSeqReference::findReference(
+        #        extendedTypeNum(CustGroupId));
+        #}
+        #
+      ENDSOURCE
+      SOURCE #delete
+        #void delete()
+        #{
+        #    throw error("@SYS23721");
+        #}
+      ENDSOURCE
+      SOURCE #freeInvoiceCheckCreditOnHeader
+        #boolean freeInvoiceCheckCreditOnHeader()
+        #{
+        #    return this.CreditLimitCheckFreeInvoice == NoYes::Yes && this.CreditMaxCheck  != TypeOfCreditmaxCheck::None;
+        #}
+      ENDSOURCE
+      SOURCE #initValue
+        #public void initValue()
+        #{
+        #    ;
+        #
+        #    super();
+        #
+        #    this.CashDiscForCreditNote = NoYes::Yes;
+        #}
+      ENDSOURCE
+      SOURCE #modifiedField
+        #public void modifiedField(fieldId _fieldId)
+        #{
+        #    super(_fieldId);
+        #
+        #    switch(_fieldId)
+        #    {
+        #        case fieldNum(CustParameters, MaxMSTDiff) :
+        #            if (this.MaxMSTOverUnder < this.MaxMSTDiff)
+        #            {
+        #                this.MaxMSTOverUnder = this.MaxMSTDiff;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(CustParameters, CreditCardPostingAccountType):
+        #            this.CreditCardPostingLedgerDimension = 0;
+        #            break;
+        #
+        #        case fieldNum(CustParameters, EnableProject):
+        #            if(!this.EnableProject)
+        #            {
+        #                this.ProjLedgerAllowEdit = NoYes::No;
+        #            }
+        #            break;
+        #
+        #        case fieldNum(CustParameters, CreditCardPreAuthorization):
+        #            this.updateCreditCardVerification();
+        #            break;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #parmCreditCardPostingAccount
+        #public CompanyBankAccountId parmCreditCardPostingAccount(
+        #    CompanyBankAccountId    _account = '',
+        #    LedgerJournalACType     _accountType = this.CreditCardPostingAccountType)
+        #{
+        #    DimensionAttributeValueCombination  ledgerDimension;
+        #    CompanyBankAccountId                account;
+        #
+        #    if (!prmisDefault(_accountType))
+        #    {
+        #        this.CreditCardPostingAccountType = _accountType;
+        #    }
+        #
+        #    // If account has been changed, update the backing ledger dimension value
+        #    if (!prmisDefault(_account))
+        #    {
+        #        if (_account)
+        #        {
+        #            this.CreditCardPostingLedgerDimension = DimensionStorage::getDynamicAccount(_account, _accountType);
+        #            account = _account;
+        #        }
+        #        else
+        #        {
+        #            account = '';
+        #            this.CreditCardPostingLedgerDimension = 0;
+        #        }
+        #    }
+        #    else if (this.CreditCardPostingLedgerDimension)
+        #    {
+        #        // If the account has not been changed, then pull the value from ledger dimension as the master
+        #        select DisplayValue from ledgerDimension where ledgerDimension.RecId == this.CreditCardPostingLedgerDimension;
+        #        account = ledgerDimension.DisplayValue;
+        #    }
+        #
+        #    return account;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmCreditCardPostingLedgerDimension
+        #public DimensionDynamicDefaultAccount parmCreditCardPostingLedgerDimension(DimensionDynamicDefaultAccount _ledgerDimension = this.CreditCardPostingLedgerDimension)
+        #{
+        #    this.CreditCardPostingLedgerDimension = _ledgerDimension;
+        #    return this.CreditCardPostingLedgerDimension;
+        #}
+      ENDSOURCE
+      SOURCE #salesCalcCreditEstimate
+        #boolean salesCalcCreditEstimate()
+        #{
+        #    return this.CreditMaxCheck == TypeOfCreditmaxCheck::Balance          ||
+        #           this.CreditMaxCheck == TypeOfCreditmaxCheck::BalanceDelivered ||
+        #           this.CreditMaxCheck == TypeOfCreditmaxCheck::BalanceAll;
+        #
+        #}
+      ENDSOURCE
+      SOURCE #salesCheckCreditOnHeader
+        #boolean salesCheckCreditOnHeader()
+        #{
+        #    return this.CreditLimitCheckSales == NoYes::Yes && this.CreditMaxCheck  != TypeOfCreditmaxCheck::None;
+        #}
+      ENDSOURCE
+      SOURCE #update
+        #void update()
+        #{
+        #    super();
+        #    flush CustParameters;
+        #}
+      ENDSOURCE
+      SOURCE #updateCreditCardVerification
+        #public void updateCreditCardVerification()
+        #{
+        #    CreditCardMicrosoftSetup creditCardMicrosoftSetup;
+        #
+        #    if (this.CreditCardPreAuthorization == NoYes::No)
+        #    {
+        #        creditCardMicrosoftSetup = CreditCardMicrosoftSetup::find(true);
+        #
+        #        if (creditCardMicrosoftSetup.AddressVerification == NoYes::Yes ||
+        #                creditCardMicrosoftSetup.CardVerificationCheck == NoYes::Yes)
+        #        {
+        #            ttsbegin;
+        #
+        #            // Address verification and Credit verification check is only done when preauthorization is enabled.
+        #            creditCardMicrosoftSetup.AddressVerification = NoYes::No;
+        #            creditCardMicrosoftSetup.CardVerificationCheck = NoYes::No;
+        #            creditCardMicrosoftSetup.update();
+        #
+        #            ttscommit;
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #validateDelete
+        #boolean validateDelete()
+        #{
+        #    return false;
+        #}
+      ENDSOURCE
+      SOURCE #validateField
+        #boolean validateField(fieldId _fieldId)
+        #{
+        #    #define.num1(1)
+        #    #define.num100(100)
+        #    #define.num999(999)
+        #
+        #    boolean ok = super(_fieldId);
+        #
+        #    if (ok)
+        #    {
+        #        switch(_fieldId)
+        #        {
+        #            case fieldNum(CustParameters, ClearingLedgerDimension):
+        #                ok = MainAccount::checkTransactionAccount(this.ClearingLedgerDimension);
+        #                break;
+        #
+        #            case fieldNum(CustParameters, InvoiceReferenceNumberSequenceTable):
+        #                if (this.CustInvoiceRefNum_FI && this.InvoiceReferenceNumberSequenceTable)
+        #                {
+        #                    ok = CustInvoiceReferenceNumber_FI_Formula2::checkReferenceNumberFormat(NumberSequenceTable::find(this.InvoiceReferenceNumberSequenceTable).Format);
+        #                }
+        #                break;
+        #            //credit card module
+        #            case fieldNum(CustParameters, CreditCardPreapprovalLastNoOfDays):
+        #                if (this.CreditCardPreapprovalLastNoOfDays > #num999 ||
+        #                    this.CreditCardPreapprovalLastNoOfDays < #num1)
+        #                {
+        #                    ok = checkFailed(strFmt("@SYS116872", #num1, #num999));
+        #                }
+        #                break;
+        #            case fieldNum(CustParameters, CreditCardEstShippingChargeType):
+        #            case fieldNum(CustParameters, CreditCardEstShippingChargeValue):
+        #                if (this.CreditCardEstShippingChargeType == CreditCardEstShippingChargeType::Percent    &&
+        #                    this.CreditCardEstShippingChargeValue > #num100)
+        #                {
+        #                    ok = checkFailed(strFmt("@SYS116872", 0, #num100));
+        #                }
+        #                break;
+        #
+        #            case fieldNum(CustParameters, CreditCardPostingLedgerDimension):
+        #                if (this.CreditCardPostingAccountType == LedgerJournalACType::Bank)
+        #                {
+        #                    if (this.parmCreditCardPostingAccount())
+        #                    {
+        #                        ok = BankAccountTable::checkIsActive(this.parmCreditCardPostingAccount());
+        #                    }
+        #                }
+        #                break;
+        #
+        #            case fieldNum(CustParameters, EnableProject):
+        #                if (!this.EnableProject)
+        #                {
+        #                    warning("@SYS314846");
+        #                }
+        #                break;
+        #
+        #            case fieldNum(CustParameters, MaximumWaiveDays):
+        #            case fieldNum(CustParameters, MinimumWaiveDays):
+        #                if (this.MaximumWaiveDays < this.MinimumWaiveDays && this.MaximumWaiveDays && this.MinimumWaiveDays)
+        #                {
+        #                    ok = checkFailed(strFmt("@SYS315384"));
+        #                }
+        #                break;
+        #
+        #            case fieldNum(CustParameters, MarkOpenInvoiceLine):
+        #                if (this.MarkOpenInvoiceLine == NoYes::Yes && TaxParameters::find().TaxSpecifyLine == NoYes::No)
+        #                {
+        #                    ok = checkFailed(strFmt("@SYS344847", "@SYS21908", "@SYS71496", "@SYS134066"));
+        #                }
+        #                break;
+        #        }
+        #    }
+        #    return ok;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #validateWrite
+        #
+        #public boolean validateWrite()
+        #{
+        #    boolean ret;
+        #    #define.Zero(0)
+        #    ;
+        #
+        #    ret = super();
+        #
+        #    if (this.CustInvoiceRefNum_FI &&
+        #         (this.InvoiceReferenceNumberFormula_FI == InvoiceReferenceNumberFormulaType_FI::Formula2 ||
+        #          this.InvoiceReferenceNumberFormula_FI == InvoiceReferenceNumberFormulaType_FI::NumberSequence))
+        #    {
+        #        if (!this.InvoiceReferenceNumberSequenceTable)
+        #        {
+        #            ret = checkFailed("@SYS98665");
+        #        }
+        #    }
+        #
+        #    if(this.CreditIdentificationRequire == CreditIdentificationRequireType::MinimumLimit)
+        #    {
+        #        if( this.CreditLimit <= #Zero)
+        #        {
+        #            ret = checkFailed(strFmt("@SYS114305",fieldPName(CustParameters,CreditLimit)));
+        #        }
+        #    }
+        #
+        #
+        #    if (!this.CreditCardPostingLedgerDimension && CreditCardProcessors::activeProcessorExists())
+        #    {
+        #        ret = checkFailed(strFmt("@SYS26332", fieldPName(CustParameters, CreditCardPostingLedgerDimension)));
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #allowedNumSeqGroup
+        #static container allowedNumSeqGroup()
+        #{
+        #    return [CustParameters::numRefCustInvoiceId().NumberSequenceDatatype,
+        #            CustParameters::numRefCustCreditNoteId().NumberSequenceDatatype,
+        #            CustParameters::numRefCustInvoiceVoucher().NumberSequenceDatatype,
+        #            CustParameters::numRefCustCreditNoteVoucher().NumberSequenceDatatype];
+        #}
+      ENDSOURCE
+      SOURCE #cashDiscAmount
+        #static AmountCur cashDiscAmount(CashDiscCode    _cashDiscCode,
+        #                                CurrencyCode    _currencyCode,
+        #                                AmountCur       _amountInclTax,
+        #                                AmountCur       _amountExclTax,
+        #                                DiscPct         _cashDiscPercent = 0)
+        #{
+        #    return CashDisc::cashDiscAmount(_cashDiscCode,
+        #                                    _currencyCode,
+        #                                    _amountInclTax,
+        #                                    _amountExclTax,
+        #                                    ModuleCustVend::Cust,
+        #                                    _cashDiscPercent);
+        #}
+      ENDSOURCE
+      SOURCE #cashDiscDate
+        #static DiscDate cashDiscDate(CashDiscCode   _discCode,
+        #                             DiscDate       _discDate = systemDateGet())
+        #{
+        #    return CashDisc::cashDiscDate(_discCode, _discDate);
+        #}
+      ENDSOURCE
+      SOURCE #createNumberSeqGroupRef
+        #static void createNumberSeqGroupRef(NumberSequenceGroup  numberSequenceGroup)
+        #{
+        #    ;
+        #    NumberSequenceGroupRef::createNumberSeqGroupRef(CustParameters::allowedNumSeqGroup(), numberSequenceGroup.NumberSequenceGroupId);
+        #}
+      ENDSOURCE
+      SOURCE #exist
+        #static boolean exist()
+        #{
+        #    return (select firstonly RecId from custParameters).RecId != 0;
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #/*
+        #    AOSRunMode::Called
+        #*/
+        #static CustParameters find(boolean _forupdate = false)
+        #{
+        #    CustParameters  parameter;
+        #
+        #    if (_forupdate)
+        #    parameter.selectForUpdate(_forupdate);
+        #
+        #    select firstonly parameter
+        #        index Key
+        #        where parameter.Key == 0;
+        #
+        #    if (!parameter && !parameter.isTmp())
+        #    {
+        #        Company::createParameter(parameter);
+        #        PriceDiscSalesPolicyParameters::initParameters();
+        #    }
+        #
+        #    return parameter;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #findByCompany
+        #public static CustParameters findByCompany(dataAreaId _company, boolean _forUpdate = false)
+        #{
+        #    CustParameters  parameter;
+        #    ;
+        #
+        #    changecompany(_company)
+        #    {
+        #        parameter = CustParameters::find(_forUpdate);
+        #    }
+        #
+        #    return parameter;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #numberSeqModule
+        #client server static NumberSeqModule numberSeqModule()
+        #{
+        #    return NumberSeqModule::Cust;
+        #}
+      ENDSOURCE
+      SOURCE #numRefCollectionLetterNum
+        #client server static NumberSequenceReference numRefCollectionLetterNum()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CollectionLetterNum));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCollectionLetterVoucher
+        #client server static NumberSequenceReference numRefCollectionLetterVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CollectionLetterVoucher));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustAccount
+        #client server static NumberSequenceReference numRefCustAccount()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustAccount));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustBillOfExchangeID
+        #server static NumberSequenceReference numRefCustBillOfExchangeID()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustBillOfExchangeID));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustCloseVoucher
+        #client server static NumberSequenceReference numRefCustCloseVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustCloseVoucher));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustCreditNoteId
+        #client server static NumberSequenceReference numRefCustCreditNoteId()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustCreditNoteId));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustCreditNoteVoucher
+        #client server static NumberSequenceReference numRefCustCreditNoteVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustCreditNoteVoucher));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustExchAdjVoucher
+        #client server static NumberSequenceReference numRefCustExchAdjVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustExchAdjVoucher));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustInvoiceId
+        #client server static NumberSequenceReference numRefCustInvoiceId()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustInvoiceId));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustInvoiceVoucher
+        #client server  static NumberSequenceReference numRefCustInvoiceVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustInvoiceVoucher));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustOverPaymId
+        #client server static NumberSequenceReference numRefCustOverPaymId()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustOverPaymId));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustPaymId
+        #/// <summary>
+        #///    Finds the number sequence reference.
+        #/// </summary>
+        #/// <returns>
+        #///    The number sequence reference for the payment of the customer.
+        #/// </returns>
+        #client server static NumberSequenceReference numRefCustPaymId()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustPaymId));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustPaymManVoucher
+        #client server static NumberSequenceReference numRefCustPaymManVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustPaymManVoucher));
+        #}
+        #
+      ENDSOURCE
+      SOURCE #numRefCustPaymVoucher
+        #client server static NumberSequenceReference numRefCustPaymVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(CustPaymVoucher));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustRecurringInvoice
+        #/// <summary>
+        #/// Finds the number sequence reference.
+        #/// </summary>
+        #/// <returns>
+        #/// The number sequence reference for the recurrence invoice of the customer.
+        #/// </returns>
+        #server static NumberSequenceReference numRefCustRecurringInvoice()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(RecurrenceInvoiceId));
+        #}
+      ENDSOURCE
+      SOURCE #numRefCustRemittanceFileId
+        #client server static NumberSequenceReference numRefCustRemittanceFileId()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(BankRemittanceFileIdCust));
+        #}
+        #
+      ENDSOURCE
+      SOURCE #numRefInterestNote
+        #client server static NumberSequenceReference numRefInterestNote()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(InterestNote));
+        #}
+      ENDSOURCE
+      SOURCE #numRefInterestNoteVoucher
+        #client server static NumberSequenceReference numRefInterestNoteVoucher()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(InterestNoteVoucher));
+        #}
+      ENDSOURCE
+      SOURCE #numRefOneTimeCustomerAccount
+        #client server static NumberSequenceReference numRefOneTimeCustomerAccount()
+        #{
+        #    return NumberSeqReference::findReference(extendedTypeNum(OneTimeCustomerAccount));
+        #}
+      ENDSOURCE
+      SOURCE #runCreditLimitCheck
+        #static server void runCreditLimitCheck()
+        #{
+        #    MenuFunction    salesCreditLimitCheck;
+        #    ;
+        #
+        #    salesCreditLimitCheck = new MenuFunction(menuitemActionStr(salesCreditLimitCheck), MenuItemType::Action);
+        #    salesCreditLimitCheck.run();
+        #}
+      ENDSOURCE
+      SOURCE #useCreditCardModule
+        #/// <summary>
+        #/// Determines if the credit card module configuration key is enabled.
+        #/// </summary>
+        #/// <returns>
+        #/// true if the credit card module configuration key is enabled, otherwise, false.
+        #/// </returns>
+        #static boolean useCreditCardModule()
+        #{
+        #    return isConfigurationkeyEnabled(configurationKeyNum(CreditCard));
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_01_NumSeq unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_01_NumSeq
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_01_NumSeq
+    Origin              #{9EC8446E-DCFB-4194-AD87-468CBEEDE2AB}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1018410
+      NODETYPE 329
+      NAME #NumberSeqModuleCustomer
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #NumberSeqLoadAll
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 44
+      UTILOBJECTID 67
+      NODETYPE 204
+      NAME #CustParameters
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

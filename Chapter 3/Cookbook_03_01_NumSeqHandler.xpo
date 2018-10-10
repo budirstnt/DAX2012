@@ -1,0 +1,409 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #CustGroup
+  PROPERTIES
+    Name                #CustGroup
+    Origin              #{704CDF7A-CEE3-4E1B-AF98-86FD471CE81F}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    NumberSeqFormHandler numberSeqFormHandler;
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    if (numberSeqFormHandler)
+      #    {
+      #        numberSeqFormHandler.formMethodClose();
+      #    }
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #numberSeqFormHandler
+      #public NumberSeqFormHandler numberSeqFormHandler()
+      #{
+      #    if (!numberSeqFormHandler)
+      #    {
+      #        numberSeqFormHandler = NumberSeqFormHandler::newForm(
+      #            CustParameters::numRefCustGroupId().NumberSequenceId,
+      #            element,
+      #            CustGroup_ds,
+      #            fieldNum(CustGroup,CustGroup));
+      #    }
+      #    return numberSeqFormHandler;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #CustGroup
+          Table               #CustGroup
+          Index               #GroupIdx
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #linkActive
+          #public void linkActive()
+          #{
+          #    element.numberSeqFormHandler(
+          #        ).formMethodDataSourceLinkActive();
+          #
+          #    super();
+          #}
+        ENDSOURCE
+        SOURCE #validateWrite
+          #public boolean validateWrite()
+          #{
+          #    boolean ret;
+          #
+          #    ret = super();
+          #
+          #    ret = element.numberSeqFormHandler(
+          #        ).formMethodDataSourceValidateWrite(ret) && ret;
+          #
+          #    return ret;
+          #}
+          #
+        ENDSOURCE
+        SOURCE #write
+          #public void write()
+          #{
+          #    ttsBegin;
+          #
+          #    super();
+          #
+          #    element.numberSeqFormHandler().formMethodDataSourceWrite();
+          #
+          #    ttsCommit;
+          #}
+        ENDSOURCE
+        SOURCE #delete
+          #public void delete()
+          #{
+          #    ttsBegin;
+          #
+          #    element.numberSeqFormHandler().formMethodDataSourceDelete();
+          #
+          #    super();
+          #
+          #    ttsCommit;
+          #}
+        ENDSOURCE
+        SOURCE #create
+          #public void create(boolean _append = false)
+          #{
+          #    element.numberSeqFormHandler(
+          #        ).formMethodDataSourceCreatePre();
+          #
+          #    super(_append);
+          #
+          #    element.numberSeqFormHandler(
+          #        ).formMethodDataSourceCreate();
+          #}
+          #
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS16445
+      TitleDatasource     #CustGroup
+      DataSource          #CustGroup
+      HideIfEmpty         #No
+      Style               #SimpleList
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #134217727
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          ElementPosition     #1610612734
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup
+          ElementPosition     #1073741823
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #715827882
+          HierarchyParent     #Body
+          MultiSelect         #No
+          ShowRowLabels       #No
+          DataSource          #CustGroup
+          DataGroup           #Overview
+          AlternateRowShading #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Body
+          Height              #Column height
+          ElementPosition     #268435455
+          Style               #BorderlessGridContainer
+          Columnspace         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #MenuButtonPosting
+          HelpText            #@SYS84034
+          ElementPosition     #1073741823
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS2186
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1610612734
+          HierarchyParent     #NewDeleteGroup
+          Text                #@sys14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #1073741822
+          HierarchyParent     #NewDeleteGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #Posting
+          ElementPosition     #1073741823
+          HierarchyParent     #MenuButtonPosting
+          Text                #@SYS22445
+          SaveRecord          #No
+          DataSource          #CustGroup
+          MenuItemName        #InventPosting
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SalesForecast
+          ElementPosition     #1610612734
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS13699
+          SaveRecord          #No
+          MenuItemName        #ForecastSalesGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_03_01_NumSeqHandler unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_03_01_NumSeqHandler
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_03_01_NumSeqHandler
+    Origin              #{53A80D0A-290F-4696-87D5-35834DD66C8E}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #CustGroup
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

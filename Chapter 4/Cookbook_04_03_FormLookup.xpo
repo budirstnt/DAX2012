@@ -1,0 +1,331 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #CustLookup
+  PROPERTIES
+    Name                #CustLookup
+    Origin              #{3FE7D8EC-4BBC-4587-B0D4-D70BF8C351FF}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #run
+      #public void run()
+      #{
+      #    FormStringControl callingControl;
+      #    boolean           filterLookup;
+      #
+      #    callingControl = SysTableLookup::getCallerStringControl(
+      #        element.args());
+      #
+      #    filterLookup = SysTableLookup::filterLookupPreRun(
+      #        callingControl,
+      #        AccountNum,
+      #        CustTable_ds);
+      #
+      #    super();
+      #
+      #    SysTableLookup::filterLookupPostRun(
+      #        filterLookup,
+      #        callingControl.text(),
+      #        AccountNum,
+      #        CustTable_ds);
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #    element.selectMode(AccountNum);
+      #}
+    ENDSOURCE
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #CustTable
+          Table               #CustTable
+          Index               #AccountIdx
+          AllowCheck          #No
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+          OnlyFetchActive     #Yes
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #init
+          #public void init()
+          #{
+          #    Query                query;
+          #    QueryBuildDataSource qbds;
+          #    QueryBuildRange      qbr;
+          #
+          #    query = new Query();
+          #
+          #    qbds  = query.addDataSource(tableNum(CustTable));
+          #
+          #    qbr = qbds.addRange(fieldNum(CustTable,Blocked));
+          #
+          #    qbr.value(queryvalue(CustVendorBlocked::No));
+          #
+          #    this.query(query);
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Frame               #Border
+      WindowType          #Popup
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL GRID
+        PROPERTIES
+          Name                #Customers
+          ElementPosition     #1073741823
+          ShowRowLabels       #No
+          DataSource          #CustTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REFERENCEGROUP
+        PROPERTIES
+          Name                #Name
+          ElementPosition     #1073741823
+          HierarchyParent     #Customers
+          DataSource          #CustTable
+          ReferenceField      #Party
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #Blocked
+          ElementPosition     #1789569705
+          HierarchyParent     #Customers
+          DataSource          #CustTable
+          DataField           #Blocked
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #AccountNum
+          AutoDeclaration     #Yes
+          ElementPosition     #715827882
+          HierarchyParent     #Customers
+          DataSource          #CustTable
+          DataField           #AccountNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Phone
+          ElementPosition     #1431655764
+          HierarchyParent     #Customers
+          DataSource          #CustTable
+          DataMethod          #phone
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: UTS
+
+; Microsoft Dynamics AX String: CustAccount unloaded
+; --------------------------------------------------------------------------------
+  USERTYPEVERSION 6
+  
+  USERTYPE #CustAccount
+  STRING
+    PROPERTIES
+      Name                #CustAccount
+      Label               #@SYS7149
+      HelpText            #@SYS82096
+      FormHelp            #CustLookup
+      Origin              #{290B0063-0000-1000-9AEE-8E3D5363636F}
+      LegacyId            #99
+      Extends             #CustVendAC
+      StringSize          #20
+      ChangeCase          #None
+    ENDPROPERTIES
+    
+    TYPEELEMENTS
+    ENDTYPEELEMENTS
+    
+    TYPEREFERENCES
+      TYPEREFERENCETYPE DATASET
+      PROPERTIES
+        Table               #CustTable
+        RelatedField        #AccountNum
+      ENDPROPERTIES
+      
+    ENDTYPEREFERENCES
+    
+    TYPELOOKUPS
+    ENDTYPELOOKUPS
+    
+  ENDUSERTYPE
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_04_03_FormLookup unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_04_03_FormLookup
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_04_03_FormLookup
+    Origin              #{1C143440-C87C-4908-855C-1CEF23C69AD8}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #CustLookup
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 41
+      UTILOBJECTID 99
+      NODETYPE 234
+      NAME #CustAccount
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

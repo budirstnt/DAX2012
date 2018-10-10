@@ -1,0 +1,131 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: ProjJournalCreate unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #ProjJournalCreate
+    #static void ProjJournalCreate(Args _args)
+    #{
+    #
+    #    ProjJournalTable     jourTable;
+    #    ProjJournalTrans     jourTrans;
+    #    ProjJournalTableData jourTableData;
+    #    ProjJournalTransData jourTransData;
+    #    ProjJournalStatic    jourStatic;
+    #
+    #    ttsBegin;
+    #
+    #    jourTableData = JournalTableData::newTable(jourTable);
+    #
+    #    jourTable.JournalId     = jourTableData.nextJournalId();
+    #    jourTable.JournalType   = ProjJournalType::Hour;
+    #    jourTable.JournalNameId = 'Hours';
+    #
+    #    jourTableData.initFromJournalName(
+    #        ProjJournalName::find(jourTable.JournalNameId));
+    #
+    #    jourStatic = jourTableData.journalStatic();
+    #
+    #    jourTransData = jourStatic.newJournalTransData(
+    #        jourTrans,
+    #        jourTableData);
+    #
+    #    jourTransData.initFromJournalTable();
+    #
+    #    jourTrans.initValue();
+    #
+    #    jourTrans.ProjId = '10001';
+    #    jourTrans.initFromProjTable(
+    #        ProjTable::find(jourTrans.ProjId));
+    #
+    #    jourTrans.TransDate     = systemDateGet();
+    #    jourTrans.ProjTransDate = jourTrans.TransDate;
+    #
+    #    jourTrans.CategoryId = 'Design';
+    #    jourTrans.setHourCostPrice();
+    #    jourTrans.setHourSalesPrice();
+    #    jourTrans.TaxItemGroupId =
+    #        ProjCategory::find(jourTrans.CategoryId).TaxItemGroupId;
+    #
+    #    jourTrans.Worker =
+    #        HcmWorker::findByPersonnelNumber('000062').RecId;
+    #    jourTrans.Txt = 'Design documentation';
+    #    jourTrans.Qty = 8;
+    #
+    #    jourTransData.create();
+    #
+    #    jourTable.insert();
+    #
+    #    ttsCommit;
+    #
+    #    info(strFmt(
+    #        "Journal '%1' has been created", jourTable.JournalId));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{85FDADF5-B35D-4689-8FB6-92EFFEBA4F84}
+  ENDPROPERTIES
+  
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: ProjJournalPost unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #ProjJournalPost
+    #static void ProjJournalPost(Args _args)
+    #{
+    #    ProjJournalCheckPost jourPost;
+    #
+    #    jourPost = ProjJournalCheckPost::newJournalCheckPost(
+    #        true,
+    #        true,
+    #        JournalCheckPostType::Post,
+    #        tableNum(ProjJournalTable),
+    #        'PJJ_000656');
+    #
+    #    jourPost.run();
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{8F99ACB7-7DFD-49DC-8C08-265E61095F04}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_04_ProjectJournal unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_04_ProjectJournal
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_04_ProjectJournal
+    Origin              #{B577C19D-021A-4F90-A41D-EE22C2EF9CA8}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #ProjJournalCreate
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #ProjJournalPost
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

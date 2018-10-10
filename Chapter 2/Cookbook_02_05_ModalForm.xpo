@@ -1,0 +1,2270 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SalesCreateOrder
+  PROPERTIES
+    Name                #SalesCreateOrder
+    Origin              #{A275FB46-8C1E-4A0A-9339-102F2CF4F829}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    #localmacro.ReturnOrderHelpTopic "AxInfoWk.CHM::/html/6592fbb8-2200-4263-a522-16d401653358.htm" #endmacro
+      #
+      #    SalesTableType                  salesTableType;
+      #    SalesTableForm                  salesTableForm;
+      #
+      #    SalesCreateOrderForm            salesCreateOrderForm;
+      #
+      #    SalesShippingDateConfirmed      shippingDateConfirmed;
+      #    SalesShippingDateRequested      shippingDateRequested;
+      #    SalesReceiptDateConfirmed       receiptDateConfirmed;
+      #    SalesReceiptDateRequested       receiptDateRequested;
+      #    SalesDeliveryDateControlType    deliveryDateControl;
+      #    boolean                         replacementOrder;
+      #    SalesAgreementId                salesAgreementId;
+      #
+      #    CustTable                       fromCustTable;
+      #    boolean                         copyTPAddress;
+      #    LogisticsLocationRecId          fromTPLocationRecId;
+      #    LogisticsLocationRecId          postalAddressLocation;
+      #
+      #    BankLCExportFeatureChecker      bankLCExportFeatureChecker;
+      #    BankLGFeatureChecker            bankLGFeatureChecker;
+      #// Please notice
+      #// This control SalesTable_contactPersonId is hitten in the form, but must be avalible
+      #// in order to make it possible to have lookup on contact-NAMe
+      #}
+    ENDSOURCE
+    SOURCE #canClose
+      #public boolean canClose()
+      #{
+      #    boolean     ret;
+      #
+      #    ret = super();
+      #
+      #    if (ret && element.closedOk())
+      #    {
+      #        if (salesTableForm.replacementOrder() &&  salesTableForm.returnItemNum())
+      #        {
+      #            // update return order with replacement information
+      #            SalesTable::returnUpdateReplacement(salesTableForm.returnItemNum(), salesTable.SalesId);
+      #        }
+      #    }
+      #
+      #    return ret;
+      #}
+    ENDSOURCE
+    SOURCE #changeType
+      #void changeType(SalesType  _salesType)
+      #{
+      #    NumberSeqFormHandler numberSeqFormHandlerSalesId;
+      #
+      #    if (salesTableType)
+      #    {
+      #        numberSeqFormHandlerSalesId = salesTableType.parmNumberSeqFormHandlerSalesId();
+      #        salesTableType.formMethodSalesTypeModifiedPreChange(element, salesTable_ds);
+      #    }
+      #
+      #    salesCreateOrderForm    = SalesCreateOrderForm::construct(_salesType,salesTableForm.project());
+      #    salesCreateOrderForm.parmReturnStatus(salesTableForm.parmReturnStatus());
+      #    salesTableType          = salesTable.type();
+      #    salesTableType.parmNumberSeqFormHandlerSalesId(numberSeqFormHandlerSalesId);
+      #    salesTableType.formMethodSalesTypeModifiedPostChange(element,salesTable_ds);
+      #
+      #    if (!salesTableType.canAgreementBeLinked())
+      #    {
+      #        this.editSalesAgreementId(true, strMin());
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    if (salesTableType)
+      #    {
+      #        salesTableType.formMethodClose();
+      #    }
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #closeCancel
+      #public void closeCancel()
+      #{
+      #    if (salesTable.OneTimeCustomer && salesTable.CustAccount && !salesTable.RecId)
+      #    {
+      #        CustTable::deleteOneTimeAccount(salesTable.CustAccount);
+      #    }
+      #
+      #    super();
+      #}
+    ENDSOURCE
+    SOURCE #configBankDocumentControls
+      #/// <summary>
+      #/// Configs the Bank Document Controls.
+      #/// </summary>
+      #public void configBankDocumentControls()
+      #{
+      #    boolean enableDocumentType = false;
+      #
+      #    if (bankLCExportFeatureChecker.checkFeatureEnabled()
+      #        || bankLGFeatureChecker.checkFeatureEnabled())
+      #    {
+      #        enableDocumentType = salesTable.type().mayBankDocumentTypeBeModified();
+      #        salesTable_DS.object(fieldNum(SalesTable, BankDocumentType)).enabled(enableDocumentType);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #editSalesAgreementId
+      #edit SalesAgreementId editSalesAgreementId(boolean _set, SalesAgreementId _salesAgreementId)
+      #{
+      #    SalesAgreementHeader    salesAgreementHeader;
+      #    if (_set)
+      #    {
+      #        if (_salesAgreementId != salesAgreementId)
+      #        {
+      #            salesAgreementHeader = SalesAgreementHeader::findAgreementId(_salesAgreementId);
+      #
+      #            if (salesAgreementHeader.RecId)
+      #            {
+      #                if (salesAgreementHeader.canReleaseAgreement())
+      #                {
+      #                    salesAgreementId = _salesAgreementId;
+      #                    if (Box::yesNo("@SYS305724",DialogButton::Yes) == DialogButton::Yes)
+      #                    {
+      #                        // Transfer default settings from Agreement to SalesTable buffer...
+      #                        salesTable.initFromSalesAgreementHeader(salesAgreementHeader);
+      #                        salesTable_CurrencyCode.update();
+      #                        salesTable_ds.refresh();
+      #                        salesTable_ds.rereadReferenceDataSources();
+      #                    }
+      #                }
+      #                else
+      #                {
+      #                    throw error("@SYS103075");
+      #                }
+      #            }
+      #            else if (!_salesAgreementId)
+      #            {
+      #                salesAgreementId = _salesAgreementId;
+      #            }
+      #        }
+      #    }
+      #
+      #    return salesAgreementId;
+      #}
+    ENDSOURCE
+    SOURCE #getInitialValuesDeliveryDate
+      #container getInitialValuesDeliveryDate()
+      #{
+      #    return [shippingDateConfirmed,
+      #            shippingDateRequested,
+      #            receiptDateConfirmed,
+      #            receiptDateRequested,
+      #            deliveryDateControl];
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    SalesTable      salesTableLocal;
+      #
+      #    super();
+      #
+      #    if (!element.args().caller())
+      #    {
+      #        throw error("@SYS22539");
+      #    }
+      #
+      #    salesTableForm          = element.args().caller();
+      #    salesCreateOrderForm    = SalesCreateOrderForm::construct(salesTableForm.defaultSalesType(), salesTableForm.project());
+      #
+      #    if (salesTableForm.replacementOrder()
+      #    &&  salesTableForm.returnItemNum())
+      #    {
+      #        select firstonly salesTableLocal
+      #               where salesTableLocal.ReturnItemNum == salesTableForm.returnItemNum()
+      #               &&    salesTableLocal.SalesType     == SalesType::ReturnItem;
+      #
+      #        if (salesTableLocal
+      #        &&  salesTableLocal.isInterCompanyOrder()
+      #        &&  salesTableLocal.InterCompanyDirectDeliveryOrig)
+      #        {
+      #            error("@SYS120349");
+      #            element.close();
+      #        }
+      #    }
+      #
+      #    if (salesTableForm.parmReturnStatus() == ReturnStatusHeader::Created)
+      #    {
+      #        // Create return order
+      #        element.design().caption("@SYS104102");
+      #    }
+      #
+      #    TaxVATNumTable::enableLookupVATNum(salesTable_VATNum);
+      #
+      #    bankLCExportFeatureChecker  = BankLCExportFeatureChecker::construct();
+      #    bankLGFeatureChecker        = BankLGFeatureChecker::construct();
+      #    salesTable_DS.object(fieldNum(SalesTable, BankDocumentType)).visible(
+      #        bankLCExportFeatureChecker.checkFeatureEnabled()
+      #            || bankLGFeatureChecker.checkFeatureEnabled());
+      #
+      #    logisticsPostalAddress_ds.addFieldToSelectionList(fieldNum(LogisticsPostalAddress, CountryRegionId));
+      #}
+    ENDSOURCE
+    SOURCE #modifyForm
+      #void modifyForm()
+      #{
+      #    boolean     showReturnItemFields    = salesCreateOrderForm.showReturnItemNum();
+      #    boolean     showVATNum              = salesCreateOrderForm.showVATNum();
+      #
+      #    element.lock();
+      #
+      #    groupReturn.visible(showReturnItemFields);
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, ReturnItemNum)).visible(showReturnItemFields);
+      #    salesTable_ds.object(fieldNum(SalesTable, SalesId)).allowEdit(salesCreateOrderForm.editSalesId());
+      #    salesTable_ds.object(fieldNum(SalesTable, SalesId)).skip(!salesCreateOrderForm.editSalesId());
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, ProjId)).allowEdit(salesCreateOrderForm.editProjId(salesTableForm.projId()));
+      #    salesTable_ds.object(fieldNum(SalesTable, ProjId)).skip(!salesCreateOrderForm.editProjId(salesTableForm.projId()));
+      #
+      #    // enable or disable some fields based on ProjId
+      #    this.setFieldAccess();
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, SalesType)).allowEdit(salesTableForm.editSalesType() && salesTableType.editSalesType());
+      #    salesTable_ds.object(fieldNum(SalesTable, SalesType)).skip(!(salesTableForm.editSalesType() && salesTableType.editSalesType()));
+      #
+      #    salesTable_SalesType.allowEdit(salesTableForm.editSalesType() && salesTableType.editSalesType());
+      #    salesTable_SalesType.skip(!(salesTableForm.editSalesType() && salesTableType.editSalesType()));
+      #
+      #    groupTax.visible(showVATNum);
+      #    salesTable_ds.object(fieldNum(SalesTable, vatNum)).visible(showVATNum);
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, DlvMode)).mandatory(salesTable.dlvModeMandatory());
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, CurrencyCode)).allowEdit(salesCreateOrderForm.editCurrencyCode(salesTableForm.projId()));
+      #    salesTable_ds.object(fieldNum(SalesTable, CurrencyCode)).skip(!salesCreateOrderForm.editCurrencyCode(salesTableForm.projId()));
+      #
+      #    if (salesTable.ReturnStatus == ReturnStatusHeader::Created)
+      #    {
+      #        element.modifyFormReturn();
+      #    }
+      #
+      #    copyRMALines.visible(salesTableForm.replacementOrder());
+      #    copyRMALines.value(salesTableForm.replacementOrder());
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, CustAccount)).enabled(!salesTableForm.replacementOrder());
+      #    salesTable_ds.object(fieldNum(SalesTable, InvoiceAccount)).enabled(!salesTableForm.replacementOrder());
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable,OneTimeCustomer)).visible(!salesTableForm.replacementOrder() && !salesTable.ReturnStatus == ReturnStatusHeader::Created);
+      #
+      #    editSalesAgreementId.visible(salesCreateOrderForm.showAgreementId());
+      #    editSalesAgreementId.enabled(salesTableType.canAgreementBeLinked());
+      #    editSalesAgreementId.skip(!salesTableType.canAgreementBeLinked());
+      #
+      #    element.configBankDocumentControls();
+      #
+      #    element.unLock();
+      #}
+    ENDSOURCE
+    SOURCE #modifyFormReturn
+      #void modifyFormReturn()
+      #{
+      #    salesTable_ds.object(fieldNum(SalesTable, ReturnItemNum)).mandatory(true);
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, OneTimeCustomer)).visible(false);
+      #    salesTable_ds.object(fieldNum(SalesTable, EnterpriseNumber)).visible(false);
+      #    salesTable_ds.object(fieldNum(SalesTable, ReceiptDateRequested)).visible(false);
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, ShippingDateRequested)).visible(false);
+      #    salesTable_ds.object(fieldNum(SalesTable, DlvMode)).visible(false);
+      #    salesTable_ds.object(fieldNum(SalesTable, DeliveryDateControlType)).visible(false);
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, DlvMode)).mandatory(false);
+      #
+      #    // General tab Reference group
+      #    salesTable_SalesType.visible(false);
+      #    salesTable_ProjId.visible(false);
+      #
+      #    // Shipping and delivery tab
+      #    shippingAndDelivery.visible(false);
+      #
+      #    // Address tab
+      #    groupAddress.visible(false);
+      #}
+    ENDSOURCE
+    SOURCE #parmPostalAddressLocation
+      #public LogisticsLocationRecId parmPostalAddressLocation(LogisticsLocationRecId _postalAddressLocation = salesTable.deliveryLocation())
+      #{
+      #    postalAddressLocation = _postalAddressLocation;
+      #    return postalAddressLocation;
+      #}
+    ENDSOURCE
+    SOURCE #refreshDDC
+      #void refreshDDC()
+      #{
+      #    if(salesTable_ds && salesTable && salesTable.DeliveryDateControlType)
+      #    {
+      #        salesTable_ds.refresh();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #run
+      #void  run()
+      #{
+      #    ProjTable   projTable;
+      #
+      #    salesTable_ds.create();
+      #    element.modifyForm();
+      #
+      #    super();
+      #
+      #    if (!salesTableForm.replacementOrder())
+      #    {
+      #        salesTable_ds.lookUpCustAccount();
+      #    }
+      #    else
+      #    {
+      #        salesTable.initFromCustTable();
+      #        salesTable.InvoiceAccount = salesTableForm.invoiceAccount();
+      #        salesTable_InvoiceAccount.setFocus();
+      #    }
+      #
+      #    if (salesTableForm.project())
+      #    {
+      #        projTable = ProjTable::find(salesTable.ProjId);
+      #        if (projTable.ProjInvoiceProjId)
+      #        {
+      #            if (ProjFundingSource::numberOfFundingSources(projTable.ProjInvoiceProjId) != 1)
+      #            {
+      #                error("@SYS138648");
+      #                element.close();
+      #            }
+      #
+      #        }
+      #    }
+      #
+      #
+      #    if (!salesTableType)
+      #    {
+      #        element.close();
+      #        throw Exception::Error;
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #setFieldAccess
+      #void setFieldAccess()
+      #{
+      #    boolean enableCurrency = true;
+      #
+      #    if (salesTable.ProjId)
+      #    {
+      #        if (ProjInvoiceTable::isSalesCurrencyLocked(ProjTable::find(salesTable.ProjId).ProjInvoiceProjId))
+      #        {
+      #            enableCurrency = false;
+      #        }
+      #    }
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, CurrencyCode)).allowEdit(enableCurrency);
+      #    salesTable_ds.object(fieldNum(SalesTable, CurrencyCode)).skip(!enableCurrency);
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, CustAccount)).allowEdit(salesTable.ProjId=='');
+      #    salesTable_ds.object(fieldNum(SalesTable, CustAccount)).skip(salesTable.ProjId!='');
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, InvoiceAccount)).allowEdit(salesTable.ProjId=='');
+      #    salesTable_ds.object(fieldNum(SalesTable, InvoiceAccount)).skip(salesTable.ProjId!='');
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, LanguageId)).allowEdit(salesTable.ProjId=='');
+      #    salesTable_ds.object(fieldNum(SalesTable, LanguageId)).skip(salesTable.ProjId!='');
+      #
+      #    salesTable_ds.object(fieldNum(SalesTable, PurchOrderFormNum)).visible(salesTable.ProjId=='');
+      #    salesTable_ds.object(fieldNum(SalesTable, CustomerRef)).visible(salesTable.ProjId=='');
+      #}
+    ENDSOURCE
+    SOURCE #setInitialValuesDeliveryDate
+      #void setInitialValuesDeliveryDate()
+      #{
+      #    shippingDateConfirmed = salesTable.ShippingDateConfirmed;
+      #    shippingDateRequested = salesTable.ShippingDateRequested;
+      #    receiptDateConfirmed  = salesTable.ReceiptDateConfirmed;
+      #    receiptDateRequested  = salesTable.ReceiptDateRequested;
+      #    deliveryDateControl   = salesTable.DeliveryDateControlType;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #SalesTable
+          Table               #SalesTable
+          AllowDelete         #No
+          AutoSearch          #No
+          AutoNotify          #No
+          LinkType            #Passive
+          DelayActive         #No
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD CustAccount
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    ShipCarrierAddress shipCarrierAddress;
+                #
+                #    super();
+                #
+                #    element.setInitialValuesDeliveryDate();
+                #
+                #    if (salesTable.CustAccount)
+                #    {
+                #        salesTable_ds.object(fieldNum(SalesTable, OneTimeCustomer)).allowEdit(false);
+                #        salesTable_ds.object(fieldNum(SalesTable, OneTimeCustomer)).skip(true);
+                #    }
+                #    else
+                #    {
+                #        salesTable_ds.object(fieldNum(SalesTable, OneTimeCustomer)).allowEdit(true);
+                #        salesTable_ds.object(fieldNum(SalesTable, OneTimeCustomer)).skip(false);
+                #    }
+                #
+                #    salesAgreementId = "";
+                #    groupInterCompany.enabled(salesTable.custTable_CustAccount().interCompanyTradingRelationActive());
+                #    salesTable_ds.object(fieldNum(SalesTable, DlvMode)).mandatory(salesTable.dlvModeMandatory());
+                #
+                #    salesTable_ds.refresh();
+                #
+                #    fromCustTable = salesTable.custTable_CustAccount();
+                #    fromTPLocationRecId = LogisticsLocationEntity::addressLocationRecId(fromCustTable,
+                #        LogisticsLocationRoleType::ShipCarrierThirdPartyShipping, salesTable.deliveryTransDateTime());
+                #
+                #    if (fromTPLocationRecId)
+                #    {
+                #        select firstonly ShipCarrierAccount, ShipCarrierAccountCode, ShipCarrierId, DlvTermId, DlvModeId from shipCarrierAddress
+                #            where shipCarrierAddress.Location == fromTPLocationRecId;
+                #    }
+                #    if (salesTable.ShipCarrierAccount == shipCarrierAddress.ShipCarrierAccount &&
+                #        salesTable.ShipCarrierAccountCode == shipCarrierAddress.ShipCarrierAccountCode &&
+                #        salesTable.ShipCarrierId == shipCarrierAddress.ShipCarrierId &&
+                #        salesTable.DlvTerm == shipCarrierAddress.DlvTermId &&
+                #        salesTable.DlvMode == shipCarrierAddress.DlvModeId)
+                #    {
+                #        copyTPAddress = true;
+                #    }
+                #    else
+                #    {
+                #        copyTPAddress = false;
+                #    }
+                #    salesTable_ds.cacheCalculateMethod(tableMethodStr(SalesTable, customerName));
+                #    salesTable_ds.cacheCalculateMethod(tableMethodStr(SalesTable, invoiceName));
+                #
+                #    salesTable_ds.rereadReferenceDataSources();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InvoiceAccount
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #void modified()
+                #{
+                #    super();
+                #
+                #    salesTable_ds.cacheCalculateMethod(tableMethodStr(SalesTable, invoiceName));
+                #    salesTable_ds.refresh();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD Payment
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    salesTable_ds.object(fieldNum(SalesTable, DlvMode)).mandatory(salesTable.dlvModeMandatory());
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD DlvMode
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    element.refreshDDC();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD OneTimeCustomer
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #void modified()
+                #{
+                #    super();
+                #
+                #    if (salesTable.OneTimeCustomer && !salesTable.CustAccount)
+                #    {
+                #        salesTable_ds.object(fieldNum(SalesTable, OneTimeCustomer)).allowEdit(false);
+                #        salesTable_ds.object(fieldNum(SalesTable, OneTimeCustomer)).skip(true);
+                #        salesTable_custAccount.setFocus();
+                #    }
+                #
+                #    salesTable_ds.object(fieldNum(SalesTable, DeliveryName)).mandatory(salesTable.OneTimeCustomer);
+                #
+                #    salesTable_ds.refresh();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InterCompanyOrigin
+            PROPERTIES
+              Visible             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD ContactPersonId
+            PROPERTIES
+              Visible             #No
+            ENDPROPERTIES
+            
+            METHODS
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD ProjId
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #public boolean validate()
+                #{
+                #    ProjTable   projTableLocal;
+                #    boolean ret;
+                #
+                #    ret = super();
+                #
+                #    projTableLocal = ProjTable::find(salesTable.ProjId);
+                #    if (projTableLocal)
+                #    {
+                #        if (!projTableLocal.type().ctrlSalesOrderTable())
+                #        {
+                #            ret = checkFailed(strFmt("@SYS53011", projTableLocal.Type));
+                #        }
+                #        if (ret)
+                #        {
+                #            if (projTableLocal.ProjInvoiceProjId && ProjFundingSource::numberOfFundingSources(projTableLocal.ProjInvoiceProjId) != 1)
+                #            {
+                #                ret = checkFailed("@SYS138648");
+                #            }
+                #        }
+                #    }
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+              SOURCE #modified
+                #void  modified()
+                #{
+                #    super();
+                #    salesTable_ds.refresh();
+                #
+                #    element.setFieldAccess();
+                #
+                #    salesTable_ds.cacheCalculateMethod(tableMethodStr(SalesTable, customerName));
+                #    salesTable_ds.cacheCalculateMethod(tableMethodStr(SalesTable, invoiceName));
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InventLocationId
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    salesTable_ds.refresh();
+                #}
+              ENDSOURCE
+              SOURCE #lookup
+                #public void lookup(FormControl _formControl, str _filterStr)
+                #{
+                #    if (salesTable.InventSiteId)
+                #    {
+                #        InventLocation::lookupBySiteIdAllTypes(_formControl, salesTable.InventSiteId);
+                #    }
+                #    else
+                #    {
+                #        super(_formControl, _filterStr);
+                #    }
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD VATNum
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #lookup
+                #public void lookup(FormControl _formControl, str _filterStr)
+                #{
+                #    if (TaxVATNumTable::taxVATNumTableEnabled())
+                #    {
+                #        TaxVATNumTable::lookupVATNum(salesTable_VATNum, salesTable);
+                #    }
+                #    else
+                #    {
+                #        super(_formControl, _filterStr);
+                #    }
+                #}
+              ENDSOURCE
+              SOURCE #jumpRef
+                #public void jumpRef()
+                #{
+                #    if (TaxVATNumTable::taxVATNumTableEnabled())
+                #    {
+                #        TaxVATNumTable::jumpRefVATNum(salesTable, element);
+                #    }
+                #    else
+                #    {
+                #        super();
+                #    }
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InterCompanyOrder
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void  modified()
+                #{
+                #    super();
+                #    element.configBankDocumentControls();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD InventSiteId
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    salesTable_ds.refresh();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD DeliveryDateControlType
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    element.refreshDDC();
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          REFERENCEFIELD DeliveryPostalAddress
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #modified
+                #public void modified()
+                #{
+                #    super();
+                #
+                #    salesTable_ds.refresh();
+                #}
+              ENDSOURCE
+              SOURCE #lookupReference
+                #public Common lookupReference(FormReferenceControl _formReferenceControl)
+                #{
+                #    Common ret;
+                #    CustTable custTable;
+                #    LogisticsLocationSelectionLookup_Purch lookupLegalEntitySiteWarehouse;
+                #
+                #    if(salesTable.ReturnStatus == ReturnStatusHeader::Created)
+                #    {
+                #        lookupLegalEntitySiteWarehouse = LogisticsLocationSelectionLookup_Purch::newParameters(_formReferenceControl);
+                #
+                #        lookupLegalEntitySiteWarehouse.parmInventSiteId(salesTable.InventSiteId);
+                #        lookupLegalEntitySiteWarehouse.parmInventLocationId(salesTable.InventLocationId);
+                #
+                #        lookupLegalEntitySiteWarehouse.addRoleByType(LogisticsLocationRoleType::Delivery);
+                #        lookupLegalEntitySiteWarehouse.parmReturnLocation(false);
+                #
+                #        ret = lookupLegalEntitySiteWarehouse.performFormLookup();
+                #        return ret;
+                #    }
+                #    else
+                #    {
+                #        custTable = CustTable::find(salesTable.CustAccount);
+                #        ret = LogisticsLocationSelectionLookup::lookupAddress(_formReferenceControl, custTable,
+                #            [LogisticsLocationRoleType::Delivery], false,
+                #            DirParty::oneTimeAddressRecIds(custTable.Party, [salesTable.DeliveryPostalAddress]));
+                #        return ret;
+                #    }
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDREFERENCEFIELD
+          
+          REFERENCEFIELD WorkerSalesTaker
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #lookupReference
+                #public Common lookupReference(FormReferenceControl _formReferenceControl)
+                #{
+                #    return HcmWorkerLookup::newOnlyActiveWorkers().lookupWorker(_formReferenceControl);
+                #}
+              ENDSOURCE
+              SOURCE #resolveReference
+                #public Common resolveReference(FormReferenceControl _formReferenceControl)
+                #{
+                #    Common ret;
+                #
+                #    ret = super(_formReferenceControl);
+                #
+                #    if (!ret.RecId || !HcmWorkerLookup::newOnlyActiveWorkers().validateWorker(ret.RecId))
+                #    {
+                #        ret.clear();
+                #    }
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDREFERENCEFIELD
+          
+          REFERENCEFIELD WorkerSalesResponsible
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #resolveReference
+                #public Common resolveReference(FormReferenceControl _formReferenceControl)
+                #{
+                #    Common ret;
+                #
+                #    ret = super(_formReferenceControl);
+                #
+                #    if (!ret.RecId || !HcmWorkerLookup::newOnlyActiveWorkers().validateWorker(ret.RecId))
+                #    {
+                #        ret.clear();
+                #    }
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+              SOURCE #lookupReference
+                #public Common lookupReference(FormReferenceControl _formReferenceControl)
+                #{
+                #    return HcmWorkerLookup::newOnlyActiveWorkers().lookupWorker(_formReferenceControl);
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDREFERENCEFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #init
+          #public void init()
+          #{
+          #    super();
+          #
+          #    salesTable_ds.cacheAddMethod(tableMethodStr(SalesTable, customerName));
+          #    salesTable_ds.cacheAddMethod(tableMethodStr(SalesTable, invoiceName));
+          #}
+        ENDSOURCE
+        SOURCE #reread
+          #public void reread()
+          #{
+          #    if (salesTable.RecId)
+          #    {
+          #        super();
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #lookUpCustAccount
+          #void lookUpCustAccount()
+          #{
+          #    if (salesTableType)
+          #    {
+          #        if (salesCreateOrderForm.lookupCustAccount())
+          #        {
+          #            salesTable_custAccount.setFocus();
+          #            salesTable_custAccount.lookup();
+          #        }
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #write
+          #void write()
+          #{
+          #    if (!element.closedOk() || salesTable.RecId)
+          #    {
+          #        return;
+          #    }
+          #    try
+          #    {
+          #        ttsbegin;
+          #
+          #        salesTableType.formMethodDataSourceWrite(element, salesTable_ds);
+          #
+          #        SalesTableForm::salesCreateOrder_WriteServer(
+          #            salesTable,
+          #            salesAgreementId,
+          #            salesTableForm.
+          #            replacementOrder(),
+          #            copyRMALines.value(),
+          #            copyTPAddress,
+          #            fromTPLocationRecId);
+          #
+          #        ttscommit;
+          #    }
+          #
+          #    catch (Exception::Error)
+          #    {
+          #        salesTable.RecId = 0;
+          #        element.close();
+          #        throw Exception::Error;
+          #    }
+          #
+          #    salesTable_ds.reread();
+          #    salesTable_ds.refresh();
+          #
+          #    salesTableForm.salesTable(salesTable);
+          #
+          #    cancel.enabled(false);
+          #}
+        ENDSOURCE
+        SOURCE #validateWrite
+          #/// <summary>
+          #/// Determines whether the current record is valid and ready to be written to the database.
+          #/// </summary>
+          #/// <returns>
+          #/// true if the record is valid; otherwise, false.
+          #/// </returns>
+          #boolean  validateWrite()
+          #{
+          #    boolean                     ret;
+          #    NoYes                       noYes;
+          #    SalesCalcAvailableDlvDates  salesCalcAvailableDlvDates;
+          #
+          #    ret = super();
+          #
+          #    noYes = CustParameters::find().ReturnOrdersReasonReq;
+          #
+          #    if (ret && !salesTable.ReturnReasonCodeId && noYes == NoYes::Yes && salesTable.ReturnStatus == ReturnStatusHeader::Created)
+          #    {
+          #        salesTable_ds.object(fieldNum(SalesTable, ReturnReasonCodeId)).mandatory(true);
+          #        ret = checkFailed(strFmt("@SYS116347", fieldPName(SalesTable,ReturnReasonCodeId)));
+          #    }
+          #
+          #    if (ret && !salesTable.ReturnItemNum && salesTable.ReturnStatus == ReturnStatusHeader::Created)
+          #    {
+          #        // RMA number must be specified
+          #        ret = checkFailed("@SYS110328");
+          #    }
+          #
+          #    if (ret)
+          #    {
+          #        salesCalcAvailableDlvDates = SalesCalcAvailableDlvDates::newCommonSalesDlvDateType(salesTable);
+          #
+          #        if (!salesTableType.formMethodDataSourceValidateWrite(element, salesTable_ds)
+          #            || (element.closedOk() && !salesCalcAvailableDlvDates.validateWritePrompt(salesTable,false,true,true)))
+          #
+          #        {
+          #            ret = false;
+          #        }
+          #    }
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+        SOURCE #initValue
+          #void initValue()
+          #{
+          #    // Set up return status upfront for correct initValue on SalesTable
+          #    salesTable.ReturnStatus = salesTableForm.parmReturnStatus();
+          #
+          #    super();
+          #
+          #    salesTableForm.salesTable(salesTable);
+          #    salesTableForm.initValues();
+          #
+          #    if (salesTable.returnItem())
+          #    {
+          #        salesTable.initValue(salesTableForm.defaultSalesType());
+          #    }
+          #
+          #    element.changeType(salesTable.SalesType);
+          #}
+        ENDSOURCE
+        SOURCE #create
+          #void create(boolean append = false)
+          #{
+          #    if (!salesTable.SalesId)
+          #    {
+          #        super(append);
+          #
+          #        salesTableType.formMethodDataSourceCreate(element, salesTable_ds);
+          #    }
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #LogisticsPostalAddress
+          Table               #LogisticsPostalAddress
+          JoinSource          #SalesTable
+          JoinRelation        #DeliveryPostalAddress_FK
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+    LogisticsPostalAddress SalesTable
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS27579
+      WindowType          #Popup
+      HideToolbar         #Yes
+      StatusBarStyle      #SimpleWithoutClose
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          Left                #Auto (right)
+          Top                 #Bottom edge
+          ElementPosition     #1717986916
+          ArrangeMethod       #Horizontal, flush right
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupAddress
+          AutoDeclaration     #Yes
+          Width               #Column width
+          VerticalSpacing     #5
+          ElementPosition     #858993458
+          Caption             #@SYS36203
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupAddressDetails
+          ElementPosition     #1610612733
+          HierarchyParent     #GroupAddressSub
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupAddressDisplay
+          VerticalSpacing     #4
+          ElementPosition     #1073741822
+          HierarchyParent     #GroupAddressSub
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupAddressSub
+          ElementPosition     #1610612733
+          HierarchyParent     #groupAddress
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupCarrierInformation
+          ElementPosition     #1717986916
+          HierarchyParent     #groupShipping
+          Caption             #@SYS50722
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupCurrency
+          VerticalSpacing     #4
+          ElementPosition     #1610612733
+          HierarchyParent     #groupTabColumn2
+          Caption             #@SYS7572
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupCustomer
+          ElementPosition     #429496729
+          Caption             #@SYS11779
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #GroupDeliveryAddress
+          ElementPosition     #1610612734
+          HierarchyParent     #groupAddressDisplay
+          Style               #MarginlessContainer
+          Columns             #3
+          Columnspace         #4
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupDeliveryDate
+          VerticalSpacing     #4
+          ElementPosition     #858993458
+          HierarchyParent     #groupShipping
+          FrameType           #None
+          Caption             #@SYS16056
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupInterCompany
+          AutoDeclaration     #Yes
+          ElementPosition     #1288490187
+          HierarchyParent     #groupTabColumn3
+          Caption             #@SYS316397
+          DataSource          #SalesTable
+          Columns             #2
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+          DataGroup           #Intercompany
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupMiscDeliveryInfo
+          ElementPosition     #1288490187
+          HierarchyParent     #groupShipping
+          Caption             #@SYS102988
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupReferences
+          VerticalSpacing     #4
+          ElementPosition     #1073741822
+          HierarchyParent     #groupTabColumn2
+          Caption             #@SYS14018
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupReturn
+          AutoDeclaration     #Yes
+          VerticalSpacing     #4
+          ElementPosition     #1610612733
+          HierarchyParent     #groupTabColumn1
+          Caption             #@SYS16512
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupSalesOrder
+          VerticalSpacing     #4
+          ElementPosition     #1073741822
+          HierarchyParent     #groupTabColumn1
+          Caption             #@SYS19627
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupShipping
+          ElementPosition     #1073741822
+          HierarchyParent     #ShippingAndDelivery
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupStorageDimensions
+          VerticalSpacing     #4
+          ElementPosition     #858993458
+          HierarchyParent     #groupTabColumn3
+          Caption             #@SYS108783
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupTabColumn1
+          ElementPosition     #858993458
+          HierarchyParent     #General
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupTabColumn2
+          ElementPosition     #1288490187
+          HierarchyParent     #General
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupTabColumn3
+          ElementPosition     #1717986916
+          HierarchyParent     #General
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupTax
+          AutoDeclaration     #Yes
+          Width               #Column width
+          VerticalSpacing     #4
+          ElementPosition     #1717986916
+          HierarchyParent     #groupTabColumn3
+          Caption             #@SYS333536
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #groupTimeZone
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612733
+          HierarchyParent     #ShippingAndDelivery
+          Caption             #@SYS120836
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #ShippingDateRequestedGroup
+          ElementPosition     #1073741823
+          HierarchyParent     #groupDeliveryDate
+          Style               #MarginlessContainer
+          Columns             #2
+          Columnspace         #4
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REFERENCEGROUP
+        PROPERTIES
+          Name                #groupAdministration_PersonSalesResponsible
+          ElementPosition     #1879048188
+          HierarchyParent     #Administration
+          DataSource          #SalesTable
+          ReferenceField      #WorkerSalesResponsible
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REFERENCEGROUP
+        PROPERTIES
+          Name                #groupAdministration_WorkerSalesTaker
+          ElementPosition     #1610612730
+          HierarchyParent     #Administration
+          DataSource          #SalesTable
+          ReferenceField      #WorkerSalesTaker
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL REFERENCEGROUP
+        PROPERTIES
+          Name                #ReferenceGroup
+          ElementPosition     #858993458
+          HierarchyParent     #GroupDeliveryAddress
+          DataSource          #SalesTable
+          ReferenceField      #DeliveryPostalAddress
+          ReplacementFieldGroup #LocationReference
+          Label               #@SYS7924
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #TabOthers
+          Width               #Column width
+          VerticalSpacing     #5
+          ElementPosition     #1288490187
+          DataSource          #SalesTable
+          Style               #FastTabs
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Administration
+          Width               #Column width
+          ElementPosition     #1717986916
+          HierarchyParent     #TabOthers
+          Caption             #@SYS40777
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+          FastTabExpanded     #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #General
+          Width               #Column width
+          ElementPosition     #858993458
+          HierarchyParent     #TabOthers
+          Caption             #@SYS2952
+          Columns             #3
+          ArrangeGuide        
+            ARRAY INDEX Columns 
+              #0
+              #0
+              #0
+            ENDARRAY
+          FastTabExpanded     #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #ShippingAndDelivery
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1288490187
+          HierarchyParent     #TabOthers
+          Caption             #@SYS88262
+          FastTabExpanded     #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #ConfirmDates
+          AutoDeclaration     #Yes
+          HelpText            #@SYS88274
+          ElementPosition     #1789569705
+          HierarchyParent     #groupDeliveryDate
+          Label               #@SYS88276
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    if (this.value() == NoYes::Yes)
+            #    {
+            #        salesTable.ReceiptDateConfirmed  = salesTable.ReceiptDateRequested;
+            #        salesTAble.ShippingDateConfirmed = salesTAble.ShippingDateRequested;
+            #    }
+            #    else
+            #    {
+            #        salesTable.ReceiptDateConfirmed  = dateNull();
+            #        salesTAble.ShippingDateConfirmed = dateNull();
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #copyRMALines
+          AutoDeclaration     #Yes
+          ElementPosition     #536870910
+          HierarchyParent     #groupCustomer
+          Label               #@SYS105831
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #InterCompany_InterCompanyOrder
+          HelpText            #@SYS75317
+          ElementPosition     #858993458
+          HierarchyParent     #groupInterCompany
+          DataSource          #SalesTable
+          DataField           #InterCompanyOrder
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #SalesTable_OneTimeCustomer
+          ElementPosition     #805306365
+          HierarchyParent     #groupCustomer
+          DataSource          #SalesTable
+          DataField           #OneTimeCustomer
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #SalesTable_BankDocumentType
+          ElementPosition     #1879048185
+          HierarchyParent     #groupReferences
+          DataSource          #SalesTable
+          DataField           #BankDocumentType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #SalesTable_DeliveryDateControl
+          ElementPosition     #1431655764
+          HierarchyParent     #groupDeliveryDate
+          DataSource          #SalesTable
+          DataField           #DeliveryDateControlType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #SalesTable_SalesType
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741823
+          HierarchyParent     #groupSalesOrder
+          DataSource          #SalesTable
+          DataField           #SalesType
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    ret = super();
+            #
+            #    element.changeType(this.selection());
+            #    element.lock();
+            #    element.modifyForm();
+            #    element.unLock();
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #SalesTable_TimeZoneSite
+          AllowEdit           #No
+          HelpText            #@SYS110100
+          ElementPosition     #1431655764
+          HierarchyParent     #groupTimeZone
+          Label               #@SYS110097
+          DataSource          #SalesTable
+          DataMethod          #timeZoneSite
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #Cancel
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612733
+          HierarchyParent     #ButtonGroup
+          SaveRecord          #No
+          Command             #264
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #OK
+          ElementPosition     #1073741822
+          HierarchyParent     #ButtonGroup
+          Command             #263
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    if (salesTable_ds.validateWrite())
+            #    {
+            #        super();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #SalesTable_ReceiptDateRequested
+          ElementPosition     #715827882
+          HierarchyParent     #groupDeliveryDate
+          DataSource          #SalesTable
+          DataField           #ReceiptDateRequested
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #SalesTable_ReturnDeadline
+          ElementPosition     #1073741822
+          HierarchyParent     #groupReturn
+          DataSource          #SalesTable
+          DataField           #ReturnDeadline
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DATEEDIT
+        PROPERTIES
+          Name                #SalesTable_ShippingDateRequested
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #ShippingDateRequestedGroup
+          DataSource          #SalesTable
+          DataField           #ShippingDateRequested
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #LogisticsLocationSelect
+          HelpText            #@SYS342026
+          ElementPosition     #1288490187
+          HierarchyParent     #GroupDeliveryAddress
+          ButtonDisplay       #Image only
+          MenuItemName        #LogisticsLocationSelect
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #LogisticsPostalAddressNew
+          HelpText            #@SYS342027
+          ElementPosition     #1717986916
+          HierarchyParent     #GroupDeliveryAddress
+          ButtonDisplay       #Image only
+          MenuItemName        #CustDirPartyPostalAddressNew
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SalesAvailableDlvDates
+          AutoDeclaration     #Yes
+          HelpText            #@SYS342028
+          ElementPosition     #1610612733
+          HierarchyParent     #ShippingDateRequestedGroup
+          ButtonDisplay       #Image only
+          SaveRecord          #No
+          DataSource          #SalesTable
+          MenuItemType        #Action
+          MenuItemName        #SalesAvailableDlvDates
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Administration_LanguageId
+          ElementPosition     #805306365
+          HierarchyParent     #Administration
+          DataSource          #SalesTable
+          DataField           #LanguageId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Administration_SalesOriginId
+          ElementPosition     #1073741820
+          HierarchyParent     #Administration
+          DataSource          #SalesTable
+          DataField           #SalesOriginId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #Administration_SalesPoolId
+          ElementPosition     #536870910
+          HierarchyParent     #Administration
+          DataSource          #SalesTable
+          DataField           #SalesPoolId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #CustName
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #Column width
+          Skip                #Yes
+          ElementPosition     #1342177275
+          HierarchyParent     #groupCustomer
+          DataSource          #SalesTable
+          DataMethod          #Customername
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DeliveryAddition_DlvTerm
+          ElementPosition     #1610612733
+          HierarchyParent     #groupMiscDeliveryInfo
+          DataSource          #SalesTable
+          DataField           #DlvTerm
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #DeliveryAddition_ShipCarrierAccount
+          ElementPosition     #1431655764
+          HierarchyParent     #groupCarrierInformation
+          DataSource          #SalesTable
+          DataField           #ShipCarrierAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #editContactPersonName
+          ElementPosition     #1610612730
+          HierarchyParent     #groupCustomer
+          LookupButton        #Always
+          DataSource          #SalesTable
+          DataMethod          #editContactPersonName
+          PresenceDataSource  #SalesTable
+          PresenceDataField   #ContactPersonId
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #jumpRef
+            #public void jumpRef()
+            #{
+            #    salesTable_ContactPersonId.jumpRef();
+            #}
+          ENDSOURCE
+          SOURCE #lookup
+            #void lookup()
+            #{
+            #    ContactPerson::lookupCustContactPerson(salesTable_contactPersonId,
+            #                                           salesTable.CustAccount,
+            #                                           this,
+            #                                           salesTable.ContactPersonId);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #editSalesAgreementId
+          AutoDeclaration     #Yes
+          ConfigurationKey    #TradeBlanketOrder
+          ElementPosition     #1073741820
+          HierarchyParent     #groupReferences
+          DataMethod          #editSalesAgreementId
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #lookup
+            #public void lookup()
+            #{
+            #    SalesAgreementHeader::salesAgreementLookup(this, salesTable);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #groupAdministration_SalesUnitId
+          ElementPosition     #1342177275
+          HierarchyParent     #Administration
+          DataSource          #SalesTable
+          DataField           #SalesUnitId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InterCompany_InterCompanyCompanyId
+          Skip                #Yes
+          ElementPosition     #1288490187
+          HierarchyParent     #groupInterCompany
+          LookupButton        #Never
+          ShowLabel           #No
+          DataSource          #SalesTable
+          DataField           #InterCompanyCompanyId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InterCompany_InterCompanyPurchId
+          Visible             #No
+          ElementPosition     #1717986916
+          HierarchyParent     #groupInterCompany
+          DataSource          #SalesTable
+          DataField           #InterCompanyPurchId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #InvoiceName
+          AllowEdit           #No
+          Width               #Column width
+          Skip                #Yes
+          ElementPosition     #1789569705
+          HierarchyParent     #groupSalesOrder
+          DataSource          #SalesTable
+          DataMethod          #InvoiceName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #LogisticsPostalAddress_Address
+          ElementPosition     #1073741822
+          HierarchyParent     #groupAddressDetails
+          DataSource          #LogisticsPostalAddress
+          DataField           #Address
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #References_CustomerRef
+          ElementPosition     #805306365
+          HierarchyParent     #groupReferences
+          DataSource          #SalesTable
+          DataField           #CustomerRef
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #References_PurchOrderFormNum
+          ElementPosition     #536870910
+          HierarchyParent     #groupReferences
+          DataSource          #SalesTable
+          DataField           #PurchOrderFormNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_ContactPersonId
+          AutoDeclaration     #Yes
+          ElementPosition     #1879048185
+          HierarchyParent     #groupCustomer
+          DataSource          #SalesTable
+          DataField           #ContactPersonId
+          PresenceIndicatorAllowed    #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_CurrencyCode
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1431655764
+          HierarchyParent     #groupCurrency
+          DataSource          #SalesTable
+          DataField           #CurrencyCode
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_CustAccount
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741820
+          HierarchyParent     #groupCustomer
+          DataSource          #SalesTable
+          DataField           #CustAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_DeliveryName
+          ElementPosition     #1073741822
+          HierarchyParent     #groupAddressDisplay
+          MultiLine           #Yes
+          DataSource          #SalesTable
+          DataField           #DeliveryName
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_DlvMode
+          ElementPosition     #1073741822
+          HierarchyParent     #groupMiscDeliveryInfo
+          DataSource          #SalesTable
+          DataField           #DlvMode
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_EnterpriseNumber
+          ElementPosition     #1610612733
+          HierarchyParent     #groupTax
+          DataSource          #SalesTable
+          DataField           #EnterpriseNumber
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_InventLocationId
+          ElementPosition     #1610612733
+          HierarchyParent     #groupStorageDimensions
+          DataSource          #SalesTable
+          DataField           #InventLocationId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_InventSiteId
+          ElementPosition     #1073741822
+          HierarchyParent     #groupStorageDimensions
+          DataSource          #SalesTable
+          DataField           #InventSiteId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_InvoiceAccount
+          AutoDeclaration     #Yes
+          ElementPosition     #1431655764
+          HierarchyParent     #groupSalesOrder
+          DataSource          #SalesTable
+          DataField           #InvoiceAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_ProjId
+          AutoDeclaration     #Yes
+          ElementPosition     #1610612730
+          HierarchyParent     #groupReferences
+          DataSource          #SalesTable
+          DataField           #ProjId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_ReturnItemNum
+          ElementPosition     #1342177275
+          HierarchyParent     #groupReferences
+          DataSource          #SalesTable
+          DataField           #ReturnItemNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_ReturnReasonCodeId
+          ElementPosition     #1610612733
+          HierarchyParent     #groupReturn
+          DataSource          #SalesTable
+          DataField           #ReturnReasonCodeId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_SalesId
+          ElementPosition     #715827882
+          HierarchyParent     #groupSalesOrder
+          DataSource          #SalesTable
+          DataField           #SalesId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_ShipCarrierDeliveryContact
+          ElementPosition     #1610612733
+          HierarchyParent     #groupAddressDetails
+          DataSource          #SalesTable
+          DataField           #ShipCarrierDeliveryContact
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SalesTable_VATNum
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #groupTax
+          DataSource          #SalesTable
+          DataField           #VATNum
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_02_05_ModalForm unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_02_05_ModalForm
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_02_05_ModalForm
+    Origin              #{C3712083-F508-4D8C-99FB-3A7D89D128E9}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #SalesCreateOrder
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

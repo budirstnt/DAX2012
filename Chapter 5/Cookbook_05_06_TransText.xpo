@@ -1,0 +1,1108 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: CustVendPaymProposalTransferToJournal unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #CustVendPaymProposalTransferToJournal
+    PROPERTIES
+      Name                #CustVendPaymProposalTransferToJournal
+      Extends             #RunBase
+      Origin              #{2D250CD7-0000-1000-E036-546285C92BCB}
+      LegacyId            #3287
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #/// <summary>
+        #///    The <c>CustVendPaymProposalTransferToJournal</c> class transfers a payment proposal to a ledger
+        #///    journal.
+        #/// </summary>
+        #class CustVendPaymProposalTransferToJournal extends RunBase
+        #{
+        #    LedgerJournalId         ledgerJournalId;
+        #
+        #    // variables that do not need to be packed/unpacked
+        #    CustVendPaymProposal    paymProposal;
+        #    LedgerJournalTable      ledgerJournalTable;
+        #    NewVoucher              newVoucher;
+        #    LedgerJournalTableData  ledgerJournalTableData;
+        #    HcmWorkerRecId          hcmWorkerRecId;
+        #
+        #    #define.CurrentVersion(1)
+        #    #define.version1(1)
+        #    #localmacro.CurrentList
+        #        ledgerJournalId
+        #    #endmacro
+        #
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #/// <summary>
+        #///    Returns a class that contains the methods that are described by the <c>RunBaseDialogable</c>
+        #///    interface.
+        #/// </summary>
+        #/// <returns>
+        #///    A class that contains the methods that are described by the <c>RunBaseDialogable</c> interface.
+        #/// </returns>
+        #/// <remarks>
+        #///    A dialog can be built by using the <c>Dialog</c> class or by using a class that is created in the
+        #///    Application Object Tree (AOT).
+        #/// </remarks>
+        #protected Object dialog()
+        #{
+        #    DialogRunbase   dialog = super();
+        #
+        #    ledgerJournalTable = LedgerJournalTable::find(ledgerJournalId);
+        #
+        #    dialog.addText(strFmt("%1", "@SYS88952"));
+        #
+        #    if (ledgerJournalTable)
+        #        dialog.addText(strFmt("@SYS28641", ledgerJournalTable.JournalName, ledgerJournalTable.JournalNum));
+        #
+        #    return dialog;
+        #}
+      ENDSOURCE
+      SOURCE #getLedgerJournalTransCurrency
+        #protected container getLedgerJournalTransCurrency(
+        #    CustVendPaymProposalLine    _custVendPaymProposalLine,
+        #    TransDate                   _transDate)
+        #{
+        #    CurrencyCode                currencyCode;
+        #    ExchRate                    exchRate;
+        #    ExchRate                    exchRateSecond;
+        #    NoYes                       triangulation;
+        #    LedgerJournalTrans          ledgerJournalTrans;
+        #    UnknownNoYes                triangulationResult;
+        #    ExchRateSecondTxt           exchRateSecondTxt;
+        #
+        #    if (ledgerJournalTable.CurrencyCode)
+        #    {
+        #        currencyCode = ledgerJournalTable.CurrencyCode;
+        #
+        #        if (ledgerJournalTable.FixedExchRate)
+        #        {
+        #            exchRate        = ledgerJournalTable.ExchRate;
+        #            exchRateSecond  = ledgerJournalTable.ExchrateSecondary;
+        #            triangulation   = ledgerJournalTable.euroTriangulation;
+        #        }
+        #        else
+        #        {
+        #            ledgerJournalTrans.TransDate    = _transDate;
+        #            ledgerJournalTrans.CurrencyCode = currencyCode;
+        #
+        #            [triangulationResult,
+        #            exchRate,
+        #            exchRateSecond,
+        #            exchRateSecondTxt] = LedgerJournalEngine_Server::currencyModified(ledgerJournalTrans);
+        #
+        #            triangulation = Currency::unknownNoYes2Noyes(triangulationResult);
+        #        }
+        #    }
+        #    else
+        #    {
+        #        currencyCode                    = _custVendPaymProposalLine.CurrencyCode;
+        #        ledgerJournalTrans.TransDate    = _transDate;
+        #        ledgerJournalTrans.CurrencyCode = currencyCode;
+        #
+        #        // the exchange rates for the journal line from the company of the line, which in this case is the payment company
+        #        changecompany(_custVendPaymProposalLine.AccountNumCompany)
+        #        {
+        #            [triangulationResult,
+        #             exchRate,
+        #             exchRateSecond,
+        #             exchRateSecondTxt] = LedgerJournalEngine_Server::currencyModified(ledgerJournalTrans);
+        #
+        #            triangulation = Currency::unknownNoYes2Noyes(triangulationResult);
+        #        }
+        #    }
+        #
+        #    return [currencyCode, triangulation, exchRate, exchRateSecond];
+        #}
+      ENDSOURCE
+      SOURCE #getLedgerJournalTransInvoice
+        #protected InvoiceId getLedgerJournalTransInvoice(CustVendPaymProposalLine    _custVendPaymProposalLine)
+        #{
+        #    InvoiceId   invoiceId;
+        #
+        #    if (ledgerJournalTable.JournalType == LedgerJournalType::VendPaymRemittance ||
+        #        ledgerJournalTable.JournalType == LedgerJournalType::VendPromissoryNoteSettle )
+        #    {
+        #        invoiceId = _custVendPaymProposalLine.Invoice;
+        #    }
+        #
+        #    return invoiceId;
+        #}
+      ENDSOURCE
+      SOURCE #getLedgerJournalTransThirdPartyBankId
+        #protected BankAccountID getLedgerJournalTransThirdPartyBankId(
+        #    CustVendPaymProposalLine _custVendPaymProposalLine)
+        #{
+        #    BankAccountID   bankAccountID;
+        #
+        #    bankAccountID = _custVendPaymProposalLine.ThirdPartyBankAccountID;
+        #
+        #    if (!bankAccountID)
+        #    {
+        #        changecompany(_custVendPaymProposalLine.AccountNumCompany)
+        #        {
+        #            switch (_custVendPaymProposalLine.AccountType)
+        #            {
+        #                case ModuleCustVend::Cust :
+        #                    bankAccountID = CustTable::find(_custVendPaymProposalLine.AccountNum).BankAccount;
+        #                    break;
+        #
+        #                case ModuleCustVend::Vend :
+        #                    bankAccountID = VendTable::find(_custVendPaymProposalLine.AccountNum).BankAccount;
+        #                    break;
+        #            }
+        #        }
+        #    }
+        #
+        #    return bankAccountID;
+        #}
+      ENDSOURCE
+      SOURCE #getLedgerJournalTransTransDate
+        #protected TransDate getLedgerJournalTransTransDate(
+        #    CustVendPaymProposalLine    _custVendPaymProposalLine)
+        #{
+        #    TransDate   transDate;
+        #    #ISOCountryRegionCodes
+        #
+        #    if (SysCountryRegionCode::isLegalEntityInCountryRegion([#isoIT])
+        #        && paymProposal.parmPaymProposalCalcPaym().parmPaymOnDateFixed_IT()
+        #        && (ledgerJournalTable.JournalType      == LedgerJournalType::CustBillOfExchangeDraw
+        #            || ledgerJournalTable.JournalType   == LedgerJournalType::VendPromissoryNoteDraw))
+        #    {
+        #        transDate = paymProposal.parmPaymProposalCalcPaym().parmPaymDate_IT();
+        #    }
+        #    else
+        #    {
+        #        transDate = _custVendPaymProposalLine.PaymDate;
+        #    }
+        #
+        #    return transDate;
+        #}
+      ENDSOURCE
+      SOURCE #getPaymId
+        #protected PaymId getPaymId(CustVendPaymProposalLine _custVendPaymProposalLine)
+        #{
+        #    PaymId  paymId = _custVendPaymProposalLine.PaymId;
+        #
+        #    if (!paymId)
+        #    {
+        #        paymId = CustVendPaymIdCalc::construct(_custVendPaymProposalLine).calcPaymId();
+        #    }
+        #
+        #    return paymId;
+        #}
+      ENDSOURCE
+      SOURCE #getTransactionText
+        #protected TransactionTxt getTransactionText(
+        #    Voucher                     _voucher,
+        #    CustVendPaymProposalLine    _custVendPaymProposalLine)
+        #{
+        #    SpecTrans           specTrans;
+        #    CustVendTrans       custVendTrans;
+        #    CustVendTransOpen   custVendTransOpen;
+        #    CustVendTransStatic custVendTransStatic;
+        #    LedgerTransTxt      ledgerTransTxt;
+        #    TransactionTxt      transactionTxt;
+        #
+        #    custVendTransStatic = _custVendPaymProposalLine.custVendTransStatic();
+        #    custVendTrans     = custVendTransStatic.custVendTrans();
+        #    custVendTransOpen = custVendTransStatic.custVendTransOpen();
+        #
+        #    select firstonly RecId from specTrans
+        #        where specTrans.SpecTableId == _custVendPaymProposalLine.TableId
+        #           && specTrans.SpecRecId   == _custVendPaymProposalLine.RecId
+        #        join RecId from custVendTransOpen
+        #            where custVendTransOpen.TableId == specTrans.RefTableId
+        #               && custVendTransOpen.RecId   == specTrans.RefRecId
+        #        join DocumentNum, Invoice from custVendTrans
+        #            where custVendTrans.RecId == custVendTransOpen.RefRecId;
+        #
+        #    switch(ledgerJournalTable.JournalType)
+        #    {
+        #        case LedgerJournalType::CustPayment:
+        #            ledgerTransTxt = LedgerTransTxt::CustPaymentCust;
+        #            break;
+        #
+        #        case LedgerJournalType::CustPaymRemittance:
+        #        case LedgerJournalType::CustBillOfExchangeAccept:
+        #        case LedgerJournalType::CustBillOfExchangeDraw:
+        #        case LedgerJournalType::CustBillOfExchangeProtest:
+        #        case LedgerJournalType::CustBillOfExchangeRedraw:
+        #        case LedgerJournalType::CustBillOfExchangeSettle:
+        #            ledgerTransTxt = LedgerTransTxt::CustBillOfExchangeCust;
+        #            break;
+        #
+        #        case LedgerJournalType::Payment:
+        #            ledgerTransTxt = LedgerTransTxt::VendPaymentVend;
+        #            break;
+        #
+        #        case LedgerJournalType::VendPaymRemittance:
+        #        case LedgerJournalType::VendPromissoryNoteDraw:
+        #        case LedgerJournalType::VendPromissoryNoteRedraw:
+        #        case LedgerJournalType::VendPromissoryNoteSettle:
+        #            ledgerTransTxt = LedgerTransTxt::VendPromissoryNoteVend;
+        #            break;
+        #
+        #        default:
+        #            switch (custVendTransStatic.moduleCustVend())
+        #            {
+        #                case ModuleCustVend::Cust :
+        #                    ledgerTransTxt = LedgerTransTxt::CustPaymentCust;
+        #                    break;
+        #
+        #                case ModuleCustVend::Vend :
+        #                    ledgerTransTxt = LedgerTransTxt::VendPaymentVend;
+        #                    break;
+        #
+        #                default :
+        #                    throw error(Error::wrongUseOfFunction(funcName()));
+        #            }
+        #            break;
+        #    }
+        #
+        #    transactionTxt = new TransactionTxt(ledgerTransTxt);
+        #    transactionTxt.setVoucher(_voucher);
+        #    transactionTxt.setKey1(_custVendPaymProposalLine.AccountNum);
+        #    transactionTxt.setFormLetter(custVendTrans.DocumentNum ? custVendTrans.DocumentNum : custVendTrans.Invoice);
+        #
+        #    transactionTxt.setKey2(
+        #        _custVendPaymProposalLine.custVendTable().name());
+        #
+        #    return transactionTxt;
+        #}
+      ENDSOURCE
+      SOURCE #getVoucherNum
+        #protected Voucher getVoucherNum(CustVendPaymProposalLine _custVendPaymProposalLine)
+        #{
+        #    LedgerJournalTrans  ledgerJournalTrans;
+        #    Voucher             voucher;
+        #
+        #    if (newVoucher == NewVoucher::OneVoucher)
+        #    {
+        #        select firstonly Voucher from ledgerJournalTrans
+        #            where ledgerJournalTrans.JournalNum == ledgerJournalTable.JournalNum;
+        #
+        #        if (ledgerJournalTrans)
+        #        {
+        #            voucher = ledgerJournalTrans.Voucher;
+        #        }
+        #    }
+        #
+        #    if (!voucher)
+        #        voucher = new JournalVoucherNum(ledgerJournalTableData).getNew(false);
+        #
+        #    return voucher;
+        #}
+      ENDSOURCE
+      SOURCE #initLedgerJournalTransFromPaymLine
+        #/// <summary>
+        #///    Initializes the current record in the <c>LedgerJournalTrans</c> table, depending on the data in the
+        #///    specified record in the <c>CustVendPaymProposalLine</c> table.
+        #/// </summary>
+        #/// <param name="_ledgerJournalTrans">
+        #///    The record in the <c>LedgerJournalTrans</c> table to initialize.
+        #/// </param>
+        #/// <param name="_custVendPaymProposalLine">
+        #///    The record in the <c>LedgerJournalTrans</c> table to which to copy values to the record to
+        #///    initialize.
+        #/// </param>
+        #/// <returns>
+        #///    The record in the <c>LedgerJournalTrans</c> table that is initialized.
+        #/// </returns>
+        #protected LedgerJournalTrans initLedgerJournalTransFromPaymLine(
+        #    LedgerJournalTrans          _ledgerJournalTrans,
+        #    CustVendPaymProposalLine    _custVendPaymProposalLine)
+        #{
+        #    LedgerJournalTrans      ledgerJournalTrans  = _ledgerJournalTrans;
+        #    CustVendTable           custVendTable       = _custVendPaymProposalLine.custVendTable();
+        #    LedgerJournalEngine     ledgerJournalEngine;
+        #    #ISOCountryRegionCodes
+        #
+        #    if (!ledgerJournalTable)
+        #    {
+        #        throw error("@SYS26538");
+        #    }
+        #
+        #    ledgerJournalTrans.initValue();
+        #
+        #    ledgerJournalTrans.JournalNum                   = _custVendPaymProposalLine.JournalId;
+        #    ledgerJournalTrans.Approved                     = NoYes::Yes;
+        #    ledgerJournalTrans.Approver                     = hcmWorkerRecId;
+        #    ledgerJournalTrans.SettleVoucher                = SettlementType::SelectedTransact;
+        #    ledgerJournalTrans.DocumentNum                  = ledgerJournalTable.DocumentNum;
+        #    ledgerJournalTrans.TransDate                    = this.getLedgerJournalTransTransDate(_custVendPaymProposalLine);
+        #    ledgerJournalTrans.DocumentDate                 = ledgerJournalTrans.TransDate;
+        #    ledgerJournalTrans.Due                          = _custVendPaymProposalLine.maxDueDate();
+        #    ledgerJournalTrans.BankRemittanceType           = _custVendPaymProposalLine.BankRemittanceType;
+        #    ledgerJournalTrans.BankAccountId                = _custVendPaymProposalLine.CompanyBankAccountIdNegInst;
+        #    ledgerJournalTrans.CustVendBankAccountId        = this.getLedgerJournalTransThirdPartyBankId(_custVendPaymProposalLine);
+        #    ledgerJournalTrans.BankCentralBankPurposeCode   = custVendTable.BankCentralBankPurposeCode;
+        #    ledgerJournalTrans.BankCentralBankPurposeText   = custVendTable.BankCentralBankPurposeText;
+        #    ledgerJournalTrans.BankTransType                = _custVendPaymProposalLine.paymModeTable().BankTransType;
+        #    ledgerJournalTrans.PaymId                       = this.getPaymId(_custVendPaymProposalLine);
+        #    if (paymProposal.parmIncludeInvoicesFromOtherCompanies())
+        #    {
+        #       // posting profile is intentionally transferred as empty when combining invoices from multiple companies
+        #       _custVendPaymProposalLine.PostingProfile             = '';
+        #    }
+        #    else
+        #    {
+        #        ledgerJournalTrans.PostingProfile               = _custVendPaymProposalLine.PostingProfile;
+        #    }
+        #    ledgerJournalTrans.PaymMode                     = _custVendPaymProposalLine.PaymMode;
+        #    ledgerJournalTrans.PaymSpec                     = _custVendPaymProposalLine.PaymSpec;
+        #
+        #    if (VendParameters::find().ConfirmingInvoices)
+        #    {
+        #        ledgerJournalTrans.Invoice                  = this.getLedgerJournalTransInvoice(_custVendPaymProposalLine);
+        #    }
+        #
+        #    ledgerJournalTrans.TransactionType              = LedgerTransType::Payment;
+        #
+        #    switch (_custVendPaymProposalLine.AccountType)
+        #    {
+        #        case ModuleCustVend::Cust :
+        #            ledgerJournalTrans.AccountType      = LedgerJournalACType::Cust;
+        #            if (SysCountryRegionCode::isLegalEntityInCountryRegion([#isoNO]))
+        #            {
+        #                ledgerJournalTrans.BankCentralBankPurposeCode = _custVendPaymProposalLine.BankCentralBankPurposeCode;
+        #                ledgerJournalTrans.BankCentralBankPurposeText = _custVendPaymProposalLine.BankCentralBankPurposeText;
+        #            }
+        #
+        #            if (ledgerJournalTable.JournalType == LedgerJournalType::CustPaymRemittance)
+        #            {
+        #                if (!ledgerJournalTrans.DocumentNum)
+        #                {
+        #                    ledgerJournalTrans.DocumentNum  =  CustTrans::find(CustTransOpen::find(_custVendPaymProposalLine.TransOpenRecId).RefRecId).DocumentNum;
+        #                }
+        #                if (!ledgerJournalTrans.CustVendBankAccountId)
+        #                {
+        #                    ledgerJournalTrans.CustVendBankAccountId  = CustTrans::find(CustTransOpen::find(_custVendPaymProposalLine.TransOpenRecId).RefRecId).ThirdPartyBankAccountId;
+        #                }
+        #            }
+        #
+        #            if (SysCountryRegionCode::isLegalEntityInCountryRegion([#isoTH, #isoSA, #isoGB, #isoIE]))
+        #            {
+        #                ledgerJournalTrans.TaxWithholdCalculate_TH  = NoYes::Yes;
+        #                ledgerJournalTrans.TaxWithholdGroup         = CustTable::find(custVendTable.AccountNum).TaxWithholdGroup_TH;
+        #            }
+        #            break;
+        #
+        #        case ModuleCustVend::Vend :
+        #            ledgerJournalTrans.AccountType        = LedgerJournalACType::Vend;
+        #            ledgerJournalTrans.TaxWithholdGroup   = VendTable::find(custVendTable.AccountNum).TaxWithholdGroup;
+        #            ledgerJournalTrans.RemittanceLocation = _custVendPaymProposalLine.RemittanceLocation;
+        #            if (SysCountryRegionCode::isLegalEntityInCountryRegion([#isoNO]))
+        #            {
+        #                ledgerJournalTrans.BankCentralBankPurposeCode = _custVendPaymProposalLine.BankCentralBankPurposeCode;
+        #                ledgerJournalTrans.BankCentralBankPurposeText = _custVendPaymProposalLine.BankCentralBankPurposeText;
+        #            }
+        #            break;
+        #    }
+        #
+        #    ledgerJournalTrans.Company = _custVendPaymProposalLine.AccountNumCompany;
+        #    ledgerJournalTrans.parmAccount(_custVendPaymProposalLine.AccountNum);
+        #    if (_custVendPaymProposalLine.PaymAccountType == LedgerJournalACType::Ledger)
+        #    {
+        #        ledgerJournalTrans.OffsetAccountType = LedgerJournalACType::Ledger;
+        #        ledgerJournalTrans.parmOffsetLedgerDimension(_custVendPaymProposalLine.parmLedgerDimension());
+        #    }
+        #    else
+        #    {
+        #        ledgerJournalTrans.parmOffsetAccount(_custVendPaymProposalLine.parmPaymAccount(), _custVendPaymProposalLine.PaymAccountType);
+        #    }
+        #
+        #    [ledgerJournalTrans.CurrencyCode,
+        #     ledgerJournalTrans.Triangulation,
+        #     ledgerJournalTrans.ExchRate,
+        #     ledgerJournalTrans.ExchRateSecond]     = this.getLedgerJournalTransCurrency(_custVendPaymProposalLine,
+        #                                                                                 ledgerJournalTrans.TransDate);
+        #
+        #    if (!ledgerJournalTrans.Voucher)
+        #    {
+        #        ledgerJournalTrans.Voucher = this.getVoucherNum(_custVendPaymProposalLine);
+        #    }
+        #
+        #    ledgerJournalTrans.Txt          = this.getTransactionText(ledgerJournalTrans.Voucher, _custVendPaymProposalLine).txt();
+        #    ledgerJournalTrans.PaymentNotes = _custVendPaymProposalLine.paymNote();
+        #
+        #    this.setLedgerJournalTransAmount(ledgerJournalTrans, _custVendPaymProposalLine);
+        #
+        #    // set the default dimension
+        #    ledgerJournalEngine = LedgerJournalEngine::construct(ledgerJournalTable.JournalType);
+        #    ledgerJournalEngine.initDefaultDimension(ledgerJournalTrans);
+        #    ledgerJournalEngine.initOffsetDefaultDimension(ledgerJournalTrans);
+        #
+        #    // For norwegian features, the dimension field is taken from paym proposal line
+        #    if (SysCountryRegionCode::isLegalEntityInCountryRegion([#isoNO]))
+        #    {
+        #        ledgerJournalTrans.DefaultDimension = _custVendPaymProposalLine.DefaultDimension;
+        #    }
+        #
+        #    ledgerJournalTrans.write();
+        #
+        #    this.moveSpecTrans(_custVendPaymProposalLine, ledgerJournalTrans);
+        #
+        #    if (ledgerJournalTrans.AccountType == LedgerJournalACType::Bank
+        #        && (!BankAccountTable::isActive(ledgerJournalTrans.parmAccount(), ledgerJournalTrans.TransDate)))
+        #    {
+        #        ledgerJournalTrans.parmAccount('', LedgerJournalACType::Bank);
+        #    }
+        #
+        #    if (ledgerJournalTrans.OffsetAccountType == LedgerJournalACType::Bank
+        #        && (!BankAccountTable::isActive(ledgerJournalTrans.parmOffsetAccount(), ledgerJournalTrans.TransDate)))
+        #    {
+        #        ledgerJournalTrans.parmOffsetAccount('', LedgerJournalACType::Bank);
+        #    }
+        #
+        #
+        #    return ledgerJournalTrans;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #mixedPaymMode
+        #/// <summary>
+        #///    Determines whether the journal associated with the payment proposal holds lines with different
+        #///    payment methods.
+        #/// </summary>
+        #/// <returns>
+        #///    false if the journal only holds lines with the same unique payment method; otherwise, true.
+        #/// </returns>
+        #protected boolean mixedPaymMode()
+        #{
+        #    Counter             counter;
+        #    LedgerJournalTrans  ledgerJournalTrans;
+        #
+        #    while select PaymMode from ledgerJournalTrans group by PaymMode
+        #        where ledgerJournalTrans.JournalNum == paymProposal.ledgerJournalId()
+        #    {
+        #        counter++;
+        #        if (counter > 1)
+        #            return true;
+        #    }
+        #
+        #    return false;
+        #}
+      ENDSOURCE
+      SOURCE #moveSpecTrans
+        #protected void moveSpecTrans(
+        #    CustVendPaymProposalLine    _custVendPaymProposalLine,
+        #    LedgerJournalTrans          _ledgerJournalTrans)
+        #{
+        #    SpecTrans   specTrans;
+        #
+        #     // Move the settlement from the payment propsal line to the journal line.
+        #     update_recordset specTrans
+        #         setting SpecCompany = _ledgerJournalTrans.DataAreaId,
+        #                 SpecTableId = tableNum(LedgerJournalTrans),
+        #                 SpecRecId   = _ledgerJournalTrans.RecId
+        #         where specTrans.SpecCompany == _custVendPaymProposalLine.DataAreaId
+        #            && specTrans.SpecTableId == _custVendPaymProposalLine.TableId
+        #            && specTrans.SpecRecId   == _custVendPaymProposalLine.RecId;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #protected void new()
+        #{
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #pack
+        #public container pack()
+        #{
+        #    return [#CurrentVersion,#CurrentList];
+        #}
+      ENDSOURCE
+      SOURCE #parmLedgerJournalId
+        #private LedgerJournalId parmLedgerJournalId(LedgerJournalId _ledgerJournalId = ledgerJournalId)
+        #{
+        #    ledgerJournalId = _ledgerJournalId;
+        #
+        #    return ledgerJournalId;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #parmPaymProposal
+        #public CustVendPaymProposal parmPaymProposal(CustVendPaymProposal _paymProposal = paymProposal)
+        #{
+        #    paymProposal = _paymProposal;
+        #
+        #    if (!prmisDefault(_paymProposal))
+        #    {
+        #        ledgerJournalId = paymProposal.ledgerJournalId();
+        #    }
+        #
+        #    return paymProposal;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #removeUnmarkedJournalLines
+        #protected void removeUnmarkedJournalLines()
+        #{
+        #    CustVendPaymProposalLine    paymProposalLine;
+        #    SpecTrans                   specTrans;
+        #    LedgerJournalTrans          ledgerJournalTrans;
+        #
+        #    ttsbegin;
+        #
+        #    while select LedgerJournalTransRecId from paymProposalLine
+        #        where paymProposalLine.JournalId                == ledgerJournalId
+        #           && paymProposalLine.LedgerJournalTransRecId  != 0
+        #    notexists join specTrans
+        #        where specTrans.SpecCompany == paymProposalLine.DataAreaId
+        #           && specTrans.SpecTableId == paymProposalLine.TableId
+        #           && specTrans.SpecRecId   == paymProposalLine.RecId
+        #    {
+        #        delete_from ledgerJournalTrans
+        #            where ledgerJournalTrans.RecId == paymProposalLine.LedgerJournalTransRecId;
+        #    }
+        #
+        #    ttscommit;
+        #}
+      ENDSOURCE
+      SOURCE #removeUnwantedJournalLines
+        #protected void removeUnwantedJournalLines()
+        #{
+        #    ttsbegin;
+        #
+        #    this.removeUnmarkedJournalLines();
+        #
+        #    ttscommit;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #run
+        #/// <summary>
+        #///    Contains the code that does the actual job of the class.
+        #/// </summary>
+        #public void run()
+        #{
+        #    #OCCRetryCount
+        #
+        #    if (! this.validate())
+        #        throw error("");
+        #
+        #    try
+        #    {
+        #        this.transferProposal();
+        #
+        #        if ((paymProposal.custVendTransStatic().moduleCustVend() == ModuleCustVend::Cust && CustParameters::find().MixedPayment) ||
+        #            (paymProposal.custVendTransStatic().moduleCustVend() == ModuleCustVend::Vend && VendParameters::find().MixedPayment) &&
+        #            this.mixedPaymMode())
+        #        {
+        #            info("@SYS73904");
+        #        }
+        #    }
+        #
+        #    catch (Exception::Deadlock)
+        #    {
+        #        retry;
+        #    }
+        #    catch (Exception::UpdateConflict)
+        #    {
+        #        if (appl.ttsLevel() == 0)
+        #        {
+        #            if (xSession::currentRetryCount() >= #RetryNum)
+        #            {
+        #                throw Exception::UpdateConflictNotRecovered;
+        #            }
+        #            else
+        #            {
+        #                retry;
+        #            }
+        #        }
+        #        else
+        #        {
+        #            throw Exception::UpdateConflict;
+        #        }
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #setLedgerJournalTransAmount
+        #protected void setLedgerJournalTransAmount(
+        #    LedgerJournalTrans          _ledgerJournalTrans,
+        #    CustVendPaymProposalLine    _custVendPaymProposalLine)
+        #{
+        #    AmountCur   specAmountCur;
+        #
+        #    // Note: previously the currency code and exchange rate date came from _ledgerJournalTrans.CurrencyCode
+        #    // and _ledgerJournalTrans.TransDate. Modified this process to use all information from the proposal line to
+        #    // ensure any changes made to the proposal line are honored.
+        #    specAmountCur = SpecTransManager::getTotalSettleAmountForSpecReference(_custVendPaymProposalLine.DataAreaId,
+        #                                                                           _custVendPaymProposalLine.TableId,
+        #                                                                           _custVendPaymProposalLine.RecId,
+        #                                                                           _custVendPaymProposalLine.CurrencyCode,
+        #                                                                           _custVendPaymProposalLine.AccountNumCompany,
+        #                                                                           _custVendPaymProposalLine.PaymDate);
+        #    if (specAmountCur > 0)
+        #    {
+        #        _ledgerJournalTrans.AmountCurCredit = specAmountCur;
+        #        _ledgerJournalTrans.AmountCurDebit = 0;
+        #    }
+        #    else
+        #    {
+        #        _ledgerJournalTrans.AmountCurDebit = abs(specAmountCur);
+        #        _ledgerJournalTrans.AmountCurCredit = 0;
+        #    }
+        #}
+      ENDSOURCE
+      SOURCE #transferProposal
+        #/// <summary>
+        #///    Performs the actual transfer.
+        #/// </summary>
+        #public void transferProposal()
+        #{
+        #    #AviFiles
+        #    CustVendPaymProposalLine    custVendPaymProposalLine;
+        #    SpecTrans                   specTrans;
+        #
+        #    ledgerJournalTable      = LedgerJournalTable::find(ledgerJournalId);
+        #    newVoucher              = ledgerJournalTable.ledgerJournalName().NewVoucher;
+        #    ledgerJournalTableData  = JournalTableData::newTable(ledgerJournalTable);
+        #    hcmWorkerRecId          = HcmWorker::userId2Worker(curUserId());
+        #
+        #    select count(RecId) from custVendPaymProposalLine
+        #        where custVendPaymProposalLine.JournalId == paymProposal.ledgerJournalId()
+        #    exists join specTrans
+        #        where specTrans.SpecCompany == custVendPaymProposalLine.DataAreaId
+        #           && specTrans.SpecTableId == custVendPaymProposalLine.TableId
+        #           && specTrans.SpecRecId   == custVendPaymProposalLine.RecId;
+        #
+        #    this.progressInit("@SYS88952", custVendPaymProposalLine.RecId, #AviUpdate);
+        #    progress.setText("@SYS68312");
+        #
+        #
+        #    // Must be outside the tts below, otherwise deadlocks will occur in the NumberSequence.
+        #    this.removeUnwantedJournalLines();
+        #
+        #    ttsbegin;
+        #
+        #    while select custVendPaymProposalLine
+        #        where custVendPaymProposalLine.JournalId == paymProposal.ledgerJournalId()
+        #    exists join specTrans
+        #        where specTrans.SpecCompany == custVendPaymProposalLine.DataAreaId
+        #           && specTrans.SpecTableId == custVendPaymProposalLine.TableId
+        #           && specTrans.SpecRecId   == custVendPaymProposalLine.RecId
+        #    {
+        #        progress.incCount();
+        #        this.transferProposalLineToJournal(custVendPaymProposalLine);
+        #    }
+        #
+        #    paymProposal.clear();
+        #
+        #    ttscommit;
+        #}
+      ENDSOURCE
+      SOURCE #transferProposalLineToJournal
+        #protected LedgerJournalTrans transferProposalLineToJournal(CustVendPaymProposalLine    _custVendPaymProposalLine)
+        #{
+        #    VendTable           vendTable;
+        #    LedgerJournalTrans  ledgerJournalTrans;
+        #    TaxWithhold         taxWithhold;
+        #    AmountCur           specAmountCur;
+        #    #ISOCountryRegionCodes
+        #
+        #    if (_custVendPaymProposalLine.LedgerJournalTransRecId)
+        #    {
+        #        ledgerJournalTrans = LedgerJournalTrans::findRecId(_custVendPaymProposalLine.LedgerJournalTransRecId, true);
+        #        this.updateLedgerJournalTransFromPaymLine(ledgerJournalTrans, _custVendPaymProposalLine);
+        #    }
+        #    else
+        #    {
+        #        ledgerJournalTrans = this.initLedgerJournalTransFromPaymLine(ledgerJournalTrans, _custVendPaymProposalLine);
+        #    }
+        #
+        #    if (ledgerJournalTrans.TaxWithholdGroup)
+        #    {
+        #        if (SysCountryRegionCode::isLegalEntityInCountryRegion([#isoTH, #isoSA, #isoGB, #isoIE]))
+        #        {
+        #            taxWithhold = TaxWithhold::construct(ledgerJournalTrans);
+        #        }
+        #        else
+        #        {
+        #            taxWithhold = new TaxWithhold(ledgerJournalTrans);
+        #        }
+        #
+        #        taxWithhold.createAllTaxWithholdTrans();
+        #
+        #        specAmountCur = SpecTransManager::getTotalSettleAmountForSpecReference(ledgerJournalTrans.DataAreaId,
+        #                                                                               ledgerJournalTrans.TableId,
+        #                                                                               ledgerJournalTrans.RecId,
+        #                                                                               ledgerJournalTrans.CurrencyCode,
+        #                                                                               ledgerJournalTrans.Company,
+        #                                                                               ledgerJournalTrans.TransDate);
+        #        if (specAmountCur > 0)
+        #        {
+        #            ledgerJournalTrans.AmountCurCredit = specAmountCur;
+        #            ledgerJournalTrans.AmountCurDebit = 0;
+        #        }
+        #        else
+        #        {
+        #            ledgerJournalTrans.AmountCurDebit = abs(specAmountCur);
+        #            ledgerJournalTrans.AmountCurCredit = 0;
+        #        }
+        #
+        #        ledgerJournalTrans.update();
+        #    }
+        #
+        #    if (ledgerJournalTrans.AccountType == LedgerJournalACType::Vend
+        #            && !(ledgerJournalTrans.Tax1099Fields))
+        #    {
+        #        vendTable = VendTable::findByCompany(_custVendPaymProposalLine.AccountNumCompany, _custVendPaymProposalLine.AccountNum);
+        #
+        #        Debug::assert(vendTable.RecId != 0);
+        #
+        #        if (vendTable.Tax1099Reports)
+        #        {
+        #            ledgerJournalTrans.Tax1099Fields = vendTable.Tax1099Fields;
+        #            ledgerJournalTrans.update();
+        #        }
+        #    }
+        #
+        #    if (ledgerJournalTrans.AccountType == LedgerJournalACType::Cust)
+        #    {
+        #        this.updateMarkedInvoice(ledgerJournalTrans);
+        #        ledgerJournalTrans.update();
+        #    }
+        #
+        #    switch (ledgerJournalTrans.AccountType)
+        #    {
+        #        case LedgerJournalACType::Cust:
+        #            CustVendPaymJournalFee::createJournalFeeCust(ledgerJournalTrans);
+        #            break;
+        #        case LedgerJournalACType::Vend:
+        #            CustVendPaymJournalFee::createJournalFeeVend(ledgerJournalTrans);
+        #            break;
+        #    }
+        #
+        #    ledgerJournalTrans.markedForSettlementWarnMixedDueDate();
+        #
+        #    return ledgerJournalTrans;
+        #}
+      ENDSOURCE
+      SOURCE #unpack
+        #public boolean unpack(container packedClass)
+        #{
+        #    Version version = RunBase::getVersion(packedClass);
+        #
+        #    switch (version)
+        #    {
+        #        case #CurrentVersion:
+        #            [version,#CurrentList] = packedClass;
+        #            break;
+        #        default:
+        #            return false;
+        #    }
+        #
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #updateLedgerJournalTransFromPaymLine
+        #protected LedgerJournalTrans updateLedgerJournalTransFromPaymLine(
+        #    LedgerJournalTrans          _ledgerJournalTrans,
+        #    CustVendPaymProposalLine    _custVendPaymProposalLine)
+        #{
+        #    LedgerJournalTrans      ledgerJournalTrans      = _ledgerJournalTrans;
+        #    SpecTrans               specTrans;
+        #    LedgerJournalEngine     ledgerJournalEngine;
+        #    CustVendPaymJournalFee  custVendPaymJournalFee  = null;
+        #
+        #    // Delete old markings. They'll be replaced by the ones from the payment proposal
+        #    delete_from specTrans
+        #        where specTrans.SpecCompany == ledgerJournalTrans.DataAreaId
+        #           && specTrans.SpecTableId == ledgerJournalTrans.TableId
+        #           && specTrans.SpecRecId   == ledgerJournalTrans.RecId;
+        #
+        #    this.setLedgerJournalTransAmount(ledgerJournalTrans, _custVendPaymProposalLine);
+        #
+        #    ledgerJournalTrans.SettleVoucher    = SettlementType::SelectedTransact;
+        #    ledgerJournalTrans.PaymentNotes     = _custVendPaymProposalLine.paymNote();      // Update payment notes
+        #
+        #    this.moveSpecTrans(_custVendPaymProposalLine, ledgerJournalTrans);
+        #
+        #    // Update from LedgerJournalEngine
+        #    ledgerJournalEngine = LedgerJournalEngine::construct(ledgerJournalTable.JournalType);
+        #    ledgerJournalEngine.settleTransUpdate(_ledgerJournalTrans);
+        #
+        #    // Update payment fees
+        #    ledgerJournalEngine.updatePaymentFee(ledgerJournalTrans, custVendPaymJournalFee);
+        #
+        #    return ledgerJournalTrans;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #updateMarkedInvoice
+        #/// <summary>
+        #///    Updates the marked invoice of the transferred payment.
+        #/// </summary>
+        #/// <param name="_ledgerJournalTrans">
+        #///    The transferred payment.
+        #/// </param>
+        #/// <remarks>
+        #///    The marked invoice is updated during payment proposal creation or edit. The marked invoice is
+        #///    updated with the invoice number, a blank, or a special indicator when there are multiple
+        #///    transactions or a non-invoice transaction is being paid.
+        #/// </remarks>
+        #protected void updateMarkedInvoice(LedgerJournalTrans _ledgerJournalTrans)
+        #{
+        #    int specCount;
+        #
+        #    // Find count of SpecTrans for this LedgrJournalTrans
+        #    specCount = SpecTrans::getSpecTransCount(
+        #        _ledgerJournalTrans.company(),
+        #        tableNum(LedgerJournalTrans),
+        #        _ledgerJournalTrans.RecId);
+        #
+        #    _ledgerJournalTrans.updateMarkedInvoice(specCount);
+        #}
+      ENDSOURCE
+      SOURCE #validate
+        #public boolean validate(Object _calledFrom = null)
+        #{
+        #    boolean ret = super();
+        #
+        #    if (!ledgerJournalId)
+        #    {
+        #        ret = checkFailed("@SYS19282");
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static CustVendPaymProposalTransferToJournal construct()
+        #{
+        #    return new CustVendPaymProposalTransferToJournal();
+        #}
+        #
+      ENDSOURCE
+      SOURCE #description
+        #public static client server ClassDescription description()
+        #{
+        #    return "@SYS88952";
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args args)
+        #{
+        #    CustVendPaymProposalTransferToJournal   custVendPaymProposalTransferToJournal;
+        #    CustVendPaymProposal                    paymProposal;
+        #
+        #    custVendPaymProposalTransferToJournal = CustVendPaymProposalTransferToJournal::construct();
+        #
+        #    if (args && args.parmObject())
+        #    {
+        #        paymProposal = args.parmObject();
+        #        custVendPaymProposalTransferToJournal.getLast();
+        #        custVendPaymProposalTransferToJournal.parmLedgerJournalId(paymProposal.ledgerJournalId());
+        #    }
+        #
+        #    if (custVendPaymProposalTransferToJournal.prompt())
+        #    {
+        #        custVendPaymProposalTransferToJournal.parmPaymProposal(paymProposal);
+        #        custVendPaymProposalTransferToJournal.run();
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: TransactionTxt unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #TransactionTxt
+    PROPERTIES
+      Name                #TransactionTxt
+      Origin              #{2D0E0259-0000-1000-6731-002901FF2D86}
+      LegacyId            #601
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class TransactionTxt
+        #{
+        #    LedgerTransTxt  type;
+        #    LanguageId      languageId;
+        #    TransDate       transDate;
+        #    str 20          formLetterNum;
+        #    Voucher         voucherNum;
+        #    str 20          key1;
+        #    str 20          key2;
+        #    str 20          key3;
+        #    str 20          key4;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #void new(LedgerTransTxt _type       = 0,
+        #         LanguageId     _languageId = CompanyInfo::languageId(),
+        #         date           _date       = systemdateget(),
+        #         str 20         _formLetter = '',
+        #         Voucher        _voucher    = '',
+        #         str 20         _key1       = '',
+        #         str 20         _key2       = '',
+        #         str 20         _key3       = '')
+        #{
+        #    type            = _type;
+        #    languageId      = _languageId;
+        #    transDate       = _date;
+        #    formLetterNum   = _formLetter;
+        #    voucherNum      = _voucher;
+        #    key1            = _key1;
+        #    key2            = _key2;
+        #    key3            = _key3;
+        #}
+      ENDSOURCE
+      SOURCE #setDate
+        #void setDate(date _date)
+        #{
+        #    ;
+        #    transDate = _date;
+        #}
+      ENDSOURCE
+      SOURCE #setFormLetter
+        #void setFormLetter(str 20 _formLetter)
+        #{
+        #    ;
+        #    formLetterNum = _formLetter;
+        #}
+      ENDSOURCE
+      SOURCE #setKey1
+        #void setKey1(str 20 _key1)
+        #{
+        #    ;
+        #    key1   = _key1;
+        #}
+      ENDSOURCE
+      SOURCE #setKey2
+        #void setKey2(str 20 _key2)
+        #{
+        #    ;
+        #    key2   = _key2;
+        #}
+      ENDSOURCE
+      SOURCE #setKey3
+        #void setKey3(str 20 _key3)
+        #{
+        #    ;
+        #    key3   = _key3;
+        #}
+      ENDSOURCE
+      SOURCE #setKey4
+        #void setKey4(str 20 _key4)
+        #{
+        #    key4 = _key4;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #setLanguage
+        #void setLanguage(LanguageId _languageId)
+        #{
+        #    ;
+        #    languageId = _languageId;
+        #}
+      ENDSOURCE
+      SOURCE #setType
+        #void setType(LedgerTransTxt _type)
+        #{
+        #    ;
+        #    type = _type;
+        #}
+      ENDSOURCE
+      SOURCE #setVoucher
+        #void setVoucher(Voucher _voucher)
+        #{
+        #    ;
+        #    voucherNum = _voucher;
+        #}
+      ENDSOURCE
+      SOURCE #txt
+        #TransTxt txt(TransTxt   _txt = '')
+        #{
+        #    TransactTxt     transactTxt;
+        #    TransTxt        txt = _txt;
+        #
+        #    if (! txt)
+        #    {
+        #        select firstonly transactTxt
+        #            where transactTxt.TransactionType == type           &&
+        #                  transactTxt.LanguageId      == languageId;
+        #
+        #        if (! transactTxt && languageId != CompanyInfo::languageId())
+        #        {
+        #            select firstonly transactTxt
+        #                where transactTxt.TransactionType == type           &&
+        #                      transactTxt.LanguageId      == CompanyInfo::languageId();
+        #
+        #        }
+        #
+        #        if (! transactTxt)
+        #        {
+        #            select firstonly transactTxt
+        #                where transactTxt.TransactionType == type;
+        #        }
+        #
+        #        if (! transactTxt.Txt)
+        #        {
+        #            return '';
+        #        }
+        #
+        #        txt = transactTxt.Txt;
+        #    }
+        #
+        #    return strFmt(
+        #        txt,
+        #        date2StrUsr(transDate, DateFlags::FormatAll),
+        #        formLetterNum,
+        #        voucherNum,
+        #        key1,
+        #        key2,
+        #        key3,
+        #        key4);
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_06_TransText unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_06_TransText
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_06_TransText
+    Origin              #{AFCD9ECF-22B9-4520-BFB8-C10A5B3F5F3F}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 3287
+      NODETYPE 329
+      NAME #CustVendPaymProposalTransferToJournal
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 601
+      NODETYPE 329
+      NAME #TransactionTxt
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

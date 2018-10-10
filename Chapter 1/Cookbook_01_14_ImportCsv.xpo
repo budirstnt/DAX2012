@@ -1,0 +1,74 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: ReadCommaFile unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #ReadCommaFile
+    PROPERTIES
+      Name                #ReadCommaFile
+      Origin              #{730B3A9D-9DDA-44FE-8632-177EA94C3DB3}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class ReadCommaFile
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static client void main(Args _args)
+        #{
+        #    CommaTextIo         file;
+        #    container           line;
+        #    #define.filename(@'C:\Temp\accounts.csv')
+        #    #File
+        #
+        #    file = new CommaTextIo(#filename, #io_read);
+        #
+        #    if (!file || file.status() != IO_Status::Ok)
+        #    {
+        #        throw error("File cannot be opened.");
+        #    }
+        #
+        #    line = file.read();
+        #
+        #    while (file.status() == IO_Status::Ok)
+        #    {
+        #        info(con2Str(line, ' - '));
+        #        line = file.read();
+        #    }
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_14_ImportCsv unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_14_ImportCsv
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_14_ImportCsv
+    Origin              #{81259FBF-2F03-4684-9CCC-363C5C0341E7}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023867
+      NODETYPE 329
+      NAME #ReadCommaFile
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

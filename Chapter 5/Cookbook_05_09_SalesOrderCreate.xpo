@@ -1,0 +1,75 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: SalesOrderCreate unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #SalesOrderCreate
+    #static void SalesOrderCreate(Args _args)
+    #{
+    #    NumberSeq  numberSeq;
+    #    SalesTable salesTable;
+    #    SalesLine  salesLine;
+    #
+    #    ttsBegin;
+    #
+    #    numberSeq = NumberSeq::newGetNum(
+    #        SalesParameters::numRefSalesId());
+    #    numberSeq.used();
+    #
+    #    salesTable.SalesId = numberSeq.num();
+    #    salesTable.initValue();
+    #    salesTable.CustAccount = '1101';
+    #    salesTable.initFromCustTable();
+    #
+    #    if (!salesTable.validateWrite())
+    #    {
+    #        throw Exception::Error;
+    #    }
+    #
+    #    salesTable.insert();
+    #
+    #    salesLine.SalesId = salesTable.SalesId;
+    #    salesLine.ItemId  = '1205';
+    #
+    #    salesLine.createLine(true, true, true, true, true, true);
+    #
+    #    ttsCommit;
+    #
+    #    info(strFmt(
+    #        "Sales order '%1' has been created", salesTable.SalesId));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{81718DFE-4F97-4266-8241-75C794590AF8}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_09_SalesOrderCreate unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_09_SalesOrderCreate
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_09_SalesOrderCreate
+    Origin              #{627F5C57-AEB0-41B8-B5DD-AAC1746AD4EA}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #SalesOrderCreate
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

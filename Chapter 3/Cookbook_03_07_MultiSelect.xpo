@@ -1,0 +1,857 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #MainAccountListPage
+  PROPERTIES
+    Name                #MainAccountListPage
+    InteractionClass    #ListPageInteraction
+    Origin              #{F43A0CFF-3BB6-4C78-92D5-00BFB0426FD0}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #processSelected
+      #public void processSelected()
+      #{
+      #    MainAccount tmpMainAccount;
+      #
+      #    tmpMainAccount = MainAccount_ds.getFirst(1) ?
+      #        MainAccount_ds.getFirst(1) :
+      #        MainAccount_ds.cursor();
+      #
+      #    while (tmpMainAccount)
+      #    {
+      #        info(strFmt(
+      #            "You've selected '%1'",
+      #            tmpMainAccount.MainAccountId));
+      #        tmpMainAccount = MainAccount_ds.getNext();
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    MainAccountListPageBalanceParameters balanceParameters;
+      #    boolean ledgerCOAExists;
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    super();
+      #
+      #    balanceParameters.saveLastValue(formStr(MainAccountListPage));
+      #}
+    ENDSOURCE
+    SOURCE #getBalanceParameters
+      #public MainAccountListPageBalanceParameters getBalanceParameters()
+      #{
+      #    return balanceParameters;
+      #}
+      #
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    super();
+      #
+      #    balanceParameters = MainAccountListPageBalanceParameters::construct();
+      #    balanceParameters.loadLastValue(formStr(MainAccountListPage));
+      #
+      #    // Only enable the New and Edit buttons if there is a ledger setup
+      #    ledgerCOAExists = (LedgerChartOfAccounts::current() != 0);
+      #    NewButtonGroup.enabled(ledgerCOAExists);
+      #}
+    ENDSOURCE
+    SOURCE #refresh
+      #/// <summary>
+      #/// Refreshes the grid.
+      #/// </summary>
+      #public void refresh()
+      #{
+      #    mainAccount_ds.research(true);
+      #}
+      #
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+      Query               #MainAccountListPage
+      Version             #34
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #MainAccount
+          Table               #MainAccount
+          AllowEdit           #No
+          AllowCreate         #No
+          OnlyFetchActive     #Yes
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #delete
+          #public void delete()
+          #{
+          #    boolean moreRecordsExist;
+          #
+          #    super();
+          #
+          #    // Check if there are records left, and if not, disable the delete button
+          #    moreRecordsExist = (mainAccount.RecId != 0);
+          #
+          #    deleteMainAccountMaintain.enabled(ledgerCOAExists && moreRecordsExist);
+          #    EditMainAccountMaintain.enabled(ledgerCOAExists && moreRecordsExist);
+          #}
+        ENDSOURCE
+        SOURCE #active
+          #public int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    totalAccountsRelatedInformaton.enabled(
+          #        DimensionAttributeValueTotallingCriteria::existsForMainAccountReference(mainAccount.MainAccountId, LedgerChartOfAccounts::current()));
+          #
+          #    // If an active fires, there is at least one record available so we can enable the delete and edit buttons
+          #    deleteMainAccountMaintain.enabled(ledgerCOAExists);
+          #    EditMainAccountMaintain.enabled(ledgerCOAExists);
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+        SOURCE #init
+          #public void init()
+          #{
+          #    QueryBuildDataSource ds;
+          #
+          #    super();
+          #
+          #    ds = mainAccount_ds.query().dataSourceTable(tableNum(MainAccount));
+          #    MainAccount::addSecureRangeForChartOfAccounts(ds);
+          #}
+        ENDSOURCE
+      ENDMETHODS
+      LINKTYPES
+        DATASOURCE
+          PROPERTIES
+            Name                #MainAccount
+            ParentDataSource    #MainAccountCategory
+          ENDPROPERTIES
+          
+      ENDLINKTYPES
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #MainAccountCategory
+          Table               #MainAccountCategory
+          AllowEdit           #No
+          AllowCreate         #No
+          AllowDelete         #No
+          MaxAccessRight      #View
+          OnlyFetchActive     #Yes
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+      LINKTYPES
+        DATASOURCE
+          PROPERTIES
+            Name                #MainAccountCategory
+            ParentDataSource    #MainAccount
+          ENDPROPERTIES
+          
+      ENDLINKTYPES
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+    PARTREFERENCE #LedgerBalanceAmountPart
+      PROPERTIES
+        Name                #LedgerBalanceAmountPart
+        MenuItemName        #LedgerBalanceAmountPart
+        DataSource          #MainAccount
+        DataSourceRelation  #SelfLink
+        IsLinked            #Yes
+        ElementPosition     #536870911
+      ENDPROPERTIES
+      
+    ENDPARTREFERENCE
+    
+    PARTREFERENCE #LedgerBalanceFiscalPeriodPart
+      PROPERTIES
+        Name                #LedgerBalanceFiscalPeriodPart
+        MenuItemName        #LedgerBalanceFiscalPeriodPart
+        DataSource          #MainAccount
+        DataSourceRelation  #SelfLink
+        IsLinked            #Yes
+        ElementPosition     #1073741822
+      ENDPROPERTIES
+      
+    ENDPARTREFERENCE
+    
+    PARTREFERENCE #MainAccountDetailPart
+      PROPERTIES
+        Name                #MainAccountDetailPart
+        MenuItemName        #MainAccountDetailPart
+        PartLocation        #PreviewPane
+        DataSource          #MainAccount
+        DataSourceRelation  #SelfLink
+        IsLinked            #Yes
+        ElementPosition     #1610612733
+      ENDPROPERTIES
+      
+    ENDPARTREFERENCE
+    
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS305627
+      UseCaptionFromMenuItem  #Yes
+      TitleDatasource     #MainAccount
+      SetCompany          #No
+      DataSource          #MainAccount
+      Style               #ListPage
+      NewRecordAction     #MainAccountNew
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          VerticalSpacing     #0
+          ElementPosition     #536870911
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #MainAccountsTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+          Caption             #@SYS136197
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #BalancesGroup
+          ElementPosition     #1503238551
+          HierarchyParent     #MainAccountsTab
+          Caption             #@SYS10144
+          DataSource          #MainAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #JournalEntriesGroup
+          ElementPosition     #1252698792
+          HierarchyParent     #MainAccountsTab
+          Caption             #@SYS331330
+          DataSource          #MainAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ListGroup
+          ElementPosition     #2040109462
+          HierarchyParent     #MainAccountsTab
+          Caption             #@SYS118440
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #MaintainButtonGroup
+          ElementPosition     #984263337
+          HierarchyParent     #MainAccountsTab
+          Caption             #@SYS316703
+          DataSource          #MainAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewButtonGroup
+          AutoDeclaration     #Yes
+          Enabled             #No
+          ElementPosition     #656175558
+          HierarchyParent     #MainAccountsTab
+          Caption             #@SYS2055
+          DataSource          #MainAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #RelatedInformationGroup
+          ElementPosition     #1932735279
+          HierarchyParent     #MainAccountsTab
+          Caption             #@SYS111665
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #StatementsGroup
+          ElementPosition     #1717986915
+          HierarchyParent     #MainAccountsTab
+          Caption             #@SYS89367
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612734
+          DataSource          #MainAccount
+          DefaultAction       #OpenMainAccountNew
+          DefaultActionLabel  #@SYS122402
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Filter
+          ElementPosition     #1073741822
+          Style               #CustomFilter
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #ProcessSelected
+          ElementPosition     #1879048189
+          HierarchyParent     #MaintainButtonGroup
+          Text                #Process
+          ShowShortCut        #No
+          MultiSelect         #Yes
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #    element.processSelected();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #MainAccount_Type
+          ElementPosition     #1431655764
+          HierarchyParent     #Grid
+          DataSource          #MainAccount
+          DataField           #Type
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteMainAccountMaintain
+          AutoDeclaration     #Yes
+          Enabled             #No
+          HelpText            #@SYS332152
+          ElementPosition     #1610612733
+          HierarchyParent     #MaintainButtonGroup
+          Text                #@SYS14425
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          SaveRecord          #No
+          MultiSelect         #Yes
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #ExportToExcelList
+          ElementPosition     #1610612733
+          HierarchyParent     #ListGroup
+          NormalImage         #10156
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          MultiSelect         #Yes
+          Big                 #Yes
+          Command             #4436
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #RefreshList
+          HelpText            #@SYS315818
+          ElementPosition     #1073741822
+          HierarchyParent     #ListGroup
+          NormalImage         #11437
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          MultiSelect         #Yes
+          Big                 #Yes
+          Command             #2875
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL DROPDIALOGBUTTON
+        PROPERTIES
+          Name                #ParametersBalances
+          DisplayTarget       #Client
+          ElementPosition     #1431655764
+          HierarchyParent     #BalancesGroup
+          NormalImage         #10038
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #MainAccountListPageBalanceParameters
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #AccountStatements
+          HelpText            #@SYS332144
+          ElementPosition     #1073741822
+          HierarchyParent     #StatementsGroup
+          Text                #@SYS24500
+          NormalImage         #10543
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemType        #Output
+          MenuItemName        #LedgerJournalAccountMovement
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #ByCurrencyBalances
+          HelpText            #@SYS332156
+          ElementPosition     #1431655763
+          HierarchyParent     #JournalEntriesGroup
+          Text                #@SYS332142
+          NormalImage         #10447
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #LedgerBalanceCurrency
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #CashFlowForecastRelatedInformaton
+          HelpText            #@SYS332146
+          ElementPosition     #715827882
+          HierarchyParent     #RelatedInformationGroup
+          Text                #@SYS730
+          NormalImage         #10474
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #LedgerCovAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #CostCategoryRelatedInformaton
+          HelpText            #@SYS332147
+          ElementPosition     #1073741823
+          HierarchyParent     #RelatedInformationGroup
+          Text                #@SYS929
+          NormalImage         #10523
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #COSLedgerReference
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #EditMainAccountMaintain
+          AutoDeclaration     #Yes
+          Enabled             #No
+          HelpText            #@SYS332151
+          DisplayTarget       #Client
+          ElementPosition     #1073741822
+          HierarchyParent     #MaintainButtonGroup
+          Text                #@SYS317438
+          NormalImage         #10040
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #MainAccount
+          OpenMode            #Edit
+          CopyCallerQuery     #Yes
+          MenuItemName        #MainAccountLegalEntity
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #FinancialsStatements
+          HelpText            #@SYS332145
+          ElementPosition     #1610612734
+          HierarchyParent     #StatementsGroup
+          Text                #@SYS80043
+          NormalImage         #10429
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemType        #Output
+          MenuItemName        #LedgerBalanceSheetDimPrint
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #MainAccountNew
+          HelpText            #@SYS332150
+          ElementPosition     #1073741822
+          HierarchyParent     #NewButtonGroup
+          Text                #@SYS129344
+          NormalImage         #11017
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          MultiSelect         #Yes
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #MainAccount
+          OpenMode            #New
+          CopyCallerQuery     #Yes
+          MenuItemName        #MainAccountNew
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #OpenMainAccountNew
+          Visible             #No
+          ElementPosition     #1610612734
+          HierarchyParent     #NewButtonGroup
+          ShowShortCut        #No
+          OpenMode            #View
+          MenuItemName        #MainAccountLegalEntity
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    // Only allow opening of the form on a double click of the grid if the user could normally click the new button (i.e. a ledger must exist)
+            #    if (NewButtonGroup.enabled())
+            #    {
+            #        super();
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #PeriodBalances
+          HelpText            #@SYS332143
+          ElementPosition     #1789569704
+          HierarchyParent     #JournalEntriesGroup
+          Text                #@SYS40
+          NormalImage         #10956
+          ImageLocation       #EmbeddedResource
+          DisabledImage       #10956
+          ShowShortCut        #No
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #LedgerPeriodBalances
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #StatisticsRelatedInformaton
+          HelpText            #@SYS332148
+          ElementPosition     #1431655764
+          HierarchyParent     #RelatedInformationGroup
+          Text                #@SYS326
+          NormalImage         #10367
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #LedgerStatistics
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #TotalAccountsRelatedInformaton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS332149
+          ElementPosition     #1789569705
+          HierarchyParent     #RelatedInformationGroup
+          Text                #@SYS3783
+          NormalImage         #10830
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #DimensionAttributeValueTotallingRef
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #ViewTransactions
+          HelpText            #@SYS332153
+          ElementPosition     #1073741822
+          HierarchyParent     #JournalEntriesGroup
+          Text                #@SYS1711
+          NormalImage         #10692
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #MainAccount
+          MenuItemName        #LedgerTransAccount
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #MainAccount_MainAccountId
+          ElementPosition     #715827882
+          HierarchyParent     #Grid
+          DataSource          #MainAccount
+          DataField           #MainAccountId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #MainAccount_Name
+          ElementPosition     #1073741823
+          HierarchyParent     #Grid
+          DataSource          #MainAccount
+          DataField           #Name
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #MainAccountCategory_AccountCategory
+          ElementPosition     #1789569705
+          HierarchyParent     #Grid
+          DataSource          #MainAccountCategory
+          DataField           #AccountCategory
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+      UpdatePermissions   #No
+      CreatePermissions   #No
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_03_07_MultiSelect unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_03_07_MultiSelect
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_03_07_MultiSelect
+    Origin              #{3A559C40-86EC-4C44-91E0-DE7859573049}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #MainAccountListPage
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

@@ -1,0 +1,64 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: MainAccountCopy unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #MainAccountCopy
+    #static void MainAccountCopy(Args _args)
+    #{
+    #    MainAccount mainAccount1;
+    #    MainAccount mainAccount2;
+    #
+    #    mainAccount1 = MainAccount::findByMainAccountId('211100');
+    #
+    #    ttsBegin;
+    #
+    #    buf2Buf(mainAccount1, mainAccount2);
+    #
+    #    mainAccount2.MainAccountId = '211101';
+    #
+    #    if (!mainAccount2.validateWrite())
+    #    {
+    #        throw Exception::Error;
+    #    }
+    #
+    #    mainAccount2.insert();
+    #
+    #    ttsCommit;
+    #}
+    #
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{6D36DB72-DE0C-477C-B67A-95D2CABCE900}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_06_RecordCopy unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_06_RecordCopy
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_06_RecordCopy
+    Origin              #{FA6E7508-5747-46B1-85BB-A0A2E0036DE1}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #MainAccountCopy
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

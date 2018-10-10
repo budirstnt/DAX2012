@@ -1,0 +1,82 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: ReadXmlFile unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #ReadXmlFile
+    PROPERTIES
+      Name                #ReadXmlFile
+      Origin              #{1EF82447-324F-475A-832E-B3F59D64F37F}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class ReadXmlFile
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    XmlDocument doc;
+        #    XmlNodeList data;
+        #    XmlElement  nodeTable;
+        #    XmlElement  nodeAccount;
+        #    XmlElement  nodeName;
+        #    #define.filename(@'C:\Temp\accounts.xml')
+        #
+        #    doc  = XmlDocument::newFile(#filename);
+        #
+        #    data = doc.selectNodes('//'+tableStr(MainAccount));
+        #
+        #    nodeTable = data.nextNode();
+        #
+        #    while (nodeTable)
+        #    {
+        #        nodeAccount = nodeTable.selectSingleNode(
+        #            fieldStr(MainAccount, MainAccountId));
+        #
+        #        nodeName = nodeTable.selectSingleNode(
+        #            fieldStr(MainAccount, Name));
+        #
+        #        info(strFmt(
+        #            "%1 - %2",
+        #            nodeAccount.text(),
+        #            nodeName.text()));
+        #
+        #        nodeTable = data.nextNode();
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_12_ImportXml unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_12_ImportXml
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_12_ImportXml
+    Origin              #{133C04C6-480D-41C3-96A8-123F86AD2A4B}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023865
+      NODETYPE 329
+      NAME #ReadXmlFile
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

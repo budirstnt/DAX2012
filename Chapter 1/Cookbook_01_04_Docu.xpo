@@ -1,0 +1,57 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: VendAccountDocu unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #VendAccountDocu
+    #static void VendAccountDocu(Args _args)
+    #{
+    #    DocuRef   docuRef;
+    #    VendTable vendTable;
+    #
+    #    vendTable = VendTable::find('3001');
+    #
+    #    docuRef.RefCompanyId = vendTable.dataAreaId;
+    #    docuRef.RefTableId   = vendTable.TableId;
+    #    docuRef.RefRecId     = vendTable.RecId;
+    #    docuRef.TypeId       = 'Note';
+    #    docuRef.Name         = 'Imported';
+    #    docuRef.Notes        = 'This vendor was imported.';
+    #    docuRef.insert();
+    #}
+    #
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{3A1CAC5A-018D-444B-AA4E-49DAC49F53B6}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_04_Docu unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_04_Docu
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_04_Docu
+    Origin              #{0158034E-20CF-47B8-AAAF-F67767D3CD80}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #VendAccountDocu
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

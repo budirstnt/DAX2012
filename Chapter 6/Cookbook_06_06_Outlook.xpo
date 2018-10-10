@@ -1,0 +1,69 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: SendCustReminderEmail unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #SendCustReminderEmail
+    #static void SendCustReminderEmail(Args _args)
+    #{
+    #    CustTable custTable;
+    #    Map       mappings;
+    #
+    #    custTable = custTable::find('1101');
+    #
+    #    mappings = new Map(Types::String, Types::String);
+    #
+    #    mappings.insert(
+    #        'customer',
+    #        custTable.name());
+    #
+    #    mappings.insert(
+    #        'company',
+    #        CompanyInfo::find().Name);
+    #
+    #    mappings.insert(
+    #        'user',
+    #        HcmWorker::find(
+    #            DirPersonUser::current().worker()).name());
+    #
+    #    SysINetMail::sendEMail(
+    #        'Reminder',
+    #        custTable.languageId(),
+    #        custTable.email(),
+    #        mappings);
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{F27EFC69-7E65-4A7D-A386-738C23042475}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_06_06_Outlook unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_06_06_Outlook
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_06_06_Outlook
+    Origin              #{7F2406B1-1B51-45CB-AA67-4BA078B92CB4}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #SendCustReminderEmail
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

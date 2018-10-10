@@ -1,0 +1,155 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: VendOutPaymRecord_Test unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #VendOutPaymRecord_Test
+    PROPERTIES
+      Name                #VendOutPaymRecord_Test
+      Extends             #VendOutPaymRecord
+      RunOn               #Server
+      Origin              #{DC2C5698-25C0-494F-8007-D473BADA35C6}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class VendOutPaymRecord_Test extends VendOutPaymRecord
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #output
+        #public void output()
+        #{
+        #    str         outRecord;
+        #    Name        companyName;
+        #    BankAccount bankAccount;
+        #
+        #    outRecord = strRep(' ', 50);
+        #
+        #    companyName = subStr(
+        #        custVendPaym.recieversCompanyName(), 1, 40);
+        #    bankAccount = subStr(
+        #        custVendPaym.recieversBankAccount(), 1, 8);
+        #
+        #    outRecord = strPoke(outRecord, companyName, 1);
+        #    outRecord = strPoke(outRecord, bankAccount, 43);
+        #
+        #    file.write(outRecord);
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: VendOutPaym_Test unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #VendOutPaym_Test
+    PROPERTIES
+      Name                #VendOutPaym_Test
+      Extends             #VendOutPaym
+      Origin              #{78086312-3739-42B5-A4E6-DECB4FF4CD6B}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class VendOutPaym_Test extends VendOutPaym
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #close
+        #public void close()
+        #{
+        #    file.write('Closing file');
+        #}
+      ENDSOURCE
+      SOURCE #custVendOutPaymRecordRootClassId
+        #public ClassId custVendOutPaymRecordRootClassId()
+        #{
+        #    return classNum(VendOutPaymRecord_Test);
+        #}
+      ENDSOURCE
+      SOURCE #dialog
+        #protected Object dialog()
+        #{
+        #    DialogRunbase dialog;
+        #
+        #    dialog = super();
+        #
+        #    this.dialogAddFileName(dialog);
+        #
+        #    return dialog;
+        #}
+      ENDSOURCE
+      SOURCE #interfaceName
+        #public PaymInterfaceName interfaceName()
+        #{
+        #    return "Test payment format";
+        #}
+      ENDSOURCE
+      SOURCE #open
+        #public void open()
+        #{
+        #    #LocalCodePage
+        #
+        #    file = CustVendOutPaym::newFile(filename, #cp_1252);
+        #
+        #    if (!file || file.status() != IO_Status::Ok)
+        #    {
+        #        throw error(
+        #            strFmt("File %1 could not be opened.", filename));
+        #    }
+        #
+        #    file.outFieldDelimiter('');
+        #    file.outRecordDelimiter("\r\n");
+        #
+        #    file.write('Starting file:');
+        #}
+      ENDSOURCE
+      SOURCE #validate
+        #public boolean validate(Object _calledFrom = null)
+        #{
+        #    return true;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_05_11_ElectronicPayment unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_05_11_ElectronicPayment
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_05_11_ElectronicPayment
+    Origin              #{681B2B6B-2291-49E9-B667-527CE552057D}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023870
+      NODETYPE 329
+      NAME #VendOutPaymRecord_Test
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023869
+      NODETYPE 329
+      NAME #VendOutPaym_Test
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

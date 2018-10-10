@@ -1,0 +1,99 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: CreateXmlFile unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #CreateXmlFile
+    PROPERTIES
+      Name                #CreateXmlFile
+      Origin              #{5FF7F200-A186-4ABD-B78B-1443DBBE5FFE}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class CreateXmlFile
+        #{
+        #}
+        #
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    XmlDocument doc;
+        #    XmlElement  nodeXml;
+        #    XmlElement  nodeTable;
+        #    XmlElement  nodeAccount;
+        #    XmlElement  nodeName;
+        #    MainAccount mainAccount;
+        #    #define.filename(@'C:\Temp\accounts.xml')
+        #
+        #    doc     = XmlDocument::newBlank();
+        #
+        #    nodeXml = doc.createElement('xml');
+        #
+        #    doc.appendChild(nodeXml);
+        #
+        #    while select RecId, MainAccountId, Name from mainAccount
+        #    {
+        #        nodeTable = doc.createElement(tableStr(MainAccount));
+        #
+        #        nodeTable.setAttribute(
+        #            fieldStr(MainAccount, RecId),
+        #            int642str(mainAccount.RecId));
+        #
+        #        nodeXml.appendChild(nodeTable);
+        #
+        #        nodeAccount = doc.createElement(
+        #            fieldStr(MainAccount, MainAccountId));
+        #
+        #        nodeAccount.appendChild(
+        #            doc.createTextNode(mainAccount.MainAccountId));
+        #
+        #        nodeTable.appendChild(nodeAccount);
+        #
+        #        nodeName = doc.createElement(
+        #            fieldStr(MainAccount, Name));
+        #
+        #        nodeName.appendChild(
+        #            doc.createTextNode(mainAccount.Name));
+        #
+        #        nodeTable.appendChild(nodeName);
+        #    }
+        #
+        #    doc.save(#filename);
+        #
+        #    info(strFmt("File %1 created.", #filename));
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_11_ExportXml unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_11_ExportXml
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_11_ExportXml
+    Origin              #{5727E757-A248-4B92-82ED-6B2C87FED8A1}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023864
+      NODETYPE 329
+      NAME #CreateXmlFile
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

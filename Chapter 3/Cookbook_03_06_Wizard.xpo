@@ -1,0 +1,510 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: MainAccountWizard unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #MainAccountWizard
+    PROPERTIES
+      Name                #MainAccountWizard
+      Extends             #SysWizard
+      RunOn               #Client
+      Origin              #{45AD4CEE-8E79-4198-8785-619481D75526}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #accessMenuFunction
+        #public MenuFunction accessMenuFunction()
+        #{
+        #    return new MenuFunction(menuitemdisplaystr(MainAccountWizard),MenuItemType::Display);
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #public class MainAccountWizard extends SysWizard
+        #{
+        #    MainAccount mainAccount;
+        #    #MainAccountWizard
+        #}
+        #
+      ENDSOURCE
+      SOURCE #finish
+        #protected void finish()
+        #{
+        #    mainAccount.initValue();
+        #    mainAccount.LedgerChartOfAccounts =
+        #        LedgerChartOfAccounts::current();
+        #    mainAccount.MainAccountId = formRun.accountNum();
+        #    mainAccount.Name = formRun.accountName();
+        #    mainAccount.Type = formRun.accountType();
+        #
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #formName
+        #FormName formName()
+        #{
+        #    return formstr(MainAccountWizard);
+        #}
+        #
+      ENDSOURCE
+      SOURCE #run
+        #void run()
+        #{
+        #    mainAccount.insert();
+        #
+        #    info(strFmt(
+        #        "Ledger account '%1' was successfully created",
+        #        mainAccount.MainAccountId));
+        #}
+      ENDSOURCE
+      SOURCE #setupNavigation
+        #/*
+        #Use this method to setup the two arrays: nextEnabled[] and backEnabled[]
+        #Call this.nextEnabled(boolean) and this.backEnabled(boolean) to enable/disable the buttons runtime.
+        #*/
+        #void setupNavigation()
+        #{
+        #    nextEnabled[#tabStep2] = false;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #validate
+        #boolean validate()
+        #{
+        #    return mainAccount.validateWrite();
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #static void main(args args)
+        #{
+        #    MainAccountWizard wizard = new MainAccountWizard();
+        #    if (wizard.prompt())
+        #        wizard.run();
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #MainAccountWizard
+  PROPERTIES
+    Name                #MainAccountWizard
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #setNext
+      #public void setNext()
+      #{
+      #    sysWizard.nextEnabled(
+      #        this.accountNum() && this.accountName(),
+      #        #tabStep2,
+      #        false);
+      #
+      #}
+    ENDSOURCE
+    SOURCE #accountType
+      #public DimensionLedgerAccountType accountType()
+      #{
+      #    return AccountType.selection();
+      #}
+    ENDSOURCE
+    SOURCE #accountName
+      #public AccountName accountName()
+      #{
+      #    return AccountName.text();
+      #}
+    ENDSOURCE
+    SOURCE #accountNum
+      #public MainAccountNum accountNum()
+      #{
+      #    return AccountNum.text();
+      #}
+    ENDSOURCE
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    MainAccountWizard sysWizard;
+      #    #MainAccountWizard
+      #}
+      #
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    super();
+      #    if (element.Args().caller())
+      #    {
+      #        sysWizard = element.Args().caller();
+      #    }
+      #    else
+      #    {
+      #        MainAccountWizard::main(new args());
+      #        element.closeCancel();
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #run
+      #void run()
+      #{
+      #    element.setTexts();
+      #
+      #    super();
+      #}
+      #
+    ENDSOURCE
+    SOURCE #setTexts
+      #void setTexts()
+      #{
+      #
+      #}
+      #
+    ENDSOURCE
+    SOURCE #tab
+      #FormTabControl tab()
+      #{
+      #    return tab;
+      #}
+      #
+    ENDSOURCE
+    SOURCE #wizard
+      #SysWizard wizard()
+      #{
+      #    return sysWizard;
+      #}
+      #
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #Main account wizard
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          AutoDeclaration     #Yes
+          Width               #Column width
+          ElementPosition     #1073741823
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Step1
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #858993458
+          HierarchyParent     #Tab
+          Caption             #Welcome
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Step2
+          Width               #Column width
+          Height              #Column height
+          HelpText            #Specify account number, name, and type.
+          ElementPosition     #1288490187
+          HierarchyParent     #Tab
+          Caption             #Account setup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Step3
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1717986916
+          HierarchyParent     #Tab
+          Caption             #Finish
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #AccountType
+          AutoDeclaration     #Yes
+          ElementPosition     #1717986916
+          HierarchyParent     #Step2
+          EnumType            #DimensionLedgerAccountType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #FinishTxt
+          ElementPosition     #1431655764
+          HierarchyParent     #Step3
+          Text                #This wizard is now ready to create new main account.
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STATICTEXT
+        PROPERTIES
+          Name                #WelcomeTxt
+          ElementPosition     #1431655764
+          HierarchyParent     #Step1
+          Text                #This wizard helps you to create a new main account.
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #AccountName
+          AutoDeclaration     #Yes
+          ElementPosition     #1288490187
+          HierarchyParent     #Step2
+          ExtendedDataType    
+            ARRAY 
+              #AccountName
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    super();
+            #    element.setNext();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #AccountNum
+          AutoDeclaration     #Yes
+          ElementPosition     #858993458
+          HierarchyParent     #Step2
+          Label               #Main account
+          ExtendedDataType    
+            ARRAY 
+              #AccountNum
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    super();
+            #    element.setNext();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: FTM
+
+; Microsoft Dynamics AX MENUITEM : MainAccountWizard unloaded
+; --------------------------------------------------------------------------------
+  VERSION 1
+  
+  MENUITEM #MainAccountWizard
+    Type: 1
+    PROPERTIES
+      Name                #MainAccountWizard
+      ObjectType          #Class
+      Object              #MainAccountWizard
+      Origin              #{0E1C8308-90C3-4071-958C-7C5063F3452F}
+    ENDPROPERTIES
+    
+  ENDMENUITEM
+  
+
+***Element: MCR
+
+; Microsoft Dynamics AX Macro: MainAccountWizard unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #MainAccountWizard
+    ##define.tabStep2(2)
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{17147535-37C5-4F6C-8523-01811F56AF18}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_03_06_Wizard unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_03_06_Wizard
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_03_06_Wizard
+    Origin              #{BF5C14BC-9FC3-476C-AC42-326BC9EECFC0}
+  ENDPROPERTIES
+  
+    PROJECTCLASS 
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023860
+      NODETYPE 329
+      NAME #MainAccountWizard
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #MainAccountWizard
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 1
+      UTILOBJECTID 0
+      NODETYPE 296
+      NAME #MainAccountWizard
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 4
+      UTILOBJECTID 0
+      NODETYPE 218
+      NAME #MainAccountWizard
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

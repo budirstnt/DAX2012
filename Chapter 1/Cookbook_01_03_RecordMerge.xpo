@@ -1,0 +1,61 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: LedgerReasonMerge unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #LedgerReasonMerge
+    #static void LedgerReasonMerge(Args _args)
+    #{
+    #    ReasonTable reasonTableDelete;
+    #    ReasonTable reasonTable;
+    #
+    #    ttsBegin;
+    #
+    #    select firstOnly forUpdate reasonTableDelete
+    #        where reasonTableDelete.Reason == 'COUNTER';
+    #
+    #    select firstOnly forUpdate reasonTable
+    #        where reasonTable.Reason == 'AUCTION';
+    #
+    #    reasonTableDelete.merge(reasonTable);
+    #    reasonTable.doUpdate();
+    #    reasonTableDelete.doDelete();
+    #
+    #    ttsCommit;
+    #}
+    #
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{FA10C622-1793-4D62-B344-45B98144ADD4}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_03_RecordMerge unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_03_RecordMerge
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_03_RecordMerge
+    Origin              #{BECB3EC0-46CC-417A-95DC-34F0441AA51F}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #LedgerReasonMerge
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

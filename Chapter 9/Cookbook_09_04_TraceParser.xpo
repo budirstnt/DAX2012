@@ -1,0 +1,58 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: CustTransTracing unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #CustTransTracing
+    PROPERTIES
+      Name                #CustTransTracing
+      Origin              #{34C63D29-9519-4E24-A21A-CD59A7179520}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class CustTransTracing
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    CustTrans custTrans;
+        #
+        #    select count(RecId) from custTrans
+        #        where custTrans.Approved;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_09_04_TraceParser unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_09_04_TraceParser
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_09_04_TraceParser
+    Origin              #{8EBD3960-3C97-47E3-9857-330CA2595176}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023865
+      NODETYPE 329
+      NAME #CustTransTracing
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

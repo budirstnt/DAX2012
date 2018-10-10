@@ -1,0 +1,137 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: DevProjectSearch unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #DevProjectSearch
+    PROPERTIES
+      Name                #DevProjectSearch
+      Origin              #{6DEE4D5B-622F-4B3F-AA3D-64D45B087C1D}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class DevProjectSearch
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #public void find(UtilElementType _type, IdentifierName _name)
+        #{
+        #    TreeNode    projects;
+        #    ProjectNode project;
+        #
+        #    projects = SysTreeNode::getSharedProject();
+        #
+        #    if (!projects)
+        #    {
+        #        return;
+        #    }
+        #
+        #    project = projects.AOTfirstChild();
+        #
+        #    while (project)
+        #    {
+        #        if (this.findChildren(
+        #                project.loadForInspection(),
+        #                _type,
+        #                _name))
+        #        {
+        #            info(project.AOTname());
+        #        }
+        #        project = project.AOTnextSibling();
+        #    }
+        #
+        #}
+      ENDSOURCE
+      SOURCE #findChildren
+        #private boolean findChildren(
+        #    TreeNode _parent,
+        #    UtilElementType _type,
+        #    IdentifierName _name)
+        #{
+        #    TreeNode         child;
+        #    TreeNodeIterator iterator;
+        #    #TreeNodeSysNodeType
+        #
+        #    iterator = _parent.AOTiterator();
+        #
+        #    child = iterator.next();
+        #
+        #    while (child)
+        #    {
+        #        if (child.treeNodeType().id() == #NT_PROJECT_GROUP)
+        #        {
+        #            return this.findChildren(child, _type, _name);
+        #        }
+        #        else if (child.AOTname() == _name &&
+        #                 child.treeNodePath() &&
+        #                 child.utilElement().recordType == _type)
+        #        {
+        #            return true;
+        #        }
+        #        child.treeNodeRelease();
+        #        child = iterator.next();
+        #    }
+        #    return false;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: TestDevProjectSearch unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #TestDevProjectSearch
+    #static void TestDevProjectSearch(Args _args)
+    #{
+    #    DevProjectSearch search;
+    #
+    #    search = new DevProjectSearch();
+    #    search.find(UtilElementType::Table, tableStr(CustTable));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{D5D31FCD-AEC6-4CAF-A519-6868ABA9B3BD}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_08_04_ProjectSearch unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_08_04_ProjectSearch
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_08_04_ProjectSearch
+    Origin              #{2069CDB8-DDA3-47B6-8B63-01C709B66AEA}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023864
+      NODETYPE 329
+      NAME #DevProjectSearch
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #TestDevProjectSearch
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

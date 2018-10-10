@@ -1,0 +1,72 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: SysListSelectSingle unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #SysListSelectSingle
+    #static void SysListSelectSingle(Args _args)
+    #{
+    #    container choices;
+    #    container headers;
+    #    container selection;
+    #    container selected;
+    #    boolean   ok;
+    #
+    #    choices = [
+    #        ["3.0\nAxapta 3.0", 1, false],
+    #        ["4.0\nDynamics AX 4.0", 2, false],
+    #        ["2009\nDynamics AX 2009", 3, false],
+    #        ["2012\nDynamics AX 2012", 4, true]];
+    #
+    #    headers = ["Version", "Description"];
+    #
+    #    selection = selectSingle(
+    #        "Choose version",
+    #        "Please select Dynamics AX version",
+    #        choices,
+    #        headers);
+    #
+    #    [ok, selected] = selection;
+    #
+    #    if (ok && conLen(selected))
+    #    {
+    #        info(strFmt(
+    #            "You've selected option No. %1",
+    #            conPeek(selected,1)));
+    #    }
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{154161DE-7461-4C48-9FE7-DA021508B3E9}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_04_06_CustomOptions2 unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_04_06_CustomOptions2
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_04_06_CustomOptions2
+    Origin              #{173D3C59-6135-4830-B460-98B617D21F73}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #SysListSelectSingle
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

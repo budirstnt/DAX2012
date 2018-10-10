@@ -1,0 +1,54 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: GetExecutionTime unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #GetExecutionTime
+    #static void GetExecutionTime(Args _args)
+    #{
+    #    int start;
+    #    int end;
+    #
+    #    start = WinAPI::getTickCount();
+    #
+    #    sleep(1000); // pause for 1000 milliseconds
+    #
+    #    end = WinAPI::getTickCount();
+    #
+    #    info(strFmt("%1", end - start));
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{510C49BD-C867-4A65-AADC-3167469662D4}
+  ENDPROPERTIES
+  
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_09_01_CodeExecutionTime unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_09_01_CodeExecutionTime
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_09_01_CodeExecutionTime
+    Origin              #{ACD7EB22-3196-4BED-BB25-E48A9FFCA6ED}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 5
+      UTILOBJECTID 0
+      NODETYPE 215
+      NAME #GetExecutionTime
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

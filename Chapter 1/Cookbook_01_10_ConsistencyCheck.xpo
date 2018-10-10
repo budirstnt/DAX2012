@@ -1,0 +1,78 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: AssetConsistencyCheck unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #AssetConsistencyCheck
+    PROPERTIES
+      Name                #AssetConsistencyCheck
+      Extends             #SysConsistencyCheck
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class AssetConsistencyCheck extends SysConsistencyCheck
+        #{
+        #}
+        #
+      ENDSOURCE
+      SOURCE #executionOrder
+        #public Integer executionOrder()
+        #{
+        #    return 1;
+        #}
+        #
+      ENDSOURCE
+      SOURCE #run
+        #public void run()
+        #{
+        #    this.kernelCheckTable(tableNum(AssetLedgerAccounts));
+        #}
+        #
+      ENDSOURCE
+      SOURCE #description
+        #client server static ClassDescription description()
+        #{
+        #    return "Fixed assets";
+        #}
+        #
+      ENDSOURCE
+      SOURCE #helpText
+        #client server static HelpTxt helpText()
+        #{
+        #    return "Consistency check of the fixed asset module";
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_10_ConsistencyCheck unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_10_ConsistencyCheck
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_10_ConsistencyCheck
+    Origin              #{9ACFD022-4890-4DA6-B212-F51D99F7D1D3}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023863
+      NODETYPE 329
+      NAME #AssetConsistencyCheck
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

@@ -1,0 +1,1731 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysUserInfoPage
+  PROPERTIES
+    Name                #SysUserInfoPage
+    Origin              #{ED80CF56-7E83-4BA9-BC98-F4C39DC7FEFA}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #class FormRun extends ObjectRun
+      #{
+      #    #Admin
+      #    #Guest
+      #    #resAppl
+      #
+      #    #define.AOSUser('-AOS-')
+      #    #define.ENUM_FORMSTYLE_AUTO(0)
+      #    #define.WINDOWTYPE_STANDARDWINDOW(0)
+      #
+      #    str aliasText;
+      #    str aliasUserId;
+      #    boolean inAliasTextChange;
+      #
+      #    str domainText;
+      #    str domainUserId;
+      #    boolean inDomainTextChange;
+      #
+      #    str nameText;
+      #    boolean inNameTextChange;
+      #
+      #    boolean enabledOnce;
+      #
+      #    //Profile tab related
+      #    boolean     profileTabLoaded;
+      #    Map         origPerCompanyProfiles;
+      #    List        companyIds;
+      #    ProfileId   origAllCompaniesProfile;
+      #
+      #    #define.ProfileTypeNone(0)
+      #    #define.ProfileTypeAll(1)
+      #    #define.ProfileTypeSpecific(2)
+      #
+      #    #define.CompanySpecificProfilesColCompany(1)
+      #    #define.CompanySpecificProfilesColProfile(2)
+      #
+      #    List regForUserSelChange;
+      #
+      #    Object caller;
+      #    boolean isEditMode;
+      #}
+    ENDSOURCE
+    SOURCE #close
+      #public void close()
+      #{
+      #    // Clear out the list to prevent circular form references
+      #    regForUserSelChange = new List(Types::Class);
+      #
+      #    super();
+      #    SysSecurity::reload(false);
+      #}
+    ENDSOURCE
+    SOURCE #generateInitialUserId
+      #// Generates the 5 character user id from an alias
+      #str generateInitialUserId(str _alias)
+      #{
+      #    UserInfo ui;
+      #    boolean found = false;
+      #    Name alias2;
+      #
+      #    if(strLen(_alias) <= 5 && strLen(_alias) > 0)
+      #    {
+      #        alias2 = _alias;
+      #
+      #        // If the alias is already used, return empty
+      #        while select firstonly RecId from ui where ui.Id == alias2
+      #        {
+      #            found = true;
+      #            break;
+      #        }
+      #
+      #        if(!found)
+      #        {
+      #            return _alias;
+      #        }
+      #    }
+      #
+      #    return '';
+      #}
+      #
+    ENDSOURCE
+    SOURCE #generateInitialUserSid
+      #// Generates a user SID from the user id and domain name
+      #str generateInitialUserSid(str userId, str domainName, UserAccountType accountType)
+      #{
+      #    xAxaptaUserManager axUsrMgr;
+      #    xAxaptaUserDetails axUsrDet;
+      #    str userSid;
+      #    int len;
+      #
+      #    if(domainName == '' || userId == '')
+      #    {
+      #        return '';
+      #    }
+      #
+      #    // Instantiate AxaptaUserManager and get user's details
+      #    axUsrMgr = new xAxaptaUserManager();
+      #    //axUsrDet = axUsrMgr.getDomainUser(domainName, userId);
+      #    try
+      #    {
+      #        len = infologLine();
+      #        axUsrDet = axUsrMgr.getSIDFromName(userId, domainName, accountType);
+      #    }
+      #    catch(Exception::Error)
+      #    {
+      #        infolog.clear(len);
+      #        throw error(accountType == UserAccountType::ClaimsUser ? "@SYS330368" : "@SYS90055");
+      #    }
+      #    try
+      #    {
+      #        if(axUsrDet && axUsrDet.getUserCount() > 0 && axUsrDet.isUserEnabled(0))
+      #        {
+      #            userSid = axUsrDet.getUserSid(0);
+      #        }
+      #
+      #        return userSid;
+      #    }
+      #    catch(Exception::Error)
+      #    {
+      #        len = infologLine();
+      #        if(len > 0)
+      #        {
+      #            infolog.clear(len - 1);
+      #        }
+      #        return '';
+      #    }
+      #}
+      #
+    ENDSOURCE
+    SOURCE #getUserId
+      #public FieldValue getUserId()
+      #{
+      #    return userInfo.Id;
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #void init()
+      #{
+      #    isEditMode = false;
+      #    regForUserSelChange = new List(Types::Class);
+      #    if (!regForUserSelChange) info('regForUserSelChange ' + "@SYS309925");
+      #
+      #    caller = element.args().caller();
+      #    if (caller != null && caller is FormRun && caller.name() == formStr(SysUserInfoPage))
+      #    {
+      #        element.launchAsStandardPage();
+      #        isEditMode = true;
+      #    }
+      #
+      #    super();
+      #
+      #    inAliasTextChange = false;
+      #    inDomainTextChange = false;
+      #    inNameTextChange = false;
+      #    enabledOnce = false;
+      #
+      #    companyIds = new List(Types::String);
+      #
+      #    if (isEditMode)
+      #    {
+      #        grid.allowEdit(true);
+      #        mnuItmBtnEditInGrid.visible(false);
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #launchAsStandardPage
+      #private void launchAsStandardPage()
+      #{
+      #    element.form().design().style(#ENUM_FORMSTYLE_AUTO);
+      #    element.form().design().windowType(#WINDOWTYPE_STANDARDWINDOW);
+      #}
+    ENDSOURCE
+    SOURCE #launchDetailsPage
+      #public void launchDetailsPage(OpenMode _mode)
+      #{
+      #    Args args;
+      #    MenuFunction menuFunction;
+      #
+      #    args = new Args();
+      #    args.caller(element);
+      #    menuFunction = new MenuFunction(menuitemDisplayStr(SysUserInfoDetail), MenuItemType::Display);
+      #    menuFunction.openMode(_mode);
+      #    menuFunction.run(args);
+      #}
+    ENDSOURCE
+    SOURCE #refresh
+      #public void refresh()
+      #{
+      #    element.lockWindowUpdate(true);
+      #    refreshButton.clicked();
+      #    element.lockWindowUpdate(false);
+      #}
+    ENDSOURCE
+    SOURCE #refreshUserInfo
+      #void refreshUserInfo()
+      #{
+      #    userInfo_DS.reread();
+      #}
+      #
+    ENDSOURCE
+    SOURCE #registerForUserSelChange
+      #public boolean registerForUserSelChange(Object _part)
+      #{
+      #    regForUserSelChange.addEnd(_part);
+      #    _part.updateSelection(userInfo.Id);
+      #    //info('registering Part ' + _part.toString() + ', ' + regForUserSelChange.toString());
+      #    return true;
+      #}
+    ENDSOURCE
+    SOURCE #updateCaller
+      #void updateCaller()
+      #{
+      #    if (caller)
+      #    {
+      #        caller.updateGrid();
+      #    }
+      #}
+    ENDSOURCE
+    SOURCE #updateGrid
+      #public void updateGrid()
+      #{
+      #    userInfo_ds.research(true);
+      #}
+    ENDSOURCE
+    SOURCE #validateAdmin
+      #boolean validateAdmin()
+      #{
+      #    return UserInfoHelp::validateAdmin(userInfo);
+      #}
+    ENDSOURCE
+    SOURCE #validateOnline
+      #//AosRunMode::Client
+      #boolean validateOnline()
+      #{
+      #    if (SysUsersOnline::isUserOnline(userInfo.Id))
+      #    {
+      #        throw error("@SYS26837");
+      #    }
+      #    return true;
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #UserInfo
+          Table               #UserInfo
+          InsertAtEnd         #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD id
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #public boolean validate()
+                #{
+                #    return true;
+                #}
+                #
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD enable
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #boolean validate()
+                #{
+                ##define.Tab('\t')
+                ##define.Space(' ')
+                #
+                #    boolean ret;
+                #    Sid usersid;
+                #    TextBuffer txtBuf;
+                #    UserInfo ui2;
+                #    Name userId;
+                #    ;
+                #
+                #    if (!userInfo.Enable)
+                #    {
+                #        ret = element.validateAdmin() && super();
+                #        userInfo.ExternalUser = false;
+                #        //userInfo.Sid = '';
+                #        grid.update();
+                #    }
+                #    else
+                #    {
+                #        try
+                #        {
+                #            userId = userInfo.Id;
+                #
+                #            if(userId == #GuestUser)
+                #            {
+                #                return true;
+                #            }
+                #
+                #            if(userId == '')
+                #            {
+                #                error("@SYS91134");
+                #                return false;
+                #            }
+                #
+                #            if(userId == #AOSUser)
+                #            {
+                #                error("@SYS98151");
+                #                return false;
+                #            }
+                #
+                #            select firstonly ui2 where ui2.RecId != userInfo.RecId && ui2.Id == userId;
+                #            if(ui2)
+                #            {
+                #                error(strFmt("@SYS93693", userId));
+                #                userInfo.Id = '';
+                #                return false;
+                #            }
+                #
+                #            txtBuf = new TextBuffer();
+                #            txtBuf.appendText(userId);
+                #
+                #            // User id can not contain any white space
+                #            if(txtBuf.find(#Space) || txtBuf.find(#Tab))
+                #            {
+                #                error("@SYS91132");
+                #                return false;
+                #            }
+                #
+                #            // Generate a user SID from the user id and domain name, display error if SID not generated
+                #            usersid = element.generateInitialUserSid(userInfo.NetworkAlias, userInfo.NetworkDomain, userInfo.AccountType);
+                #            if(usersid == '')
+                #            {
+                #                Box::stop(userInfo.AccountType == UserAccountType::ClaimsUser ? "@SYS330368" : "@SYS90055");
+                #
+                #                return false;
+                #            }
+                #
+                #            // Search for the same SID in the table
+                #            select firstonly ui2 where ui2.Sid == usersid && userInfo.Enable && ui2.Id != userId;
+                #            if(ui2)
+                #            {
+                #                // If the SID is already present in the table, display an error
+                #                error("@SYS93694");
+                #                return false;
+                #            }
+                #
+                #            userInfo.Sid = usersid;
+                #
+                #            select * from ui2;
+                #
+                #            aliasText = userInfo_NetworkAlias.text();
+                #            domainText = userInfo_NetworkDomain.text();
+                #            nameText = userInfo_Name.text();
+                #            userInfo.EnabledOnce = true;
+                #        }
+                #        catch(Exception::Error)
+                #        {
+                #            return false;
+                #        }
+                #
+                #        ret = super();
+                #    }
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD networkDomain
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #public boolean validate()
+                #{
+                #    boolean ret;
+                #    ;
+                #
+                #    userinfo.NetworkDomain = strLRTrim(userinfo.NetworkDomain);
+                #
+                #    ret = super();
+                #
+                #    return ret;
+                #}
+                #
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+          DATAFIELD networkAlias
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #public boolean validate()
+                #{
+                #    boolean ret;
+                #    ;
+                #
+                #    userinfo.NetworkAlias = strLRTrim(userinfo.NetworkAlias);
+                #
+                #    ret = super();
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #displayOption
+          #public void displayOption(
+          #    Common _record,
+          #    FormRowDisplayOption _options)
+          #{
+          #    if (!_record.(fieldNum(UserInfo,Enable)))
+          #    {
+          #        _options.backColor(WinAPI::RGB2int(255,100,100));
+          #    }
+          #
+          #    super(_record, _options);
+          #}
+          #
+        ENDSOURCE
+        SOURCE #selectionChanged
+          #public void selectionChanged()
+          #{
+          #    Object partRegistered;
+          #    ListEnumerator partEnum;
+          #
+          #    super();
+          #
+          #    if (regForUserSelChange)
+          #    {
+          #        partEnum = regForUserSelChange.getEnumerator();
+          #        while (partEnum.moveNext())
+          #        {
+          #            partRegistered = partEnum.current();
+          #            // info(selectedRole.Name);
+          #            // info('sc: callback for ' + partRegistered.toString());
+          #            partRegistered.updateSelection(userInfo.Id);
+          #        }
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #reread
+          #//Fired when the record is restored
+          #public void reread()
+          #{
+          #    super();
+          #
+          #    if (profileTabLoaded && this.forceWrite())
+          #    {
+          #        this.forceWrite(false);
+          #    }
+          #}
+        ENDSOURCE
+        SOURCE #validateWrite
+          #public boolean validateWrite()
+          #{
+          #    str alias;
+          #    userId userId;
+          #    str domainName;
+          #    xAxaptaUserManager mgr;
+          #    xAxaptaUserDetails det;
+          #    xAxaptaUserDetails det2;
+          #    boolean userInDb = false;
+          #    UserInfo ui2;
+          #    sid userSid;
+          #    int len;
+          #    UserInfo adminRecord;
+          #    ;
+          #
+          #    userId = userInfo.Id;
+          #
+          #    if(userId == #AOSUser)
+          #    {
+          #        error("@SYS98151");
+          #        return false;
+          #    }
+          #
+          #    select adminRecord where adminRecord.Id == #AdminUser;
+          #    if(adminRecord.RecId)
+          #    {
+          #        if(userinfo.Language == '')
+          #        {
+          #            userinfo.Language = adminRecord.Language;
+          #        }
+          #
+          #        if(userinfo.Helplanguage == '')
+          #        {
+          #            userinfo.Helplanguage = adminRecord.Helplanguage;
+          #        }
+          #    }
+          #    else
+          #    {
+          #       select adminRecord where adminRecord.Id == curUserId();
+          #        if (adminRecord)
+          #        {
+          #            if(userinfo.Language == '')
+          #            {
+          #                userinfo.Language = adminRecord.Language;
+          #            }
+          #
+          #            if(userinfo.Helplanguage == '')
+          #            {
+          #                userinfo.Helplanguage = adminRecord.Helplanguage;
+          #            }
+          #        }
+          #    }
+          #
+          #    if(!super() || userId == '')
+          #    {
+          #        return false;
+          #    }
+          #
+          #    mgr = new xAxaptaUserManager();
+          #    alias = userInfo.NetworkAlias;
+          #    domainName = userInfo.NetworkDomain;
+          #
+          #    // Get the single user's details from the kernel class
+          #    //det = mgr.getDomainUser(domainName, alias);
+          #    try
+          #    {
+          #        len = infologLine();
+          #        det = mgr.getSIDFromName(alias, domainName, userInfo.AccountType);
+          #    }
+          #    catch(Exception::Error)
+          #    {
+          #        infolog.clear(len);
+          #        throw error(userInfo.AccountType == UserAccountType::ClaimsUser ? "@SYS330368" : "@SYS90055");
+          #    }
+          #
+          #    // If Admin alias/domain are getting changed, update SID
+          #    if(userInfo.Id == #AdminUser)
+          #    {
+          #        try
+          #        {
+          #            if(det && det.getUserCount() > 0 && det.isUserEnabled(0))
+          #            {
+          #                userSid = det.getUserSid(0);
+          #            }
+          #
+          #            if(userSid == '')
+          #            {
+          #                return false;
+          #            }
+          #
+          #            select ui2 where ui2.Sid == userSid && ui2.Id != #AdminUser;
+          #            if(ui2)
+          #            {
+          #                error("@SYS93694");
+          #                return false;
+          #            }
+          #        }
+          #        catch(Exception::Error)
+          #        {
+          #            len = infologLine();
+          #            if(len > 0)
+          #            {
+          #                infolog.clear(len - 1);
+          #            }
+          #            Box::stop(userInfo.AccountType == UserAccountType::ClaimsUser ? "@SYS330368" : "@SYS90055");
+          #            return false;
+          #        }
+          #    }
+          #
+          #    // Verify duplicate user id
+          #    select firstonly ui2 where ui2.Id == userId;
+          #    if(ui2)
+          #    {
+          #        if(ui2.RecId == userInfo.RecId)
+          #        {
+          #            userInDb = true;
+          #        }
+          #        else
+          #        {
+          #            error(strFmt("@SYS93693", userId));
+          #            userInfo.Id = '';
+          #            return false;
+          #        }
+          #    }
+          #
+          #    // Validate for all the users for which Enabled checkbox is checked
+          #    if(userInfo.Enable)
+          #    {
+          #        if(userId != #GuestUser && (alias == '' || domainName == ''))
+          #        {
+          #            error("@SYS93695");
+          #            return false;
+          #        }
+          #
+          #        if(det != null && det.getUserCount() > 0 && det.isUserEnabled(0))
+          #        {
+          #            userInfo.ExternalUser = det.isUserExternal(0);
+          #            userInfo.Sid = det.getUserSid(0);
+          #            userInfo.NetworkDomain = det.getUserDomain(0);
+          #            userInfo.AccountType = det.getAccountType(0);
+          #
+          #            if(userInfo.Enable)
+          #            {
+          #                userInfo.EnabledOnce = true;
+          #                if(!userInfo.orig() || !userInfo.orig().EnabledOnce)
+          #                {
+          #                    // must reread the details structure using the getDomainUser API
+          #                    // because the user name returned by getSidFromName is incorrect
+          #                    // Note, however, that getDomainUser will not return details for a claims user
+          #                    det2 = mgr.getDomainUser(domainName,  alias);
+          #                    if(userInfo.Name == '')
+          #                    {
+          #                        userInfo.Name = (det2) ? det2.getUserName(0) : det.getUserName(0);
+          #                    }
+          #                    userEmail.text((det2) ? det2.getUserMail(0) : det.getUserMail(0));
+          #                }
+          #            }
+          #        }
+          #        else if(userId != #GuestUser)
+          #        {
+          #            error(userInfo.AccountType == UserAccountType::ClaimsUser ? "@SYS330368" : "@SYS90055");
+          #            return false;
+          #        }
+          #    }
+          #    else
+          #    {
+          #        // Uncheck the External checkbox since user is not enabled
+          #        userInfo.ExternalUser = false;
+          #
+          #        if(!userInDb)
+          #        {
+          #            warning("@SYS93696");
+          #        }
+          #    }
+          #
+          #    return true;
+          #}
+          #
+        ENDSOURCE
+        SOURCE #write
+          #void write()
+          #{
+          #    SysUserInfo sysUserInfo2;
+          #
+          #    userInfo.Id = strLTrim(strRTrim(userInfo.Id));
+          #    userInfo.NetworkAlias = strLTrim(strRTrim(userInfo.NetworkAlias));
+          #    userInfo.Name = strLTrim(strRTrim(userInfo.Name));
+          #
+          #    super();
+          #
+          #    ttsbegin;
+          #    select firstonly RecId from sysUserInfo2
+          #        where sysUserInfo2.Id == userinfo.Id;
+          #
+          #    if (!sysUserInfo2)
+          #    {
+          #        sysUserInfo2.initValue();
+          #        sysUserInfo2.Email = userEmail.text();
+          #        sysUserInfo2.Id = userinfo.Id;
+          #        sysUserInfo2.insert();
+          #    }
+          #    else
+          #    {
+          #        sysUserInfo2.Email = userEmail.text();
+          #    }
+          #
+          #    ttscommit;
+          #
+          #    SecurityKeySet::reloadDomainRestrictions();
+          #    element.updateCaller();
+          #}
+          #
+        ENDSOURCE
+        SOURCE #create
+          #public void create(boolean _append = false)
+          #{
+          #    element.launchDetailsPage(OpenMode::New);
+          #}
+        ENDSOURCE
+        SOURCE #initValue
+          #void initValue()
+          #{
+          #    Sid newSid = '';
+          #
+          #    infolog.getUserSetup().setDefaults(userInfo);
+          #    userInfo.Enable = false;
+          #
+          #    newSid = userInfo.Sid;
+          #
+          #    super();
+          #
+          #    if(newSid == '' && newSid != userInfo.Sid)
+          #    {
+          #        userInfo.Sid = '';
+          #    }
+          #
+          #    userInfo.Enable = false;
+          #    userInfo.NetworkAlias = '';
+          #    userInfo.NotifyTimeZoneMismatch = true;
+          #}
+        ENDSOURCE
+        SOURCE #delete
+          #void delete()
+          #{
+          #    SysUserLog              sysUserLog;
+          #    SysUserInfo             sysUserInfo;
+          #    DirPersonUser           dirPersonUser;
+          #
+          #    startLengthyOperation();
+          #
+          #    if(userInfo.Id == #GuestUser)
+          #    {
+          #        error(strFmt("@SYS29012", userInfo.Id));
+          #        endLengthyOperation();
+          #        return;
+          #    }
+          #
+          #    if(element.validateAdmin() && element.validateOnline())
+          #    {
+          #        ttsbegin;
+          #
+          #        delete_from sysUserLog
+          #            where sysUserLog.UserId == userInfo.Id;
+          #
+          #        delete_from sysUserInfo
+          #            where sysUserInfo.Id == userInfo.Id;
+          #
+          #        delete_from dirPersonUser
+          #            where dirPersonUser.User == userInfo.Id;
+          #
+          #        infolog.profileMgr().removeUserFromAllProfiles(userInfo.Id);
+          #
+          #        super();
+          #        ttscommit;
+          #    }
+          #    element.updateCaller();
+          #    endLengthyOperation();
+          #}
+        ENDSOURCE
+        SOURCE #active
+          #int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    // Not allowed to create user relations for AD group account types.
+          #    mnuItBtnRelations.enabled(userInfo.AccountType != UserAccountType::ADGroup);
+          #
+          #    profileTabLoaded = false;
+          #    return ret;
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+    PARTREFERENCE #partRolesForUser
+      PROPERTIES
+        Name                #partRolesForUser
+        MenuItemName        #SysSecPartRolesForUser
+        DataSource          #UserInfo
+        ElementPosition     #536870911
+      ENDPROPERTIES
+      
+    ENDPARTREFERENCE
+    
+    PARTREFERENCE #SysSecPartUserLog
+      PROPERTIES
+        Name                #SysSecPartUserLog
+        MenuItemName        #SyssecpartuserLog
+        DataSource          #UserInfo
+        DataSourceRelation  #SysUserLog.UserInfo
+        IsLinked            #Yes
+        ElementPosition     #1073741822
+      ENDPROPERTIES
+      
+    ENDPARTREFERENCE
+    
+    PARTREFERENCE #partProfiles
+      PROPERTIES
+        Name                #partProfiles
+        MenuItemName        #SysSecPartProfilesForUser
+        DataSource          #UserInfo
+        IsLinked            #Yes
+        ElementPosition     #1610612733
+      ENDPROPERTIES
+      
+    ENDPARTREFERENCE
+    
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS25412
+      UseCaptionFromMenuItem  #Yes
+      TitleDatasource     #UserInfo
+      WindowType          #ContentPage
+      SetCompany          #No
+      DataSource          #UserInfo
+      Style               #ListPage
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #715827882
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          Width               #Column width
+          ElementPosition     #1073741823
+          HierarchyParent     #ActionPane
+          Caption             #@SYS25412
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #AttachmentsGroup
+          ElementPosition     #2080374782
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS316708
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #btnGrpMaintain
+          ElementPosition     #1610612734
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS116749
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #btnGrpNew
+          ElementPosition     #1342177278
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS300817
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #btnGrpView
+          ElementPosition     #1744830462
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS342635
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #List
+          ElementPosition     #2013265918
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS6188
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #relatedInformation
+          ElementPosition     #1879048190
+          HierarchyParent     #ActionPaneTab
+          Caption             #@SYS323065
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          AutoDeclaration     #Yes
+          AllowEdit           #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1431655764
+          DataSource          #UserInfo
+          DefaultAction       #LaunchDefaultAction
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #UserInfo_Enabled
+          Width               #50
+          ElementPosition     #2130706430
+          HierarchyParent     #Grid
+          BackgroundColor     #Window background
+          Label               #@SYS60755
+          LabelWidth          #25
+          DataSource          #UserInfo
+          DataField           #enable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #UserInfo_External
+          AllowEdit           #No
+          Width               #50
+          ElementPosition     #2139095038
+          HierarchyParent     #Grid
+          BackgroundColor     #Window background
+          Label               #@SYS69716
+          LabelWidth          #25
+          DataSource          #UserInfo
+          DataField           #externalUser
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #UserInfo_accountType
+          AutoDeclaration     #Yes
+          HelpText            #@SYS329691
+          ElementPosition     #984263336
+          HierarchyParent     #Grid
+          Label               #@SYS27730
+          DataSource          #UserInfo
+          DataField           #accountType
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #selectionChange
+            #public int selectionChange()
+            #{
+            #    int ret = false;
+            #
+            #    if ((userInfo.Id != #GuestUser) && (!userInfo.EnabledOnce || userInfo.Id == #AdminUser))
+            #    {
+            #        ret = super();
+            #    }
+            #    else
+            #    {
+            #        this.text(enum2str(userInfo.AccountType));
+            #        this.update();
+            #    }
+            #
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #cmdBtnNew
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741822
+          HierarchyParent     #btnGrpNew
+          Text                #@SYS16181
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10565
+          ImageLocation       #EmbeddedResource
+          Big                 #Yes
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #mnuItBtnRemove
+          ElementPosition     #1908874351
+          HierarchyParent     #btnGrpMaintain
+          Text                #@SYS300820
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          MultiSelect         #Yes
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #refreshButton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS315818
+          ElementPosition     #1073741822
+          HierarchyParent     #List
+          Text                #@SYS29018
+          NormalImage         #11437
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Command             #2875
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #SendToExcel
+          HelpText            #@SYS315819
+          ElementPosition     #1610612733
+          HierarchyParent     #List
+          Text                #@SYS134461
+          NormalImage         #10156
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          MultiSelect         #Yes
+          Big                 #Yes
+          Command             #4436
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #LaunchDefaultAction
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #2087831322
+          HierarchyParent     #btnGrpMaintain
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10040
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          DataSource          #UserInfo
+          MenuItemName        #SysUserInfoDetail
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.launchDetailsPage(isEditMode ? OpenMode::Edit : OpenMode::View);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mibDocuView
+          AllowEdit           #No
+          HelpText            #@SYS128646
+          ElementPosition     #1431655764
+          HierarchyParent     #AttachmentsGroup
+          Text                #@SYS316600
+          NormalImage         #10442
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          MenuItemName        #DocuView
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItBtnDetails
+          AutoDeclaration     #Yes
+          HelpText            #@SYS107224
+          ElementPosition     #1789569704
+          HierarchyParent     #btnGrpMaintain
+          Text                #@SYS308814
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10040
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #UserInfo
+          MenuItemName        #SysUserInfoDetail
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    element.launchDetailsPage(OpenMode::Edit);
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItBtnImport
+          HelpText            #@SYS322381
+          ElementPosition     #1610612733
+          HierarchyParent     #btnGrpNew
+          Text                #@SYS105127
+          ButtonDisplay       #Text & Image above
+          NormalImage         #11328
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          MenuItemName        #SysSecUserAddRoles
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    SysUserADUserImportWizard wizard;
+            #    ;
+            #
+            #    wizard = SysUserADUserImportWizard::construct();
+            #
+            #    wizard.setDomainsEnumerated(false);
+            #    if (wizard.prompt())
+            #        wizard.run();
+            #
+            #    userInfo_ds.executeQuery();
+            #    grid.update();
+            #    element.updateCaller();
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItBtnLog
+          ElementPosition     #1073741822
+          HierarchyParent     #relatedInformation
+          Text                #@SYS179648
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10835
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          MenuItemName        #SysUserLog
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItBtnOnlineTime
+          ElementPosition     #1610612733
+          HierarchyParent     #relatedInformation
+          Text                #@SYS69324
+          ButtonDisplay       #Text & Image above
+          NormalImage         #11013
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          MenuItemType        #Output
+          MenuItemName        #SysUsersOnlineReport
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItBtnOptions
+          ElementPosition     #984263336
+          HierarchyParent     #btnGrpView
+          Text                #@SYS119149
+          ButtonDisplay       #Text & Image above
+          NormalImage         #1044
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #UserInfo
+          MenuItemName        #SysUserSetup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItBtnProfiles
+          AutoDeclaration     #Yes
+          ElementPosition     #1811939326
+          HierarchyParent     #btnGrpView
+          Text                #@SYS343149
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10959
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          NeedsRecord         #Yes
+          DataSource          #UserInfo
+          MenuItemName        #Profiles
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItBtnRelations
+          AutoDeclaration     #Yes
+          ElementPosition     #1476395006
+          HierarchyParent     #btnGrpView
+          Text                #@SYS80613
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10056
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Big                 #Yes
+          Primary             #Yes
+          DataSource          #UserInfo
+          MenuItemName        #SysCompanyUserInfo
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #mnuItmBtnEditInGrid
+          AutoDeclaration     #Yes
+          ElementPosition     #1849222027
+          HierarchyParent     #btnGrpMaintain
+          Text                #@SYS319303
+          ButtonDisplay       #Text & Image above
+          NormalImage         #10011
+          ImageLocation       #EmbeddedResource
+          ShowShortCut        #No
+          Primary             #Yes
+          DataSource          #UserInfo
+          OpenMode            #Edit
+          CopyCallerQuery     #Yes
+          FormViewOption      #Grid
+          MenuItemName        #SysUserInfoPageEdit
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #UserEmail
+          AutoDeclaration     #Yes
+          Visible             #No
+          AllowEdit           #No
+          ElementPosition     #2143289342
+          HierarchyParent     #Grid
+          ExtendedDataType    
+            ARRAY 
+              #Email
+              #
+            ENDARRAY
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #UserInfo_Company
+          Width               #56
+          HelpText            #@SYS81122
+          ElementPosition     #2105540606
+          HierarchyParent     #Grid
+          Label               #@SYS13342
+          DataSource          #UserInfo
+          DataField           #company
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #lookup
+            #public void lookup()
+            #{
+            #    Query                query;
+            #    QueryBuildDataSource dataAreaDS;
+            #    QueryBuildDataSource filterDS;
+            #    QueryBuildRange      range;
+            #
+            #    SysTableLookup sysTableLookup;
+            #    SecurityRights rights;
+            #
+            #    if (!userInfo.RecId)
+            #    {
+            #        // User doe not exist yet;
+            #        // show all companies.
+            #        super();
+            #    }
+            #    else
+            #    {
+            #        // Populated UserDataAreaFilter
+            #        // with list of selectble companies
+            #        rights = SecurityRights::newUser(userInfo.Id);
+            #        rights.populateSelectableCompanies();
+            #
+            #        // Initialize table lookup
+            #        // and add fields to be shown in the lookup form.
+            #        sysTableLookup = SysTableLookup::newParameters(tableNum(DataArea), this);
+            #        sysTableLookup.addLookupfield(fieldNum(DataArea, Id));
+            #        sysTableLookup.addLookupfield(fieldNum(DataArea, Name));
+            #
+            #        // Build the query...
+            #        // select Id, Name from DataArea A
+            #        // exists join UserDataAreaFilter B
+            #        // on A.Id = B.DataArea
+            #        // where B.User == <UserId>
+            #        query = new Query();
+            #        dataAreaDS = query.addDataSource(tableNum(DataArea));
+            #        range = dataAreaDS.addRange(fieldNum(DataArea, IsVirtual));
+            #        range.status(RangeStatus::Hidden);
+            #        range.value(SysQuery::value(false));
+            #
+            #        filterDS = dataAreaDS.addDataSource(tableNum(UserDataAreaFilter));
+            #        filterDS.relations(true);
+            #        range = filterDS.addRange(fieldNum(UserDataAreaFilter, User));
+            #        range.status(RangeStatus::Hidden);
+            #        range.value(SysQuery::value(userInfo.Id));
+            #
+            #        // Set the query and perform the lookup.
+            #        sysTableLookup.parmQuery(query);
+            #        sysTableLookup.performFormLookup();
+            #
+            #        // Don't call super()
+            #        // super()
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #UserInfo_Id
+          AutoDeclaration     #Yes
+          Width               #50
+          ElementPosition     #2013265918
+          HierarchyParent     #Grid
+          Label               #@SYS4517
+          DataSource          #UserInfo
+          DataField           #id
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #UserInfo_Name
+          AutoDeclaration     #Yes
+          ElementPosition     #2080374782
+          HierarchyParent     #Grid
+          DataSource          #UserInfo
+          DataField           #name
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #gotFocus
+            #public void gotFocus()
+            #{
+            #    super();
+            #    nameText = this.text();
+            #}
+          ENDSOURCE
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    str usrId;
+            #    usrId = userInfo.Id;
+            #    if(!inNameTextChange && usrId == #GuestUser)
+            #    {
+            #        inNameTextChange = true;
+            #        this.text('');
+            #        inNameTextChange = false;
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #UserInfo_NetworkAlias
+          AutoDeclaration     #Yes
+          HelpText            #@SYS344941
+          ElementPosition     #1431655763
+          HierarchyParent     #Grid
+          Label               #@SYS344940
+          DataSource          #UserInfo
+          DataField           #networkAlias
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #gotFocus
+            #public void gotFocus()
+            #{
+            #    super();
+            #    aliasText = this.text();
+            #    aliasUserId = userInfo.Id;
+            #    enabledOnce = userInfo.EnabledOnce;
+            #}
+          ENDSOURCE
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #
+            #    Name alias;
+            #    str initUserId;
+            #
+            #    ret = super();
+            #
+            #    alias = this.text();
+            #
+            #    // If the user id is not entered and alias is entered, generated a 5 character user id and update the grid
+            #    if(alias != '' && userInfo.Id == '')
+            #    {
+            #        initUserId = element.generateInitialUserId(alias);
+            #
+            #        if(initUserId != '')
+            #        {
+            #            userInfo.Id = initUserId;
+            #        }
+            #    }
+            #
+            #    return ret;
+            #}
+            #
+          ENDSOURCE
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    str usrId;
+            #    usrId = userInfo.Id;
+            #
+            #    if(!inAliasTextChange && usrId == aliasUserId)
+            #    {
+            #        if(((aliasText != '' && usrId != #AdminUser)  && enabledOnce) || (usrId == #GuestUser))
+            #        {
+            #            inAliasTextChange = true;
+            #            this.text(aliasText);
+            #            inAliasTextChange = false;
+            #        }
+            #    }
+            #}
+            #
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #UserInfo_NetworkDomain
+          AutoDeclaration     #Yes
+          ElementPosition     #1879048190
+          HierarchyParent     #Grid
+          Label               #@SYS89981
+          DataSource          #UserInfo
+          DataField           #networkDomain
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #gotFocus
+            #public void gotFocus()
+            #{
+            #    super();
+            #    domainText = this.text();
+            #    domainUserId = userInfo.Id;
+            #    enabledOnce = userInfo.EnabledOnce;
+            #}
+          ENDSOURCE
+          SOURCE #textChange
+            #public void textChange()
+            #{
+            #    str usrId;
+            #    usrId = userInfo.Id;
+            #
+            #    if(!inDomainTextChange && usrId == domainUserId)
+            #    {
+            #        if(((domainText != '' && usrId != #AdminUser)  && enabledOnce) || (usrId == #GuestUser))
+            #        {
+            #            inDomainTextChange = true;
+            #            this.text(domainText);
+            #            inDomainTextChange = false;
+            #        }
+            #    }
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+  ASSOCIATEDFORM #SysUserInfoDetail
+    PROPERTIES
+      Form                #SysUserInfoDetail
+      AccessLevel         #Read
+      SystemManaged       #No
+      ManagedBy           #Manual
+    ENDPROPERTIES
+    
+  ENDASSOCIATEDFORM
+  
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+  ASSOCIATEDFORM #SysUserInfoDetail
+    PROPERTIES
+      Form                #SysUserInfoDetail
+      AccessLevel         #Update
+      SystemManaged       #No
+      ManagedBy           #Manual
+    ENDPROPERTIES
+    
+  ENDASSOCIATEDFORM
+  
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+  ASSOCIATEDFORM #SysUserInfoDetail
+    PROPERTIES
+      Form                #SysUserInfoDetail
+      AccessLevel         #Create
+      SystemManaged       #No
+      ManagedBy           #Manual
+    ENDPROPERTIES
+    
+  ENDASSOCIATEDFORM
+  
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+  ASSOCIATEDFORM #SysUserInfoDetail
+    PROPERTIES
+      Form                #SysUserInfoDetail
+      AccessLevel         #Delete
+      SystemManaged       #No
+      ManagedBy           #Manual
+    ENDPROPERTIES
+    
+  ENDASSOCIATEDFORM
+  
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_03_08_RecordColor unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_03_08_RecordColor
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_03_08_RecordColor
+    Origin              #{782AADE6-797E-4A9B-9C7E-C8151BB9C085}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #SysUserInfoPage
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

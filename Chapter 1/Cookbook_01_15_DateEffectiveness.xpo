@@ -1,0 +1,1587 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : SysEmailTable unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #SysEmailTable
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #SysEmailTable
+      Label               #@SYS74046
+      TitleField1         #EmailId
+      TitleField2         #Description
+      SecurityKey         #BasicTables
+      CacheLookup         #Found
+      TableGroup          #Main
+      PrimaryIndex        #emailIdIdx
+      ClusterIndex        #emailIdIdx
+      DeveloperDocumentation  #@SYS124666
+      ValidTimeStateFieldType   #Date
+      Origin              #{2C0D0669-0000-1000-2F89-A7B0A2DF786C}
+      LegacyId            #1641
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #ValidFrom
+        DATE
+        PROPERTIES
+          Name                #ValidFrom
+          Table               #SysEmailTable
+          Origin              #{22B6CD75-676A-4C79-BCB9-1EE1C53D9382}
+          ExtendedDataType    #ValidFromDate
+        ENDPROPERTIES
+        
+      FIELD #ValidTo
+        DATE
+        PROPERTIES
+          Name                #ValidTo
+          Table               #SysEmailTable
+          Origin              #{25B23215-ACFE-47B6-993A-8FF5CD8F950B}
+          ExtendedDataType    #ValidToDate
+        ENDPROPERTIES
+        
+      FIELD #BatchGroupId
+        STRING
+        PROPERTIES
+          Name                #BatchGroupId
+          Table               #SysEmailTable
+          Origin              #{B165BBF5-AD55-4FD4-91EE-CDA90710C690}
+          LegacyId            #8
+          ExtendedDataType    #BatchGroupId
+        ENDPROPERTIES
+        
+      FIELD #DefaultLanguage
+        STRING
+        PROPERTIES
+          Name                #DefaultLanguage
+          Label               #@SYS25160
+          HelpText            #@SYS74348
+          Table               #SysEmailTable
+          Origin              #{8D02DCB1-FAF7-48EA-AE81-CBEA5AE7BEDD}
+          LegacyId            #4
+          ExtendedDataType    #LanguageId
+          StringSize          #7
+        ENDPROPERTIES
+        
+      FIELD #Description
+        STRING
+        PROPERTIES
+          Name                #Description
+          Table               #SysEmailTable
+          Origin              #{B1BE0BB7-8061-425D-9835-500CBF1BC5E5}
+          LegacyId            #1
+          ExtendedDataType    #SysEmailDescriptionType
+          StringSize          #32
+        ENDPROPERTIES
+        
+      FIELD #EmailId
+        STRING
+        PROPERTIES
+          Name                #EmailId
+          Mandatory           #Yes
+          AllowEdit           #No
+          Table               #SysEmailTable
+          Origin              #{97E9FCDD-9364-4E53-AE89-65BF3F8FA6A8}
+          LegacyId            #2
+          ExtendedDataType    #SysEmailId
+        ENDPROPERTIES
+        
+      FIELD #Priority
+        ENUM
+        PROPERTIES
+          Name                #Priority
+          Label               #@SYS15156
+          HelpText            #@SYS74349
+          Table               #SysEmailTable
+          Origin              #{49ED669F-333C-49F9-B728-9A2DBEC92DAD}
+          LegacyId            #7
+          EnumType            #eMailPriority
+        ENDPROPERTIES
+        
+      FIELD #SenderAddr
+        STRING
+        PROPERTIES
+          Name                #SenderAddr
+          Label               #@SYS342791
+          Mandatory           #Yes
+          Table               #SysEmailTable
+          Origin              #{868B6CB4-CEA2-4B0B-B15A-52C72D31FF0E}
+          LegacyId            #3
+          ExtendedDataType    #SysEmailAddress
+          StringSize          #80
+        ENDPROPERTIES
+        
+      FIELD #SenderName
+        STRING
+        PROPERTIES
+          Name                #SenderName
+          Label               #@SYS74261
+          Mandatory           #Yes
+          Table               #SysEmailTable
+          Origin              #{F3960FF1-D975-492D-B825-11187061EDAB}
+          LegacyId            #5
+          ExtendedDataType    #EmailProfileName
+          StringSize          #80
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #EmailId
+          #Description
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Batch
+        PROPERTIES
+          Name                #Batch
+          Label               #@SYS14462
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #BatchGroupId
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Identification
+        PROPERTIES
+          Name                #Identification
+          Label               #@SYS5711
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #EmailId
+          #Description
+          #DefaultLanguage
+          #SenderName
+          #SenderAddr
+          #ValidFrom
+          #ValidTo
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Overview
+        PROPERTIES
+          Name                #Overview
+          Label               #@SYS9039
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #EmailId
+          #Description
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Priority
+        PROPERTIES
+          Name                #Priority
+          Label               #@SYS15156
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Priority
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Sender
+        PROPERTIES
+          Name                #Sender
+          Label               #@SYS74259
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #SenderName
+          #SenderAddr
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #emailIdIdx
+      PROPERTIES
+        Name                #emailIdIdx
+        AllowDuplicates     #No
+        AlternateKey        #Yes
+        ValidTimeStateKey   #Yes
+        ValidTimeStateMode  #NoGap
+        Origin              #{2B0A0001-0669-1000-F15B-C57B6C496449}
+        LegacyId            #1
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #EmailId
+        #ValidFrom
+        #ValidTo
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+      REFERENCE #BatchGroup
+        PROPERTIES
+          Name                #BatchGroup
+          Table               #BatchGroup
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #BatchGroup
+          Role                #SysEmailTable
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #BatchGroupId
+            RelatedField        #Group
+            SourceEDT           #BatchGroupId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #LanguageTable
+        PROPERTIES
+          Name                #LanguageTable
+          Table               #LanguageTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE NORMAL
+          PROPERTIES
+            Field               #DefaultLanguage
+            RelatedField        #LanguageId
+            SourceEDT           #LanguageId
+          ENDPROPERTIES
+          
+          REFERENCETYPE EXTERNFIXED
+          PROPERTIES
+            Value               #1
+            Table               #LanguageTable
+            RelatedField        #LabelFile
+            SourceEDT           #LanguageId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+    ENDREFERENCES
+    
+    DELETEACTIONS
+      #SysEmailMessageTable
+      PROPERTIES
+        Table               #SysEmailMessageTable
+        DeleteAction        #Cascade
+      ENDPROPERTIES
+      
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #initValue
+        #public void initValue()
+        #{
+        #    this.Priority = eMailPriority::Normal;
+        #    super();
+        #}
+      ENDSOURCE
+      SOURCE #embedImages
+        #static container embedImages(str html)
+        #{
+        #    #help
+        #    InteropPermission permission = new InteropPermission(InteropKind::ComInterop);
+        #
+        #    COM document;
+        #
+        #    COM imgCollection;
+        #    COM htmlCollection;
+        #    COM imgElement, htmlElement;
+        #    COMVariant src;
+        #    Filename filename;
+        #    int i;
+        #    List list = new List(Types::String);
+        #    Map  map  = new Map(Types::String, Types::String);
+        #
+        #    permission.assert();
+        #
+        #    src = new COMVariant();
+        #
+        #    //BP Deviation Documented
+        #    document = new COM(#HTMLDocumentClassName);
+        #
+        #    if (document)
+        #    {
+        #        SysEmailTable::insertHTML2Document(document, html);
+        #        //BP Deviation Documented
+        #        imgCollection = document.getElementsByTagName('IMG');
+        #        //BP Deviation Documented
+        #        for (i=1; i<=imgCollection.length(); i++)
+        #        {
+        #            //BP Deviation Documented
+        #            imgElement = imgCollection.item(i-1);
+        #            //BP Deviation Documented
+        #            src = imgElement.getAttribute('src');
+        #            //BP Deviation Documented
+        #            filename = src.bStr();
+        #            if (subStr(filename,1,5) == 'file:')
+        #            {
+        #                //Server paths are: "file://server/file" -> "//server/file"
+        #                //normal paths are: "file:///c:/file"    -> "c:/file"
+        #
+        #                if (subStr(filename,1,8) == 'file:///')
+        #                    filename = subStr(filename, 9, maxInt());
+        #                if (subStr(filename,1,7) == 'file://')
+        #                    filename = subStr(filename, 6, maxInt());
+        #
+        #                if (map.exists(filename))
+        #                {
+        #                    //BP Deviation Documented
+        #                    src.bStr('cid:'+map.lookup(filename));
+        #                }
+        #                else
+        #                {
+        #                    list.addEnd(filename);
+        #                    //BP Deviation Documented
+        #                    src.bStr('cid:'+int2str(list.elements()));
+        #                    map.insert(filename, int2str(list.elements()));
+        #                }
+        #                //BP Deviation Documented
+        #                imgElement.setAttribute('src', src);
+        #            }
+        #        }
+        #
+        #        //BP Deviation Documented
+        #        htmlCollection = document.getElementsByTagName('html');
+        #        //BP Deviation Documented
+        #        htmlElement = htmlCollection.item(0);
+        #        //BP Deviation Documented
+        #        return ['<html>'+htmlElement.innerhtml()+'</html>', list.pack()];
+        #    }
+        #
+        #    CodeAccessPermission::revertAssert();
+        #    return [html, list.pack()];
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #static SysEmailTable find(SysEmailId _id,
+        #                      boolean        _forUpdate = false)
+        #{
+        #    SysEmailTable sysEmailTable;
+        #    ;
+        #
+        #    if (_id)
+        #    {
+        #        sysEmailTable.selectForUpdate(_forUpdate);
+        #
+        #        select firstonly sysEmailTable
+        #            index hint emailIdIdx
+        #            where sysEmailTable.EmailId == _id;
+        #    }
+        #    return sysEmailTable;
+        #}
+      ENDSOURCE
+      SOURCE #htmlDecode
+        #public static str htmlDecode(str _fileName)
+        #{
+        #
+        #    ;
+        #
+        #    _fileName = strReplace(_fileName,'&amp;','&');
+        #    _fileName = strReplace(_fileName,'&quot;','"');
+        #    _fileName = strReplace(_fileName,'&#39;','\'');
+        #    _fileName = strReplace(_fileName,'&lt;','<');
+        #    _fileName = strReplace(_fileName,'&gt;','>');
+        #    _fileName = strReplace(_fileName, '%20', ' ');
+        #
+        #    return _fileName;
+        #}
+      ENDSOURCE
+      SOURCE #htmlEncode
+        #public static str htmlEncode(str html)
+        #{
+        #    str ret;
+        #    str char;
+        #    int curPos;
+        #    int lastPos = 1;
+        #    int length = strLen(html);
+        #
+        #    if (!length)
+        #        return '';
+        #
+        #    curPos = strFind(html,'<>&\"\'',1,length);
+        #    while(curPos > 0)
+        #    {
+        #        //append ok characters
+        #        ret += subStr(html,lastPos,curPos-lastPos);
+        #
+        #        //encode characters
+        #        char = subStr(html,curPos,1);
+        #        switch (char)
+        #        {
+        #            case '<':
+        #                ret += '&lt;';
+        #                break;
+        #            case '>':
+        #                ret += '&gt;';
+        #                break;
+        #            case '&':
+        #                ret += '&amp;';
+        #                break;
+        #            case '\"':
+        #                ret += '&quot;';
+        #                break;
+        #            case '\'':
+        #                ret += '&#39;';
+        #                break;
+        #        }
+        #
+        #        //find next character to encode
+        #        lastPos = curPos + 1;
+        #        curPos = strFind(html,'<>&\"\'',lastPos,length-curPos);
+        #    }
+        #
+        #    //append remaining ok characters
+        #    ret += subStr(html,lastPos,length-lastPos+1);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #htmlEncodeParameters
+        #public static Map htmlEncodeParameters(Map _params)
+        #{
+        #    MapEnumerator mapEnum;
+        #    Map encodedMap;
+        #
+        #    ;
+        #
+        #    if (_params)
+        #    {
+        #        encodedMap = new Map(Types::String, Types::String);
+        #
+        #        mapEnum = _params.getEnumerator();
+        #
+        #        while (mapEnum.moveNext())
+        #        {
+        #            encodedMap.insert(mapEnum.currentKey(), SysEmailTable::htmlEncode(mapEnum.currentValue()));
+        #        }
+        #    }
+        #
+        #    return encodedMap;
+        #}
+      ENDSOURCE
+      SOURCE #insertHTML2Document
+        #static void insertHTML2Document(COM document, str htmlText)
+        #{
+        #    COMDispFunction comWrite;
+        #    COMVariant text = new COMVariant();
+        #    COM ctrl;
+        #
+        #    InteropPermission permission = new InteropPermission(InteropKind::ComInterop);
+        #    permission.assert();
+        #
+        #    ctrl = new COM();
+        #    ctrl.attach(document.interface());
+        #    comWrite = new COMDispFunction(ctrl, 'write', COMDispContext::Method);
+        #    text.bStr(htmltext);
+        #
+        #    //BP Deviation Documented
+        #    document.open('');
+        #
+        #    //BP Deviation Documented
+        #    comWrite.call(text);
+        #    //BP Deviation Documented
+        #    document.close();
+        #}
+      ENDSOURCE
+      SOURCE #isFromAttachmentsFolder
+        #static boolean isFromAttachmentsFolder(str _pathName)
+        #{
+        #    SysEmailParameters emailParams = SysEmailParameters::find();
+        #    str attachmentsFolder;
+        #    str prefix;
+        #    str folderChar;
+        #    str pathName;
+        #
+        #    ;
+        #
+        #    attachmentsFolder = Global::strReplace(emailParams.AttachmentsPath,'//','/');
+        #    pathName = Global::strReplace(_pathName,'//','/');
+        #
+        #    attachmentsFolder = Global::strReplace(attachmentsFolder,'\\','/');
+        #    pathName = Global::strReplace(pathName,'\\','/');
+        #
+        #    // if folder not specified, do not allow adding any attachments to emails
+        #    if (!attachmentsFolder)
+        #        return false;
+        #
+        #    if (subStr(attachmentsFolder,strLen(attachmentsFolder),1) == '/')
+        #        attachmentsFolder = subStr(attachmentsFolder,1,strLen(attachmentsFolder) -1);
+        #
+        #    if (strLen(pathName) < strLen(attachmentsFolder))
+        #        return false;
+        #
+        #    prefix = subStr(pathName,1,strLen(attachmentsFolder));
+        #
+        #    if (strLen(pathName) > strLen(attachmentsFolder))
+        #    {
+        #        folderChar = subStr(pathName, strLen(attachmentsFolder) + 1, 1);
+        #        return (strCmp(strUpr(attachmentsFolder),strUpr(prefix)) == 0) && (folderChar == '/');
+        #    }
+        #    else
+        #        return (strCmp(strUpr(attachmentsFolder),strUpr(prefix)) == 0);
+        #
+        #}
+      ENDSOURCE
+      SOURCE #sendMail
+        #server static void sendMail(
+        #    SysEmailId      _emailId,
+        #    LanguageId      _language,
+        #    str             _emailAddr,
+        #    Map             _mappings = null,
+        #    FilenameOpen    _attachmentFilename = '',
+        #    str _xmlData = '',
+        #    boolean _isTraceable = false,
+        #    UserId _userId = '',
+        #    boolean _isWithRetries = false)
+        #{
+        #    #SysMailer
+        #    LanguageId languageId;
+        #
+        #    SysEmailTable table = SysEmailTable::find(_emailId);
+        #    SysEmailMessageTable message;
+        #
+        #    str messageBody;
+        #    container data;
+        #    container embeddedBinaryData;
+        #
+        #    Filename filePath;
+        #    Filename filename;
+        #    Filename fileExtension;
+        #
+        #    List list;
+        #    ListEnumerator enumerator;
+        #    SysEmailItemId nextEmailItemId;
+        #    Filename htmlDecodedFileName;
+        #
+        #    int i = 1;
+        #    int maxAttachmentSize;
+        #
+        #    BinData binData;
+        #
+        #    SysOutgoingEmailTable outgoingEmailTable;
+        #    SysOutgoingEmailData outgoingEmailData;
+        #
+        #    SysEmailBatch batch = SysEmailBatch::construct();
+        #    FileIOPermission fileIOPermission;
+        #
+        #    SysEmailParameters emailParams = SysEmailParameters::find();
+        #
+        #    ;
+        #
+        #    maxAttachmentSize = emailParams.MaxEmailAttachmentSize;
+        #
+        #    //maxAttachmentSize in megabytes
+        #    if (maxAttachmentSize < 1)
+        #        maxAttachmentSize = #maxAttachmentSizeDefault;
+        #
+        #    if (_language)
+        #        languageId = _language;
+        #    else
+        #        languageId = table.DefaultLanguage;
+        #
+        #    message = SysEmailMessageTable::find(_emailId, languageId);
+        #
+        #
+        #    if (!message)
+        #    {
+        #        // Message not found for this language.
+        #        message = SysEmailMessageTable::find(_emailId, table.DefaultLanguage);
+        #    }
+        #
+        #    if (message)
+        #    {
+        #
+        #        if (message.LayoutType == SysEmailLayoutType::StaticLayout)
+        #            messageBody = message.Mail;
+        #        else
+        #            messageBody = SysEmailBatch::doTransform(_xmlData, message.xsltMail);
+        #
+        #        messageBody = SysLabel::resolveLabels(messageBody, languageId);
+        #
+        #        if (_isTraceable)
+        #        {
+        #            ttsbegin;
+        #
+        #            nextEmailItemId = EventInbox::nextEventId();
+        #
+        #            outgoingEmailTable.EmailItemId = nextEmailItemId;
+        #            outgoingEmailTable.TemplateId = table.EmailId;
+        #            outgoingEmailTable.IsSystemEmail = NoYes::No;
+        #
+        #            outgoingEmailTable.Sender = table.SenderAddr;
+        #            outgoingEmailTable.SenderName = table.SenderName;
+        #            outgoingEmailTable.Recipient = _emailAddr;
+        #
+        #            //note: first do the xml transform if needed, params are substitued after that
+        #            messageBody = SysEmailMessage::stringExpand(messageBody, SysEmailTable::htmlEncodeParameters(_mappings));
+        #            messageBody = strReplace(messageBody, '\n', '<br>');
+        #            [outgoingEmailTable.Message, data] = SysEmailTable::embedImages(messageBody);
+        #
+        #            list = List::create(data);
+        #            enumerator = list.getEnumerator();
+        #            while (enumerator.moveNext())
+        #            {
+        #                htmlDecodedFileName = SysEmailTable::htmlDecode(enumerator.current());
+        #
+        #                fileIOPermission = new FileIOPermission(htmlDecodedFileName,'r');
+        #                fileIOPermission.assert();
+        #                //BP Deviation Documented
+        #                if (WinAPIServer::fileExists(htmlDecodedFileName) &&
+        #                    //BP Deviation Documented
+        #                    (WinAPIServer::fileSize( htmlDecodedFileName) < (maxAttachmentSize * 1000000)) &&
+        #                    SysEmailTable::isFromAttachmentsFolder(htmlDecodedFileName))
+        #                {
+        #                    binData = new BinData();
+        #                    //BP Deviation Documented
+        #                    binData.loadFile(htmlDecodedFileName);
+        #                    embeddedBinaryData = binData.getData();
+        #
+        #                    outgoingEmailData.EmailItemId = nextEmailItemId;
+        #                    outgoingEmailData.DataId = i;
+        #                    outgoingEmailData.EmailDataType = SysEmailDataType::Embedded;
+        #                    outgoingEmailData.Data = embeddedBinaryData;
+        #                    [filePath, filename, fileExtension] = Global::fileNameSplit(htmlDecodedFileName);
+        #
+        #                    outgoingEmailData.FileName = int642str(nextEmailItemId) + '_' + int2str(i);
+        #                    outgoingEmailData.FileExtension = fileExtension;
+        #
+        #                    outgoingEmailData.insert();
+        #
+        #                    i++;
+        #
+        #                }
+        #
+        #                CodeAccessPermission::revertAssert();
+        #            }
+        #
+        #            outgoingEmailTable.Subject = SysEmailMessage::stringExpand(message.Subject, _mappings);
+        #
+        #            outgoingEmailTable.Priority = table.Priority;
+        #            outgoingEmailTable.WithRetries = _isWithRetries;
+        #            outgoingEmailTable.RetryNum = 0;
+        #            outgoingEmailTable.UserId = _userId;
+        #            outgoingEmailTable.Status = SysEmailStatus::Unsent;
+        #
+        #            fileIOPermission = new FileIOPermission(_attachmentFilename,'r');
+        #            fileIOPermission.assert();
+        #            //BP Deviation Documented
+        #            if (_attachmentFilename && WinAPIServer::fileExists(_attachmentFilename) &&
+        #               SysEmailTable::isFromAttachmentsFolder(_attachmentFilename))
+        #            {
+        #                //BP Deviation Documented
+        #                if (WinAPIServer::fileSize(_attachmentFilename) < (maxAttachmentSize * 1000000))
+        #                {
+        #                    binData = new BinData();
+        #                    //BP Deviation Documented
+        #                    binData.loadFile(_attachmentFilename);
+        #                    embeddedBinaryData = binData.getData();
+        #
+        #                    outgoingEmailData.EmailItemId = nextEmailItemId;
+        #                    outgoingEmailData.DataId = i;
+        #                    outgoingEmailData.EmailDataType = SysEmailDataType::Attachment;
+        #                    outgoingEmailData.Data = embeddedBinaryData;
+        #                    [filePath, filename, fileExtension] = Global::fileNameSplit(_attachmentFilename);
+        #                    outgoingEmailData.FileName = filename;
+        #                    outgoingEmailData.FileExtension = fileExtension;
+        #
+        #                    outgoingEmailData.insert();
+        #                }
+        #            }
+        #
+        #            CodeAccessPermission::revertAssert();
+        #
+        #            outgoingEmailTable.LatestStatusChangeDateTime = DateTimeUtil::getSystemDateTime();
+        #            outgoingEmailTable.insert();
+        #
+        #            ttscommit;
+        #
+        #
+        #        }
+        #        else
+        #        {
+        #            messageBody = SysEmailMessage::stringExpand(messageBody, SysEmailTable::htmlEncodeParameters(_mappings));
+        #            messageBody = strReplace(messageBody, '\n', '<br>');
+        #
+        #            // Prepare the batch object
+        #            batch.parmEmailAddr(_emailAddr);
+        #            batch.parmMessageBody(messageBody);
+        #            batch.parmSenderAddr(table.SenderAddr);
+        #            batch.parmSendername(table.SenderName);
+        #            batch.parmSubject(SysEmailMessage::stringExpand(message.Subject,_mappings));
+        #            batch.parmPriority(table.Priority);
+        #            batch.addAttachmentfileName(_attachmentFilename);
+        #
+        #            if (table.BatchGroupId)
+        #                batch.sendToBatch(table.BatchGroupId);
+        #            else
+        #                batch.run();
+        #        }
+        #    }
+        #    else
+        #        throw error(strFmt("@SYS74260", _language));
+        #}
+        #
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #SysEmailTable
+  PROPERTIES
+    Name                #SysEmailTable
+    Origin              #{1E26D6A7-920C-4868-AD17-65752E32CF5B}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #    boolean emailButtonEnabled;
+      #    boolean emailSystemButtonEnabled;
+      #    boolean isEmailInit;
+      #    boolean isSysEmailInit;
+      #}
+    ENDSOURCE
+    SOURCE #init
+      #public void init()
+      #{
+      #    boolean isSystem;
+      #    super();
+      #
+      #    if (!hasMenuItemAccess(menuitemDisplayStr(SysEmailSystemTable), MenuItemType::Display))
+      #    {
+      #        system.visible(false);
+      #    }
+      #    if (element.args() && element.args().caller())    //goto main table
+      #    {
+      #        system.visible(false);
+      #        isSystem = element.args().parmEnum();
+      #        if (isSystem)
+      #        {
+      #            element.showSystem(true);
+      #            // Set system template check
+      #            system.value(true);
+      #            sysEmailTable_ds.autoSearch(false);
+      #        }
+      #    }
+      #
+      #}
+    ENDSOURCE
+    SOURCE #showEmailBody
+      #void showEmailBody()
+      #{
+      #
+      #    FormRun formRun;
+      #    Args args = new Args();
+      #    boolean isSystem = system.checked();
+      #    MenuFunction mf;
+      #
+      #    ;
+      #
+      #    args.caller(this);
+      #
+      #    if (isSystem)
+      #    {
+      #        if(sysEmailSystemMessage.LanguageId)
+      #        {
+      #            args.record(sysEmailSystemMessage);
+      #            args.parm('1');
+      #        }
+      #        else
+      #        {
+      #            throw error("@SYS93670");
+      #        }
+      #
+      #
+      #        if(sysEmailSystemMessage.LayoutType == SysEmailLayoutType::StaticLayout)
+      #        {
+      #            mf =  new MenuFunction(menuitemDisplayStr(SysEMailEditorSystem),
+      #                                         MenuItemType::Display);
+      #            mf.run(args);
+      #        }
+      #        else
+      #        {
+      #            formRun = new MenuFunction(menuitemDisplayStr(SysEmailMessageXsltEditor),
+      #                                         MenuItemType::Display).create(args);
+      #            formRun.run();
+      #            formRun.detach();
+      #        }
+      #
+      #    }
+      #    else
+      #    {
+      #        if (sysEmailMessage.LanguageId)
+      #    {
+      #        args.record(sysEmailMessage);
+      #        args.parm('0');
+      #    }
+      #    else
+      #    {
+      #        throw error("@SYS93670");
+      #    }
+      #
+      #    if(sysEmailMessage.LayoutType == SysEmailLayoutType::StaticLayout)
+      #    {
+      #         mf =  new MenuFunction(menuitemDisplayStr(SysEMailEditor),
+      #                                         MenuItemType::Display);
+      #         mf.run(args);
+      #
+      #    }
+      #    else
+      #    {
+      #        formRun = new MenuFunction(menuitemDisplayStr(SysEmailMessageXsltEditor),
+      #                                       MenuItemType::Display).create(args);
+      #
+      #        formRun.run();
+      #        formRun.detach();
+      #    }
+      #}
+      #
+      #}
+    ENDSOURCE
+    SOURCE #showSystem
+      #public void showSystem(boolean showSystem)
+      #{
+      #
+      #    element.lockWindowUpdate(true);
+      #    grid.visible(!showSystem);
+      #    identification.visible(!showSystem);
+      #    sender.visible(!showSystem);
+      #    batch.visible(!showSystem);
+      #    priority.visible(!showSystem);
+      #    emailmessage.visible(!showSystem);
+      #
+      #
+      #    gridSystem.visible(showSystem);
+      #    identificationSystem.visible(showSystem);
+      #    senderSystem.visible(showSystem);
+      #    batchSystem.visible(showSystem);
+      #    prioritySystem.visible(showSystem);
+      #    emailsystemmessage.visible(showSystem);
+      #
+      #    element.lockWindowUpdate(false);
+      #
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #SysEmailTable
+          Table               #SysEmailTable
+          InsertIfEmpty       #No
+          ValidTimeStateAutoQuery   #DateRange
+          ValidTimeStateUpdate #Correction
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD SenderAddr
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #public boolean validate()
+                #{
+                #    boolean ret;
+                #
+                #    ret = SysEmailDistributor::validateEmail(sysEmailTable.SenderAddr);
+                #    if (!ret)
+                #        throw error("@SYS96645");
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #SysEmailSystemTable
+          Table               #SysEmailSystemTable
+          AllowCheck          #No
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+          DATAFIELD SenderAddr
+            PROPERTIES
+            ENDPROPERTIES
+            
+            METHODS
+              SOURCE #validate
+                #public boolean validate()
+                #{
+                #    boolean ret;
+                #
+                #    ret = SysEmailDistributor::validateEmail(sysEmailSystemTable.SenderAddr);
+                #
+                #    if (!ret)
+                #        throw error("@SYS96645");
+                #
+                #    return ret;
+                #}
+              ENDSOURCE
+            ENDMETHODS
+          ENDDATAFIELD
+          
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #SysEmailMessage
+          Table               #SysEmailMessageTable
+          JoinSource          #SysEmailTable
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #active
+          #public int active()
+          #{
+          #    int ret;
+          #
+          #    ret = super();
+          #
+          #    return ret;
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #SysEmailSystemMessage
+          Table               #SysEmailMessageSystemTable
+          JoinSource          #SysEmailSystemTable
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+    SysEmailMessage SysEmailTable
+    SysEmailSystemMessage SysEmailSystemTable
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS81088
+      TitleDatasource     #SysEmailTable
+      ViewEditMode        #Edit
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          ElementPosition     #1717986916
+          HierarchyParent     #EmailMessageGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #EmailMessage
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #858993458
+          HierarchyParent     #EmailMessageGroup
+          DataSource          #SysEmailMessage
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #EmailSystemMessage
+          AutoDeclaration     #Yes
+          Visible             #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1288490187
+          HierarchyParent     #EmailMessageGroup
+          DataSource          #SysEmailSystemMessage
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          AutoDeclaration     #Yes
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1073741822
+          HierarchyParent     #Overview
+          DataSource          #SysEmailTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #GridSystem
+          AutoDeclaration     #Yes
+          Visible             #No
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612733
+          HierarchyParent     #Overview
+          DataSource          #SysEmailSystemTable
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Batch
+          AutoDeclaration     #Yes
+          ElementPosition     #1073741820
+          HierarchyParent     #General
+          DataSource          #SysEmailTable
+          DataGroup           #Batch
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #BatchSystem
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #1932735276
+          HierarchyParent     #General
+          DataSource          #SysEmailSystemTable
+          DataGroup           #Batch
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #CtrlSplitVertical
+          Width               #Column width
+          Height              #5
+          ElementPosition     #1073741822
+          FrameType           #Raised 3D
+          BackgroundColor     #Window background
+          HideIfEmpty         #No
+          AlignChild          #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #EmailMessageGroup
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612733
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #EmailTableGroup
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #536870911
+          FrameType           #None
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Identification
+          AutoDeclaration     #Yes
+          ElementPosition     #429496728
+          HierarchyParent     #General
+          DataSource          #SysEmailTable
+          DataGroup           #Identification
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Identification1
+          ElementPosition     #1431655764
+          HierarchyParent     #Grid
+          BackgroundColor     #Window background
+          DataSource          #SysEmailTable
+          DataGroup           #Identification
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Identification2
+          ElementPosition     #1431655764
+          HierarchyParent     #GridSystem
+          BackgroundColor     #Window background
+          DataSource          #SysEmailSystemTable
+          DataGroup           #Identification
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #IdentificationSystem
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #1288490184
+          HierarchyParent     #General
+          DataSource          #SysEmailSystemTable
+          DataGroup           #Identification
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Priority
+          AutoDeclaration     #Yes
+          ElementPosition     #858993456
+          HierarchyParent     #General
+          DataSource          #SysEmailTable
+          DataGroup           #Priority
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #PrioritySystem
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #1717986912
+          HierarchyParent     #General
+          DataSource          #SysEmailSystemTable
+          DataGroup           #Priority
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Sender
+          AutoDeclaration     #Yes
+          ElementPosition     #644245092
+          HierarchyParent     #General
+          DataSource          #SysEmailTable
+          DataGroup           #Sender
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #SenderSystem
+          AutoDeclaration     #Yes
+          Visible             #No
+          ElementPosition     #1503238548
+          HierarchyParent     #General
+          DataSource          #SysEmailSystemTable
+          DataGroup           #Sender
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TAB
+        PROPERTIES
+          Name                #Tab
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #1610612733
+          HierarchyParent     #EmailTableGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #General
+          ElementPosition     #1610612733
+          HierarchyParent     #Tab
+          Caption             #@SYS2952
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL TABPAGE
+        PROPERTIES
+          Name                #Overview
+          ElementPosition     #1073741822
+          HierarchyParent     #Tab
+          Caption             #@SYS9039
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTON
+        PROPERTIES
+          Name                #emailMessageButton
+          AutoDeclaration     #Yes
+          HelpText            #@SYS93669
+          ElementPosition     #1431655764
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS74148
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #clicked
+            #void clicked()
+            #{
+            #    super();
+            #
+            #    element.showEmailBody();
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL CHECKBOX
+        PROPERTIES
+          Name                #System
+          AutoDeclaration     #Yes
+          Top                 #Top edge
+          Width               #Column width
+          ElementPosition     #1073741822
+          HierarchyParent     #EmailTableGroup
+          Label               #@SYS74350
+        ENDPROPERTIES
+        
+        METHODS
+          SOURCE #modified
+            #public boolean modified()
+            #{
+            #    boolean ret;
+            #    ret = super();
+            #    element.showSystem(this.value());
+            #    return ret;
+            #}
+          ENDSOURCE
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #SysEmailMessage_LayoutType
+          ElementPosition     #1789569705
+          HierarchyParent     #EmailMessage
+          DataSource          #SysEmailMessage
+          DataField           #LayoutType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMBOBOX
+        PROPERTIES
+          Name                #SysEmailSystemMessage_LayoutType
+          ElementPosition     #1789569705
+          HierarchyParent     #EmailSystemMessage
+          DataSource          #SysEmailSystemMessage
+          DataField           #LayoutType
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SysEmailMessage_EmailId
+          ElementPosition     #715827882
+          HierarchyParent     #EmailMessage
+          DataSource          #SysEmailMessage
+          DataField           #EmailId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SysEmailMessage_LanguageId
+          ElementPosition     #1073741823
+          HierarchyParent     #EmailMessage
+          DataSource          #SysEmailMessage
+          DataField           #LanguageId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SysEmailMessage_Subject
+          ElementPosition     #1431655764
+          HierarchyParent     #EmailMessage
+          DataSource          #SysEmailMessage
+          DataField           #Subject
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SysEmailSystemMessage_EmailId
+          ElementPosition     #715827882
+          HierarchyParent     #EmailSystemMessage
+          DataSource          #SysEmailSystemMessage
+          DataField           #EmailId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SysEmailSystemMessage_LanguageId
+          ElementPosition     #1073741823
+          HierarchyParent     #EmailSystemMessage
+          DataSource          #SysEmailSystemMessage
+          DataField           #LanguageId
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL STRINGEDIT
+        PROPERTIES
+          Name                #SysEmailSystemMessage_Subject
+          ElementPosition     #1431655764
+          HierarchyParent     #EmailSystemMessage
+          DataSource          #SysEmailSystemMessage
+          DataField           #Subject
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_01_15_DateEffectiveness unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_01_15_DateEffectiveness
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_01_15_DateEffectiveness
+    Origin              #{1D60D632-3DE2-4169-B69F-E11F1B3DC918}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 44
+      UTILOBJECTID 1641
+      NODETYPE 204
+      NAME #SysEmailTable
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #SysEmailTable
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END

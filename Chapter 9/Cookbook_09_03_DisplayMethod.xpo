@@ -1,0 +1,768 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: DBT
+
+; Microsoft Dynamics AX Table : CustGroup unloaded
+; --------------------------------------------------------------------------------
+  TABLEVERSION 1
+  
+  TABLE #CustGroup
+    EnforceFKRelation 0
+    PROPERTIES
+      Name                #CustGroup
+      Label               #@SYS16445
+      FormRef             #CustGroup
+      TitleField1         #CustGroup
+      TitleField2         #Name
+      TableContents       #Default data
+      ConfigurationKey    #LedgerBasic
+      SecurityKey         #CustTables
+      CacheLookup         #EntireTable
+      TableGroup          #Group
+      PrimaryIndex        #GroupIdx
+      ClusterIndex        #GroupIdx
+      DeveloperDocumentation  #@SYS125058
+      Origin              #{2C090039-0000-1000-1391-847447726F75}
+      LegacyId            #57
+    ENDPROPERTIES
+    
+    FIELDS
+      FIELD #BankCustPaymIdTable
+        INT64
+        PROPERTIES
+          Name                #BankCustPaymIdTable
+          Table               #CustGroup
+          Origin              #{70A46514-34BF-41B8-A651-9A432229D996}
+          LegacyId            #12
+          ExtendedDataType    #BankCustPaymIdRecId
+        ENDPROPERTIES
+        
+      FIELD #ClearingPeriod
+        STRING
+        PROPERTIES
+          Name                #ClearingPeriod
+          ConfigurationKey    #LedgerAdvCashflowForecast
+          Table               #CustGroup
+          Origin              #{24089530-22C0-4019-8F9C-16A2934E9E0B}
+          LegacyId            #3
+          ExtendedDataType    #ClearingPeriod
+        ENDPROPERTIES
+        
+      FIELD #CustGroup
+        STRING
+        PROPERTIES
+          Name                #CustGroup
+          GroupPrompt         #@SYS3815
+          Mandatory           #Yes
+          AllowEdit           #No
+          Table               #CustGroup
+          Origin              #{FE5C0BA5-676A-496B-8FF5-D59D09A4B3CF}
+          LegacyId            #1
+          ExtendedDataType    #CustGroupId
+        ENDPROPERTIES
+        
+      FIELD #DEL_PaymIdType
+        STRING
+        PROPERTIES
+          Name                #DEL_PaymIdType
+          ConfigurationKey    #SysDeletedObjects60
+          Table               #CustGroup
+          Origin              #{4A754BB7-EA9B-4501-9BB8-AFC19E5A2E58}
+          LegacyId            #8
+          ExtendedDataType    #BankCustPaymIdType
+        ENDPROPERTIES
+        
+      FIELD #Name
+        STRING
+        PROPERTIES
+          Name                #Name
+          HelpText            #@SYS27715
+          Table               #CustGroup
+          Origin              #{17AA7669-D37E-40A9-B47B-14E4B94C7848}
+          LegacyId            #2
+          ExtendedDataType    #Description
+          StringSize          #60
+        ENDPROPERTIES
+        
+      FIELD #PaymTermId
+        STRING
+        PROPERTIES
+          Name                #PaymTermId
+          HelpText            #@SYS1512
+          ConfigurationKey    #LedgerAdvCashflowForecast
+          Table               #CustGroup
+          Origin              #{AD120D90-4DDD-47AA-AE87-8D9547081D8D}
+          LegacyId            #4
+          ExtendedDataType    #PaymTermId
+        ENDPROPERTIES
+        
+      FIELD #TaxGroupId
+        STRING
+        PROPERTIES
+          Name                #TaxGroupId
+          HelpText            #@SYS113301
+          Table               #CustGroup
+          Origin              #{5DCE222D-94DE-4994-8128-D0B5F8F7B618}
+          LegacyId            #5
+          ExtendedDataType    #CustVendTaxGroup
+        ENDPROPERTIES
+        
+    ENDFIELDS
+    GROUPS
+      GROUP #AutoReport
+        PROPERTIES
+          Name                #AutoReport
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CustGroup
+          #Name
+          #PaymTermId
+          #ClearingPeriod
+          #TaxGroupId
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Administration
+        PROPERTIES
+          Name                #Administration
+          Label               #@SYS9853
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #PaymTermId
+          #ClearingPeriod
+          #BankCustPaymIdTable
+          #TaxGroupId
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Description
+        PROPERTIES
+          Name                #Description
+          Label               #@SYS6303
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #Name
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Identification
+        PROPERTIES
+          Name                #Identification
+          Label               #@SYS5711
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CustGroup
+        ENDGROUPFIELDS
+      ENDGROUP
+      GROUP #Overview
+        PROPERTIES
+          Name                #Overview
+          Label               #@SYS9039
+        ENDPROPERTIES
+        
+        GROUPFIELDS
+          #CustGroup
+          #Name
+          #PaymTermId
+          #displayPaymTermDescription
+          #ClearingPeriod
+          #BankCustPaymIdTable
+          #TaxGroupId
+        ENDGROUPFIELDS
+      ENDGROUP
+    ENDGROUPS
+    
+    INDICES
+      #GroupIdx
+      PROPERTIES
+        Name                #GroupIdx
+        AllowDuplicates     #No
+        Origin              #{2B080001-0039-1000-4772-6F7570496478}
+        LegacyId            #1
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #CustGroup
+      ENDINDEXFIELDS
+      
+      #BankCustPaymIdTableIdx
+      PROPERTIES
+        Name                #BankCustPaymIdTableIdx
+        Origin              #{2B160005-0039-1000-0831-44A6713205A6}
+        LegacyId            #5
+      ENDPROPERTIES
+      
+      INDEXFIELDS
+        #BankCustPaymIdTable
+      ENDINDEXFIELDS
+      
+    ENDINDICES
+    FULLTEXTINDICES
+    ENDFULLTEXTINDICES
+    REFERENCES
+      REFERENCE #BankCustPaymIdTable
+        PROPERTIES
+          Name                #BankCustPaymIdTable
+          Table               #BankCustPaymIdTable
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          RelatedTableRole    #BankCustPaymIdTable
+          Role                #CustGroup
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #BankCustPaymIdTable
+            RelatedField        #RecId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #PaymTerm
+        PROPERTIES
+          Name                #PaymTerm
+          Table               #PaymTerm
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #ClearingPeriod
+            RelatedField        #PaymTermId
+            SourceEDT           #ClearingPeriod
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #PaymTerm_PaymTermId
+        PROPERTIES
+          Name                #PaymTerm_PaymTermId
+          Table               #PaymTerm
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          RelatedTableRole    #PaymTerm_PaymTermId
+          Role                #CustGroup
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #PaymTermId
+            RelatedField        #PaymTermId
+            SourceEDT           #PaymTermId
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+      REFERENCE #TaxGroupHeading
+        PROPERTIES
+          Name                #TaxGroupHeading
+          Table               #TaxGroupHeading
+          RelatedTableCardinality   #ZeroOne
+          Cardinality         #ZeroMore
+          RelationshipType    #Association
+          UseDefaultRoleNames #Yes
+          EDTRelation         #Yes
+        ENDPROPERTIES
+        
+        FIELDREFERENCES
+          REFERENCETYPE PKFK
+          PROPERTIES
+            Field               #TaxGroupId
+            RelatedField        #TaxGroup
+            SourceEDT           #CustVendTaxGroup
+          ENDPROPERTIES
+          
+        ENDFIELDREFERENCES
+      ENDREFERENCE
+    ENDREFERENCES
+    
+    DELETEACTIONS
+      #CustLedgerAccounts
+      PROPERTIES
+        Table               #CustLedgerAccounts
+        DeleteAction        #Cascade
+      ENDPROPERTIES
+      
+      #CustTable
+      PROPERTIES
+        Table               #CustTable
+        DeleteAction        #Restricted
+      ENDPROPERTIES
+      
+      #InventPosting
+      PROPERTIES
+        Table               #InventPosting
+        DeleteAction        #Cascade
+      ENDPROPERTIES
+      
+    ENDDELETEACTIONS
+    
+    METHODS
+      SOURCE #clearingPeriod
+        #ClearingPeriod clearingPeriod()
+        #{
+        #    return this.ClearingPeriod ? this.ClearingPeriod : CustParameters::find().Due2Payment;
+        #}
+      ENDSOURCE
+      SOURCE #delete
+        #public void delete()
+        #{
+        #    // Check to see if the associated dimension attribute value has been used
+        #    // in a way that would prevent deletion.
+        #    if (!DimensionValidation::canDeleteEntityValue(this))
+        #    {
+        #        throw error(strfmt("@SYS134392", this.CustGroup));
+        #    }
+        #
+        #    ttsbegin;
+        #
+        #    // Update the associated dimension attribute value.
+        #    DimensionAttributeValue::updateForEntityValueDelete(this);
+        #
+        #    super();
+        #
+        #    ttscommit;
+        #}
+      ENDSOURCE
+      SOURCE #displayPaymTermDescription
+        #display Description displayPaymTermDescription()
+        #{
+        #    return (select firstOnly Description from PaymTerm
+        #        where PaymTerm.PaymTermId == this.PaymTermId).Description;
+        #}
+      ENDSOURCE
+      SOURCE #displayPaymTermDescription
+        #display Description displayPaymTermDescription()
+        #{
+        #    return (select firstOnly Description from PaymTerm
+        #        where PaymTerm.PaymTermId == this.PaymTermId).Description;
+        #}
+      ENDSOURCE
+      SOURCE #hasForecastSales
+        #//BP Deviation Documented
+        #display ForecastHasSales hasForecastSales()
+        #{
+        #    return (select firstonly forecastSales where forecastSales.CustGroupId == this.CustGroup).RecId != 0;
+        #}
+      ENDSOURCE
+      SOURCE #renamePrimaryKey
+        #public void renamePrimaryKey()
+        #{
+        #    Common originalRecord = this.orig();
+        #
+        #    super();
+        #
+        #    DimensionStorage::syncRenamedValue(this, originalRecord);
+        #}
+      ENDSOURCE
+      SOURCE #checkExist
+        #public static boolean checkExist(CustGroupId custGroupId )
+        #{
+        #    boolean ret = true;
+        #    ;
+        #
+        #    if (!CustGroup::exist(custGroupId))
+        #    {
+        #        ret = checkFailed(strfmt(CustGroup::txtNotExist(), custGroupId));
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #exist
+        #public static boolean exist(CustGroupId custGroupId )
+        #{
+        #    boolean found;
+        #    ;
+        #
+        #    found = (select firstonly
+        #                 RecId
+        #            from
+        #                 custGroup
+        #             where
+        #                 custGroup.CustGroup == custGroupId).RecId != 0;
+        #
+        #    return found;
+        #}
+      ENDSOURCE
+      SOURCE #find
+        #public static CustGroup find(
+        #    CustGroupId _custGroupId ,
+        #    boolean                 _forupdate = false,
+        #    ConcurrencyModel        _concurrencyModel = ConcurrencyModel::Auto)
+        #{
+        #    CustGroup custGroup;
+        #    ;
+        #
+        #    custGroup.selectForUpdate(_forupdate);
+        #    if (_forupdate  && _concurrencyModel != ConcurrencyModel::Auto)
+        #    {
+        #        custGroup.concurrencyModel(_concurrencyModel);
+        #    }
+        #
+        #    select firstonly
+        #        custGroup
+        #        where
+        #        custGroup.CustGroup == _custGroupId;
+        #
+        #    return custGroup;
+        #}
+      ENDSOURCE
+      SOURCE #txtNotExist
+        #static TxtNotExist txtNotExist()
+        #{
+        #    return "@SYS3493";
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDTABLE
+  
+
+***Element: FRM
+
+; Microsoft Dynamics AX Forms unloaded
+; --------------------------------------------------------------------------------
+FRMVERSION 12
+
+FORM #CustGroup
+  PROPERTIES
+    Name                #CustGroup
+    Origin              #{704CDF7A-CEE3-4E1B-AF98-86FD471CE81F}
+  ENDPROPERTIES
+  
+  METHODS
+    SOURCE #classDeclaration
+      #public class FormRun extends ObjectRun
+      #{
+      #}
+    ENDSOURCE
+  ENDMETHODS
+  OBJECTBANK
+    PROPERTIES
+    ENDPROPERTIES
+    
+    DATASOURCE
+      OBJECTPOOL
+        PROPERTIES
+          Name                #CustGroup
+          Table               #CustGroup
+          Index               #GroupIdx
+          InsertIfEmpty       #No
+        ENDPROPERTIES
+        
+        FIELDLIST
+        ENDFIELDLIST
+      ENDOBJECTPOOL
+      METHODS
+        SOURCE #init
+          #public void init()
+          #{
+          #    super();
+          #    this.cacheAddMethod(
+          #        tableMethodStr(CustGroup,displayPaymTermDescription));
+          #}
+        ENDSOURCE
+      ENDMETHODS
+    ENDDATASOURCE
+  ENDOBJECTBANK
+  
+  REFERENCEDATASOURCES
+  ENDREFERENCEDATASOURCES
+  
+  JOINS
+  ENDJOINS
+  
+  PARTREFERENCES
+  ENDPARTREFERENCES
+  
+  DESIGN
+    PROPERTIES
+      Caption             #@SYS16445
+      TitleDatasource     #CustGroup
+      DataSource          #CustGroup
+      HideIfEmpty         #No
+      Style               #SimpleList
+    ENDPROPERTIES
+    
+    CONTAINER
+      CONTROL ACTIONPANE
+        PROPERTIES
+          Name                #ActionPane
+          ElementPosition     #134217727
+          Style               #Strip
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL ACTIONPANETAB
+        PROPERTIES
+          Name                #ActionPaneTab
+          ElementPosition     #1431655764
+          HierarchyParent     #ActionPane
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #ButtonGroup
+          ElementPosition     #1610612734
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL BUTTONGROUP
+        PROPERTIES
+          Name                #NewDeleteGroup
+          ElementPosition     #1073741823
+          HierarchyParent     #ActionPaneTab
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GRID
+        PROPERTIES
+          Name                #Grid
+          Width               #Column width
+          Height              #Column height
+          ElementPosition     #715827882
+          HierarchyParent     #Body
+          MultiSelect         #No
+          ShowRowLabels       #No
+          DataSource          #CustGroup
+          DataGroup           #Overview
+          AlternateRowShading #No
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL GROUP
+        PROPERTIES
+          Name                #Body
+          Height              #Column height
+          ElementPosition     #268435455
+          Style               #BorderlessGridContainer
+          Columnspace         #0
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUBUTTON
+        PROPERTIES
+          Name                #MenuButtonPosting
+          HelpText            #@SYS84034
+          ElementPosition     #1073741823
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS2186
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #DeleteButton
+          ElementPosition     #1610612734
+          HierarchyParent     #NewDeleteGroup
+          Text                #@sys14425
+          ButtonDisplay       #Text & Image left
+          NormalImage         #10121
+          ImageLocation       #EmbeddedResource
+          SaveRecord          #No
+          Primary             #Yes
+          Command             #2832
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL COMMANDBUTTON
+        PROPERTIES
+          Name                #NewButton
+          ElementPosition     #1073741822
+          HierarchyParent     #NewDeleteGroup
+          ButtonDisplay       #Text & Image left
+          NormalImage         #11045
+          ImageLocation       #EmbeddedResource
+          Primary             #Yes
+          Command             #260
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #Posting
+          ElementPosition     #1073741823
+          HierarchyParent     #MenuButtonPosting
+          Text                #@SYS22445
+          SaveRecord          #No
+          DataSource          #CustGroup
+          MenuItemName        #InventPosting
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+      CONTROL MENUITEMBUTTON
+        PROPERTIES
+          Name                #SalesForecast
+          ElementPosition     #1610612734
+          HierarchyParent     #ButtonGroup
+          Text                #@SYS13699
+          SaveRecord          #No
+          MenuItemName        #ForecastSalesGroup
+        ENDPROPERTIES
+        
+        METHODS
+        ENDMETHODS
+      ENDCONTROL 
+      
+    ENDCONTAINER
+    
+  ENDDESIGN
+  
+  PERMISSIONS #Permissions
+    PROPERTIES
+    ENDPROPERTIES
+    
+    PERMISSIONSET #Read
+      PROPERTIES
+      ENDPROPERTIES
+      
+      FORM #Controls
+      ENDFORM
+      
+    TABLES #Tables
+    ENDTABLES
+    
+  SERVERMETHODS #Server Methods
+  ENDSERVERMETHODS
+  
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Update
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Create
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+PERMISSIONSET #Delete
+  PROPERTIES
+  ENDPROPERTIES
+  
+  FORM #Controls
+  ENDFORM
+  
+TABLES #Tables
+ENDTABLES
+
+SERVERMETHODS #Server Methods
+ENDSERVERMETHODS
+
+ASSOCIATEDFORMS #Associated Forms
+ENDASSOCIATEDFORMS
+
+ENDPERMISSIONSET
+
+ENDPERMISSIONS
+
+ENDFORM
+
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : Cookbook_09_03_DisplayMethod unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #Cookbook_09_03_DisplayMethod
+  SHARED
+  PROPERTIES
+    Name                #Cookbook_09_03_DisplayMethod
+    Origin              #{98C5A7A8-E27E-411A-B37E-C05D4F9321C2}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 44
+      UTILOBJECTID 57
+      NODETYPE 204
+      NAME #CustGroup
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 11
+      UTILOBJECTID 0
+      NODETYPE 201
+      NAME #CustGroup
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END
